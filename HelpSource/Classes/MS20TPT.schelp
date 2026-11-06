@@ -1,0 +1,83 @@
+TITLE:: MS20TPT
+summary:: Topology-preserving zero-delay feedback model of the early Korg-35 filter
+categories:: UGens>Filters>Linear
+related:: Classes/MS20SK, Classes/MS20Diode, Classes/MS20OTA
+
+DESCRIPTION::
+MS20TPT provides a structurally topology-preserving, zero-delay feedback (TPT/ZDF) digital model of the early Korg-35 Sallen-Key filter from the Korg MS-10 and MS-20 synthesizers.
+
+Unlike traditional IIR biquads with unit delays in the feedback path, MS20TPT:
+LIST::
+## Resolves the internal algebraic feedback loop instantaneously (zero-delay) using closed-form 2x2 matrix inversion of the continuous-time state-space graph discretized via trapezoidal integrators.
+## Preserves the mutual inter-stage loading between the two RC sections:
+code::
+det(I - g A_0) = g^2 + (3 - K) g + 1
+::
+yielding identical nominal self-oscillation threshold (K = 3.0) and exact frequency response agreement with the analog target and the direct digital reference MS20SK.
+## Models internal state variables as physical capacitor voltages (v_C1 and v_C2), providing an uncompromised foundation for time-varying parameter modulation and future nonlinear forward-amplifier saturation.
+## Implements both Low-Pass (mode 0, 12 dB/octave roll-off) and authentic historical MS-20 High-Pass (mode 1, 6 dB/octave low-frequency roll-off with 2nd-order resonance peak).
+::
+
+CLASSMETHODS::
+
+METHOD:: ar
+Create an audio-rate MS20TPT filter instance.
+
+ARGUMENT:: in
+Audio rate input signal.
+
+ARGUMENT:: freq
+Cutoff frequency in Hz (internally clamped to [10 Hz, 0.49 * sampleRate]). Supports scalar, control-rate (kr), and audio-rate (ar) modulation for sample-accurate filter FM.
+
+ARGUMENT:: res
+Normalized resonance control in [0.0, 1.0]. Maps linearly to feedback gain teletype::K = res * 2.95:: (clamped to prevent unbounded linear divergence).
+
+ARGUMENT:: mode
+Filter mode selection (evaluated at synth instantiation / i-rate):
+LIST::
+## 0 = Low-pass filter (12 dB/octave roll-off, unity DC gain)
+## 1 = Authentic MS-20 High-pass filter (6 dB/octave low-frequency roll-off, 2nd-order resonance peak, unity high-frequency gain)
+::
+
+returns:: An audio-rate UGen output.
+
+EXAMPLES::
+
+Three practical examples demonstrating LP sweep, HP sweep, and audible resonance sweep:
+
+code::
+s.boot;
+
+// 1. Noise Low-Pass sweep (12 dB/octave roll-off)
+(
+x = {
+    var src = WhiteNoise.ar(0.15);
+    var cutoff = SinOsc.kr(0.2).exprange(100, 8000);
+    var sig = MS20TPT.ar(src, freq: cutoff, res: 0.35, mode: 0);
+    sig ! 2
+}.play;
+)
+x.free;
+
+// 2. Noise High-Pass sweep (authentic 6 dB/octave low-frequency slope)
+(
+x = {
+    var src = WhiteNoise.ar(0.15);
+    var cutoff = SinOsc.kr(0.2).exprange(80, 6000);
+    var sig = MS20TPT.ar(src, freq: cutoff, res: 0.4, mode: 1);
+    sig ! 2
+}.play;
+)
+x.free;
+
+// 3. Audible resonance sweep on rich waveform
+(
+x = {
+    var src = Saw.ar([55, 55.4]) * 0.12;
+    var cutoff = XLine.kr(120, 6000, 8);
+    var sig = MS20TPT.ar(src, freq: cutoff, res: 0.85, mode: 0);
+    sig
+}.play;
+)
+x.free;
+::

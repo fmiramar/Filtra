@@ -1,0 +1,96 @@
+TITLE:: MS20Filters
+summary:: Comprehensive Guide to the Korg MS-20 Filter Family Suite
+categories:: Guides>Filters, UGens>Filters
+related:: Classes/MS20SK, Classes/MS20TPT, Classes/MS20Diode, Classes/MS20OTA, Classes/MS20Circuit
+
+DESCRIPTION::
+The MS20Filters suite provides a collection of five distinct, scientifically derived real-time SuperCollider UGens modeling both the early Korg-35 and later KLM-307 OTA revisions of the legendary Korg MS-20 synthesizer filter.
+
+TABLE::
+## Model || Topology || Linearity || Resonance Limit || Sonic Character
+## strong::MS20SK:: || Sallen-Key Biquad (Bilinear) || Linear || Bounded (Q < 20) || Clean, pristine, zero harmonic distortion, textbook linear reference.
+## strong::MS20TPT:: || Zero-Delay Feedback (TPT/ZDF) || Linear || Bounded (Q < 20) || Numerically exact, physical capacitor voltages, zero delay error during rapid sweeps.
+## strong::MS20Diode:: || Korg-35 Forward Diode Limiter || Nonlinear || Self-Oscillating Limit Cycle || Aggressive, dirty, full-spectrum saturation; forward amplifier diodes clip everything.
+## strong::MS20OTA:: || KLM-307 Dual OTA (Buffered) || Nonlinear || Self-Oscillating Limit Cycle || Liquid, clean passband, transparent body; diodes in resonance feedback path saturate only the peak.
+## strong::MS20Circuit:: || Discrete BJT Reverse-Saturation MNA || Nonlinear || Self-Oscillating Limit Cycle || Asymmetric BJT resistance; rich even-harmonic bite (2f, 4f) + forward diode clipping.
+::
+
+SECTION:: Electrical Topologies: Korg-35 vs KLM-307 OTA
+
+The original MS-20 underwent two major analog revisions with fundamentally different internal circuit behaviors:
+
+SUBSECTION:: 1. The Early Korg-35 Revision (MS20SK, MS20TPT, MS20Diode)
+The early MS-20 used proprietary Korg-35 hybrid modules based on transistor pairs operating in reverse saturation and discrete RC stages configured in a Sallen-Key topology:
+LIST::
+## strong::Mutual Loading::: The two RC sections directly load each other because there is no buffer between them. This mutual loading increases the natural damping term to code::(3 - K)::.
+## strong::Oscillation Threshold::: Critical self-oscillation occurs at code::K = 3.0:: (instead of K = 2.0).
+## strong::Forward Amplifier Diodes::: Antiparallel gain-limiting diodes are located in the local negative feedback loop of the active forward amplifier. Consequently, all audio passing through the filter is subjected to progressive soft saturation.
+::
+
+SUBSECTION:: 2. The Later KLM-307 Revision (MS20OTA)
+To improve production consistency, later MS-20 units replaced the Korg-35 modules with the KLM-307 daughterboard based on dual LM13600 Operational Transconductance Amplifiers (OTAs):
+LIST::
+## strong::Buffered Stages::: An active buffer completely isolates the first OTA integrator from the second OTA integrator. There is no inter-stage loading.
+## strong::Oscillation Threshold::: Because loading is absent, the linear damping term is code::(2 - K)::, and self-oscillation begins at code::K = 2.0::.
+## strong::Feedback Diodes::: The antiparallel clipping diodes are located exclusively in the resonance feedback amplifier.
+## strong::Passband Purity::: Signals in the passband pass through linear forward stages without distortion. The diodes saturate and compress only the resonant peak as it circulates through the feedback loop.
+::
+
+SECTION:: The Authentic MS-20 High-Pass Filter (6 dB/octave)
+
+A common mistake in digital emulations is assuming the MS-20 high-pass filter is a conventional 12 dB/octave 2-pole filter.
+
+In the physical MS-20:
+LIST::
+## Korg grounded the normal low-pass input and injected audio into the lifted ground of capacitor C2.
+## This topology introduces a single transmission zero at DC (s = 0), yielding an asymptotic low-frequency attenuation of strong::6 dB/octave::, not 12 dB/octave.
+## Crucially, the filter maintains its full 2nd-order resonant pole pair in the denominator, allowing strong resonant emphasis at the cutoff frequency while gently rolling off sub-bass frequencies below cutoff.
+::
+
+All four models in this suite (MS20SK, MS20TPT, MS20Diode, MS20OTA) accurately reproduce this authentic 6 dB/octave high-pass response when teletype::mode = 1::.
+
+SECTION:: Audio-Rate Frequency Modulation (Filter FM)
+
+All five UGens support sample-accurate audio-rate frequency modulation (Filter FM). When the teletype::freq:: input is an audio-rate signal (teletype::.ar::), the filter updates its internal parameters on a per-sample basis without block-rate stepping or zipper noise:
+
+code::
+// Audio-rate FM on MS20Diode
+{
+    var carrier = Saw.ar(110);
+    var fmMod = SinOsc.ar(220) * 1500;
+    var cutoff = (2000 + fmMod).clip(50, 15000);
+    MS20Diode.ar(carrier, cutoff, res: 0.6, drive: 2.0, mode: 0) * 0.2 ! 2
+}.play;
+::
+
+SECTION:: 2x Polyphase Half-Band Oversampling
+
+For extreme sound-design situations—such as hard overdrive (code::drive > 4.0::), high-resonance shrieks near Nyquist, or intensive audio-rate frequency modulation (Filter FM)—the nonlinear models (MS20Diode, MS20Circuit, MS20OTA) feature an internal 2x polyphase half-band oversampling engine (code::oversample = 1::).
+
+The oversampler employs an optimal 4-stage 2-path polyphase allpass filter architecture derived from elliptic half-band decomposition:
+LIST::
+## strong::Stopband Attenuation::: > 70 dB rejection of aliasing foldover images (measured > 90 dB on high-order harmonics).
+## strong::Passband Purity::: < 0.0005 dB ripple across the entire 20 Hz – 20 kHz audio band.
+## strong::Extreme Efficiency::: Requires only 8 multiplications per sample total (4 for upsampling, 4 for decimation), with minimal phase delay and zero block-buffering overhead.
+::
+
+SECTION:: The Complete MS-20 Serial Patch (HPF -> LPF)
+
+In the physical Korg MS-20 synthesizer, the signal path places the High-Pass Filter first, followed immediately by the Low-Pass Filter, each with independent Cutoff and Peak (Resonance) knobs:
+
+code::
+(
+{
+    // Dual detuned saw oscillators
+    var src = (Saw.ar(55) + Saw.ar(55.25)) * 0.4;
+
+    // Stage 1: Authentic MS-20 High-Pass Filter
+    var hp = MS20Diode.ar(src, freq: 160, res: 0.4, drive: 1.5, mode: 1);
+
+    // Stage 2: Authentic MS-20 Low-Pass Filter
+    var lp = MS20Diode.ar(hp, freq: XLine.kr(6000, 250, 6), res: 0.6, drive: 1.5, mode: 0);
+
+    (lp * 0.25) ! 2
+}.play;
+)
+::

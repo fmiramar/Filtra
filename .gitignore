@@ -1,0 +1,33 @@
+# Build directory
+build/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+
+# Compiled native plugin binaries (distributed via GitHub Releases)
+*.scx
+*.so
+*.dylib
+*.dll
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# SuperCollider recordings / transient files
+recordings/
+*.wav
+*.aif
+*.aiff

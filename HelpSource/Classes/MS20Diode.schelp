@@ -1,0 +1,90 @@
+TITLE:: MS20Diode
+summary:: Nonlinear early Korg-35 filter model with forward amplifier diode limiting
+categories:: UGens>Filters>Nonlinear
+related:: Classes/MS20SK, Classes/MS20TPT, Classes/MS20OTA
+
+DESCRIPTION::
+MS20Diode implements a physically motivated, nonlinear model of the early Korg-35 filter from the Korg MS-10 and MS-20 synthesizers.
+
+Unlike generic digital filters that apply an arbitrary waveshaper at the final output:
+LIST::
+## MS20Diode places the nonlinear clipping function at the exact physical circuit location: inside the local feedback path of the active forward amplifier (Stinchcombe §5).
+## The nonlinear zero-delay algebraic feedback loop is solved per sample using a robust, bounded 1-D Newton-Raphson iteration.
+## At low signal levels, the filter behaves linearly, perfectly matching MS20SK and MS20TPT.
+## At higher input levels or drive, the back-to-back diodes conduct, lowering the incremental amplifier gain, producing rich odd-harmonic saturation across the entire frequency spectrum.
+## At high resonance (res > 0.75), the filter enters true self-oscillation. The diode limiter bounds the feedback gain, establishing a stable, warm sinusoidal limit-cycle oscillator without digital overflow or artificial hard clipping.
+## Implements both Low-Pass (mode 0, 12 dB/octave roll-off) and authentic historical MS-20 High-Pass (mode 1, 6 dB/octave low-frequency roll-off with 2nd-order resonance peak).
+::
+
+CLASSMETHODS::
+
+METHOD:: ar
+Create an audio-rate MS20Diode filter instance.
+
+ARGUMENT:: in
+Audio rate input signal.
+
+ARGUMENT:: freq
+Cutoff frequency in Hz (internally clamped to [10 Hz, 0.49 * sampleRate]). Supports scalar, control-rate (kr), and audio-rate (ar) modulation for sample-accurate filter FM.
+
+ARGUMENT:: res
+Normalized resonance control in [0.0, 1.0]. Values above ~0.75 drive the filter into sustained, self-limiting limit-cycle oscillation.
+
+ARGUMENT:: drive
+Dimensionless amplifier input drive scale (nominal = 1.0, range 0.01 .. 10.0). Higher values push the diodes into deeper saturation, increasing harmonic richness and compression.
+
+ARGUMENT:: mode
+Filter mode selection (evaluated at synth instantiation / i-rate):
+LIST::
+## 0 = Low-pass filter (12 dB/octave roll-off, forward diode saturation)
+## 1 = Authentic MS-20 High-pass filter (6 dB/octave low-frequency roll-off, 2nd-order resonance peak, forward diode saturation)
+::
+
+ARGUMENT:: oversample
+Oversampling selection (evaluated at synth instantiation / i-rate):
+LIST::
+## 0 = 1x base sample rate (standard, ultra-low CPU, minimal latency).
+## 1 = 2x internal polyphase halfband oversampling (> 70 dB stopband rejection, < 0.0005 dB passband ripple). Drastically eliminates foldover aliasing during extreme overdrive (drive > 4.0) or high-frequency audio-rate filter FM.
+::
+
+returns:: An audio-rate UGen output.
+
+EXAMPLES::
+
+code::
+s.boot;
+
+// 1. Nonlinear Low-Pass sweep with variable drive
+(
+x = {
+    var src = Saw.ar([110, 110.5]) * 0.15;
+    var cutoff = SinOsc.kr(0.15).exprange(150, 6000);
+    var drive = MouseX.kr(0.5, 5.0, \exponential);
+    var sig = MS20Diode.ar(src, freq: cutoff, res: 0.6, drive: drive, mode: 0);
+    sig * 0.25
+}.play;
+)
+x.free;
+
+// 2. Pure Self-Oscillation as an autonomous synthesizer (NO input signal!)
+(
+x = {
+    var pitch = MouseX.kr(55, 880, \exponential);
+    // res = 0.95 enters stable limit-cycle oscillation at cutoff frequency
+    var sig = MS20Diode.ar(DC.ar(0.0), freq: pitch, res: 0.95, drive: 1.0, mode: 0);
+    (sig * 0.3) ! 2
+}.play;
+)
+x.free;
+
+// 3. Driven High-Pass sweep on drum loop / noise
+(
+x = {
+    var src = PinkNoise.ar(0.2) + Pulse.ar(55, 0.4, 0.1);
+    var cutoff = XLine.kr(40, 4000, 10);
+    var sig = MS20Diode.ar(src, freq: cutoff, res: 0.7, drive: 2.0, mode: 1);
+    (sig * 0.25) ! 2
+}.play;
+)
+x.free;
+::

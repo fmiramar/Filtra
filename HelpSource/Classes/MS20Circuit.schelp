@@ -1,0 +1,89 @@
+TITLE:: MS20Circuit
+summary:: Discrete transistor-level component model of the early Korg-35 filter
+categories:: UGens>Filters>Nonlinear
+related:: Classes/MS20Diode, Classes/MS20TPT, Classes/MS20SK, Classes/MS20OTA
+
+DESCRIPTION::
+MS20Circuit provides a component-level, non-linear circuit model of the early Korg-35 filter from the Korg MS-10 and MS-20 synthesizers.
+
+Unlike standard virtual analog models that treat the variable resistance elements as ideal linear resistors:
+LIST::
+## strong::Reverse-Saturation BJT Modeling::: Models the voltage-controlled resistance elements as physical bipolar junction transistors (BJTs) operating in reverse saturation mode (Stinchcombe §3.1).
+## strong::Asymmetric Even Harmonics::: Because the forward and reverse transport factors of physical BJTs differ (alpha_R << alpha_F), the dynamic resistance is asymmetric with respect to signal voltage. Under heavy drive, this generates prominent strong::second harmonic (2f):: and even-order distortion, capturing the unmistakable raw, gritty growl of vintage Korg-35 hardware.
+## strong::Dynamic Cutoff Modulation::: Audio signals swinging across the capacitor nodes dynamically modulate the transistors' incremental conductances, creating signal-dependent filter tracking and compression.
+## strong::Coupled Nonlinear MNA Solver::: The 2x2 nonlinear state-space nodal system (incorporating both the reverse-saturated BJT pairs and the forward amplifier antiparallel diodes) is solved simultaneously per sample using a robust 2x2 Newton-Raphson iteration.
+## strong::Modes::: Implements both Low-Pass (mode 0, 12 dB/octave) and authentic historical MS-20 High-Pass (mode 1, 6 dB/octave with 2nd-order resonance peak).
+::
+
+CLASSMETHODS::
+
+METHOD:: ar
+Create an audio-rate MS20Circuit filter instance.
+
+ARGUMENT:: in
+Audio rate input signal.
+
+ARGUMENT:: freq
+Cutoff frequency in Hz (internally clamped to [10 Hz, 0.49 * sampleRate]). Supports scalar, control-rate (kr), and audio-rate (ar) modulation for sample-accurate filter FM.
+
+ARGUMENT:: res
+Normalized resonance control in [0.0, 1.0]. Mapped to feedback gain teletype::K = res * 4.0::. Values above ~0.75 enter autonomous limit-cycle self-oscillation.
+
+ARGUMENT:: drive
+Dimensionless circuit drive scaling (nominal = 1.0, range 0.01 .. 10.0). Higher values push both the BJT variable resistors and the forward amplifier diodes into deeper saturation, accentuating even and odd harmonics.
+
+ARGUMENT:: mode
+Filter mode selection (evaluated at synth instantiation / i-rate):
+LIST::
+## 0 = Low-pass filter (12 dB/octave roll-off, BJT asymmetry + forward diode saturation)
+## 1 = Authentic MS-20 High-pass filter (6 dB/octave low-frequency roll-off, 2nd-order resonance peak, BJT asymmetry + forward diode saturation)
+::
+
+ARGUMENT:: oversample
+Oversampling selection (evaluated at synth instantiation / i-rate):
+LIST::
+## 0 = 1x base sample rate (standard, ultra-low CPU, minimal latency).
+## 1 = 2x internal polyphase halfband oversampling (> 70 dB stopband rejection, < 0.0005 dB passband ripple). Drastically eliminates foldover aliasing during extreme overdrive (drive > 4.0) or high-frequency audio-rate filter FM.
+::
+
+returns:: An audio-rate UGen output.
+
+EXAMPLES::
+
+code::
+s.boot;
+
+// 1. Audition asymmetric even-harmonic distortion on a pure sine wave
+(
+x = {
+    var src = SinOsc.ar(200) * 1.5;
+    // Drive = 3.0 pushes the BJTs into asymmetric conduction (strong 2nd harmonic!)
+    var sig = MS20Circuit.ar(src, freq: 3000, res: 0.3, drive: 3.0, mode: 0);
+    (sig * 0.2) ! 2
+}.play;
+)
+x.free;
+
+// 2. High-resonance limit-cycle self-oscillation
+(
+x = {
+    var src = Impulse.ar(0) * 0.01;
+    var cutoff = SinOsc.kr(0.2).exprange(300, 2500);
+    var sig = MS20Circuit.ar(src, cutoff, res: 0.85, drive: 2.0, mode: 0);
+    (sig * 0.2) ! 2
+}.play;
+)
+x.free;
+
+// 3. Audio-rate Frequency Modulation (Filter FM)
+(
+x = {
+    var carrier = Saw.ar(55);
+    var mod = SinOsc.ar(220) * 2000;
+    var cutoff = (mod + 2500).clip(50, 16000);
+    var sig = MS20Circuit.ar(carrier, cutoff, res: 0.5, drive: 2.0, mode: 0);
+    (sig * 0.2) ! 2
+}.play;
+)
+x.free;
+::
