@@ -1,115 +1,141 @@
-# MS-20 Filter Suite for SuperCollider
+# FilterSuite for SuperCollider
 
-A physically informed, historically authentic suite of real-time SuperCollider UGens modeling both the early Korg-35 and later KLM-307 OTA revisions of the legendary Korg MS-20 synthesizer filter.
+A physically informed, historically authentic suite of real-time SuperCollider server UGens modeling classic vintage synthesizer filters and original digital virtual analog topologies.
 
-## Features & Implemented Models
-
-| Model | Architecture | Linearity | Damping | Self-Oscillation | Sonic Character |
-|---|---|---|---|---|---|
-| **`MS20SK`** | Sallen–Key Biquad (TDF-II) | Linear | $(3 - K)$ | Bounded ($Q < 20$) | Textbook linear reference, mutual RC loading, pristine response. |
-| **`MS20TPT`** | Zero-Delay Feedback (TPT/ZDF) | Linear | $(3 - K)$ | Bounded ($Q < 20$) | Preserves circuit graph and physical capacitor voltages ($v_{C1}, v_{C2}$). |
-| **`MS20Diode`** | Korg-35 Forward Diode Limiter | Nonlinear | Dynamic | Bounded Limit Cycle | Raw, gritty, full-spectrum distortion; forward diodes clip all frequencies. |
-| **`MS20OTA`** | KLM-307 Dual OTA (Buffered) | Nonlinear | $(2 - K)$ | Bounded Limit Cycle | Transparent, singing resonance; diodes in feedback saturate only the peak. |
-| **`MS20Circuit`** | Discrete BJT MNA Circuit Model | Nonlinear | Dynamic | Bounded Limit Cycle | Reverse-saturation BJT pair; prominent asymmetric 2nd harmonic (even) distortion. |
-
-### Key Architectural Highlights
-- **Authentic MS-20 High-Pass Topology (6 dB/octave):** In the physical MS-20, high-pass mode grounds the LP input and injects audio into lifted capacitor $C_2$. This yields an asymptotic 6 dB/octave slope below cutoff with a 2nd-order resonance peak, faithfully reproduced in all five models (`mode = 1`).
-- **Sample-Accurate Audio-Rate Modulation (Filter FM):** All models support both control-rate (`kr`) and audio-rate (`ar`) `freq` modulation for audio-rate filter FM without block-boundary artifacts.
-- **Physical Non-Linearities:** Active anti-parallel diodes are placed at their authentic circuit locations (forward amplifier in `MS20Diode` & `MS20Circuit`, resonance feedback path in `MS20OTA`). `MS20Circuit` additionally models the nonlinear, asymmetric conductance of the reverse-saturated BJT transistors ($Q_1, Q_2$), generating authentic 2nd-order harmonic growl.
-- **Optional 2x Polyphase Half-Band Oversampling:** All nonlinear models (`MS20Diode`, `MS20Circuit`, `MS20OTA`) provide an optional internal 2x oversampling mode (`oversample: 1`) using an elliptic 2-path polyphase allpass filter (> 70 dB stopband rejection, < 0.0005 dB ripple) to eliminate foldover aliasing during extreme overdrive and audio-rate FM.
-- **Quark Ready:** Includes `MS20Filters.quark` metadata for seamless distribution and installation via the SuperCollider Quark package manager.
+Distributed as native compiled binaries for SuperCollider via **GitHub Releases** (no Quark package manager needed).
 
 ---
 
-## Quick Start & Audition
+## Included Filter Models
 
-### 1. Interactive Studio GUI
-Open and run `examples/MS20_Audition_GUI.scd` in the SuperCollider IDE for a visual studio featuring real-time `FreqScopeView` (spectrum) and `ScopeView` (oscilloscope), model switching, drive control, and dual-filter serial routing:
+### 1. Expanded FilterSuite Models (`FS*`)
 
+| UGen | Circuit / Architecture | Linearity | Features & Modes | Sonic Character |
+|---|---|---|---|---|
+| **`FSWasp`** | EDP Wasp (CA3080 OTA + CD4069 CMOS Inverters) | Nonlinear (implicit NR solver) | LP, BP, HP (12 dB/oct); analytical damping pot network | Brash, dirty, aggressive CMOS soft-saturation and OTA limiting (Köper et al., DAFx 2022). |
+| **`FSSteiner`** | Steiner–Parker Multimode Diode VCF | Nonlinear (diode feedback limiter) | LP (-12 dB/oct), BP (symmetric), HP (+6 dB/oct zero); multi-input injection | Raw diode variable resistance, singing self-oscillation limit cycle (Steiner, 1974; YuSynth). |
+| **`FSPolivoks`** | Formanta Polivoks VCF (K140UD12 / µA776) | Nonlinear (op-amp transconductance + rail sat) | LP (12 dB/oct), BP (6 dB/oct); exact hardware modes | "Capacitor-less" programmable op-amp slew/transconductance saturation and scream (Kuzmin, 1982). |
+| **`FSZMorph`** | Original Digital Multiresonant Filter Morphing | Linear parallel TPT banks | 4-section parallel TPT SVF banks; 6 built-in vocal & metallic presets | Equal-gain continuous response morphing with guaranteed stability (inspired by Rossum Z-plane). |
+| **`FSDispersion`** | Dispersive All-Pass Group-Delay Filter | Linear TPT all-pass cascade | 4 cascaded 2nd-order all-pass sections; geometric frequency spread | Exactly flat magnitude ($|H| \equiv 1.0$), Parseval energy conservation, acoustic stiffness and laser chirps (Abel & Smith, DAFx 2006). |
+
+### 2. Korg MS-20 Suite (`MS20*`)
+
+| UGen | Architecture | Linearity | Damping | Sonic Character |
+|---|---|---|---|---|
+| **`MS20SK`** | Sallen–Key Biquad (TDF-II) | Linear | $(3 - K)$ | Textbook reference, loaded RC damping, authentic $+6\text{ dB/oct}$ HP. |
+| **`MS20TPT`** | Zero-Delay Feedback (TPT/ZDF) | Linear | $(3 - K)$ | Physical capacitor states ($v_{C1}, v_{C2}$) with artifact-free audio FM. |
+| **`MS20Diode`** | Korg-35 Forward Diode Limiter | Nonlinear (NR solver) | Dynamic | Raw, gritty distortion; forward amplifier diodes clip full spectrum. |
+| **`MS20OTA`** | KLM-307 Dual OTA (Buffered) | Nonlinear | $(2 - K)$ | Liquid, singing resonance; diodes in feedback saturate only the peak. |
+| **`MS20Circuit`** | Discrete BJT MNA Circuit Model | Nonlinear (2x2 NR) | Dynamic | Reverse-saturation BJT pair with prominent 2nd harmonic (even) growl. |
+
+*(All MS-20 nonlinear models support optional internal 2x polyphase half-band oversampling via `oversample: 1`).*
+
+---
+
+## Installation via Precompiled GitHub Release
+
+1. Download the precompiled archive for your platform from the **GitHub Releases** page:
+   - macOS (Apple Silicon arm64): `FilterSuite-v0.1.0-macos-arm64.zip`
+   - Linux (x86_64): `FilterSuite-v0.1.0-linux-x86_64.zip`
+2. Open SuperCollider and locate your user extensions folder:
+   ```supercollider
+   Platform.userExtensionDir.postln;
+   ```
+   *(macOS typical: `~/Library/Application Support/SuperCollider/Extensions`)*
+3. Unzip and copy the enclosed `Extensions/FilterSuite` directory into your Extensions folder.
+4. In SuperCollider, recompile the class library:
+   - Menu: **Language -> Recompile Class Library** (or `Cmd + Shift + L` / `Ctrl + Shift + L`).
+5. Boot the server (`Cmd + B` / `Ctrl + B`) and explore the scripts in `examples/`.
+
+---
+
+## Quick Start Examples
+
+### 1. EDP Wasp VCF Sweep
 ```supercollider
-// Run inside SuperCollider IDE
-"examples/MS20_Audition_GUI.scd".loadRelative;
-```
-
-### 2. Complete Audition Demo
-Run `examples/MS20_Complete_Audition.scd` to hear direct A/B/C/D model comparisons, autonomous limit-cycle self-oscillation, audio-rate FM, and the authentic dual-filter serial patch (`HP -> LP`):
-
-```supercollider
-"examples/MS20_Complete_Audition.scd".loadRelative;
-```
-
-### 3. Minimal Code Example
-```supercollider
-// Authentic MS-20 Dual-Filter Serial Patch (HPF -> LPF)
-(
 {
-    var src = (Saw.ar(55) + Saw.ar(55.25)) * 0.4;
-    // Stage 1: Authentic MS-20 High-Pass (mode = 1)
-    var hp  = MS20Diode.ar(src, freq: 160, res: 0.4, drive: 1.5, mode: 1);
-    // Stage 2: Authentic MS-20 Low-Pass (mode = 0)
-    var lp  = MS20Diode.ar(hp, freq: XLine.kr(6000, 250, 6), res: 0.6, drive: 1.5, mode: 0);
-    (lp * 0.25) ! 2
+    var src = Saw.ar([110, 110.5]) * 0.25;
+    var cutoff = SinOsc.kr(0.2).exprange(150, 6000);
+    FSWasp.ar(src, freq: cutoff, res: 0.7, drive: 2.0, mode: 0) * 0.4;
 }.play;
-)
+```
+
+### 2. Steiner-Parker Diode Multimode
+```supercollider
+{
+    var src = Pulse.ar([80, 80.5], 0.3) * 0.2;
+    var cutoff = LFTri.kr(0.15).exprange(200, 5000);
+    FSSteiner.ar(src, freq: cutoff, res: 0.85, mode: 1, drive: 1.5) * 0.4;
+}.play;
+```
+
+### 3. Formanta Polivoks Screaming Resonance
+```supercollider
+{
+    var src = Saw.ar(55) * 0.25 ! 2;
+    var cutoff = SinOsc.kr(0.25).exprange(200, 4500);
+    FSPolivoks.ar(src, freq: cutoff, res: 0.95, mode: 0, drive: 2.0) * 0.35;
+}.play;
+```
+
+### 4. Z-Plane Filter Morphing (Vowel A -> Vowel I)
+```supercollider
+{
+    var src = Saw.ar([110, 110.5]) * 0.25;
+    var morph = SinOsc.kr(0.2).range(0.0, 1.0);
+    FSZMorph.ar(src, morph: morph, shapeA: 0, shapeB: 1) * 0.5;
+}.play;
+```
+
+### 5. Acoustic Dispersion (Laser Twang / Phase Smear)
+```supercollider
+{
+    var trig = Impulse.ar(3);
+    var sig = FSDispersion.ar(trig, center: 1800, spread: 1.5, q: 4.0);
+    sig * 0.4 ! 2;
+}.play;
 ```
 
 ---
 
-## Build and Installation
+## Building from Source
 
 ### Prerequisites
 - SuperCollider $\ge$ 3.10 (tested with 3.14.1)
-- CMake $\ge$ 3.14
-- C++17 compliant compiler (Clang, GCC, MSVC)
+- CMake $\ge$ 3.16
+- C++17 compliant compiler (AppleClang, GCC, Clang, MSVC)
 
-### Build Instructions
 ```bash
 mkdir build && cd build
-cmake ..
-cmake --build .
+cmake .. -DSC_PATH=/path/to/supercollider/headers
+cmake --build . --config Release
 cmake --install .
 ```
-Extension files are automatically installed into your user SuperCollider Extensions directory:
-- **macOS:** `~/Library/Application Support/SuperCollider/Extensions/MS20Filters`
-- **Linux:** `~/.local/share/SuperCollider/Extensions/MS20Filters`
-- **Windows:** `%LOCALAPPDATA%/SuperCollider/Extensions/MS20Filters`
 
 ---
 
-## Verification & Test Suite
+## Verification Test Suites
 
-The suite comes with comprehensive numerical and SuperCollider test suites:
+All 10 UGens are accompanied by automated headless test suites verifying mathematical accuracy, asymptotic slopes, Newton-Raphson solver convergence, audio-rate FM, and regression stability:
 
 ```bash
-# Analytical pole stability, asymptotic slope checks, and self-oscillation RMS
-python3 tests/verify_numerical.py
-
-# Milestone 1: Linear Sallen-Key Verification
-sclang tests/test_ms20sk.scd
-
-# Milestone 2: ZDF/TPT Equivalence Null-Test
-sclang tests/test_ms20tpt.scd
-
-# Milestone 3: Korg-35 Forward Diode Nonlinearity & Limit Cycle
-sclang tests/test_ms20diode.scd
-
-# Milestone 4: KLM-307 Dual OTA Passband Immunity & Resonance Limiting
-sclang tests/test_ms20ota.scd
-
-# Milestone E: Transistor / Circuit Model (Reverse-Saturation BJT & 2nd Harmonic)
-sclang tests/test_ms20circuit.scd
-
-# Option A: Sample-Accurate Audio-Rate FM Verification
-sclang tests/test_audio_rate_fm.scd
-
-# Tier 5: 2x Polyphase Half-Band Oversampling Verification
-sclang tests/test_oversampling.scd
+sclang tests/test_fswasp.scd        # 15/15 tests pass (EDP Wasp)
+sclang tests/test_fssteiner.scd     # 15/15 tests pass (Steiner-Parker)
+sclang tests/test_fspolivoks.scd    # 12/12 tests pass (Formanta Polivoks)
+sclang tests/test_fszmorph.scd      # 9/9 tests pass (FSZMorph)
+sclang tests/test_fsdispersion.scd  # 12/12 tests pass (FSDispersion)
+sclang tests/test_oversampling.scd  # 12/12 tests pass (MS-20 2x oversampling)
 ```
+
+Total: **75 / 75 automated unit tests pass.**
 
 ---
 
-## References
+## Academic References & Sources
 
-1. Timothy E. Stinchcombe (2006/2009), *A Study of the Korg MS10 & MS20 Filters*, §§2, 4, 5, 7.
-2. Will Pirkle (2013), *Virtual Analog Korg35 Highpass Filter Simplified*, App Note 7A, v2.0.
-3. Vadim Zavalishin (2012), *The Art of VA Filter Design*.
+See [`SOURCES.md`](SOURCES.md) for exhaustive circuit schematics, continuous-time transfer function derivations, trapezoidal TPT nodal equations, and academic citations.
+
+## License
+
+GNU General Public License v3.0 or later ([GPL-3.0-or-later](LICENSE)).
+SuperCollider is free software developed by the SuperCollider community.

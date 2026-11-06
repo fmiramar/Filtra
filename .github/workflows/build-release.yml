@@ -1,0 +1,77 @@
+name: Build and Release FilterSuite
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-14
+            platform: macos-arm64
+            ext: .scx
+          - os: ubuntu-22.04
+            platform: linux-x86_64
+            ext: .so
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up dependencies (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake build-essential libasound2-dev libsndfile1-dev
+
+      - name: Clone SuperCollider headers
+        run: |
+          git clone --depth 1 --branch Version-3.14.0 https://github.com/supercollider/supercollider.git sc-source
+
+      - name: Configure CMake
+        run: |
+          cmake -B build -DCMAKE_BUILD_TYPE=Release -DSC_PATH=${{ github.workspace }}/sc-source
+
+      - name: Build plugin
+        run: |
+          cmake --build build --config Release
+
+      - name: Package extension archive
+        run: |
+          VERSION=${GITHUB_REF_NAME:-v0.1.0}
+          PKG_NAME="FilterSuite-${VERSION}-${{ matrix.platform }}"
+          cmake --install build --prefix "pkg/${PKG_NAME}/Extensions/FilterSuite"
+          rm -f "pkg/${PKG_NAME}/Extensions/FilterSuite/MS20Filters.quark"
+          cp README.md LICENSE SOURCES.md "pkg/${PKG_NAME}/" 2>/dev/null || true
+          
+          cat << 'EOF' > "pkg/${PKG_NAME}/README-INSTALL.txt"
+FilterSuite - Native Compiled SuperCollider Virtual Analog Filter UGens
+========================================================================
+
+Installation:
+1. Open SuperCollider and run:
+       Platform.userExtensionDir.postln;
+2. Copy the enclosed 'Extensions/FilterSuite' folder into that directory.
+3. Recompile class library in SuperCollider (Cmd + Shift + L on macOS, Ctrl + Shift + L on Linux).
+4. Run audition examples from the 'examples/' folder.
+EOF
+
+          cd pkg
+          zip -r "${PKG_NAME}.zip" "${PKG_NAME}"
+          echo "ARCHIVE_PATH=pkg/${PKG_NAME}.zip" >> $GITHUB_ENV
+          echo "ARCHIVE_NAME=${PKG_NAME}.zip" >> $GITHUB_ENV
+
+      - name: Upload Release Asset
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v1
+        with:
+          files: ${{ env.ARCHIVE_PATH }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

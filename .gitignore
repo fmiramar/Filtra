@@ -31,3 +31,8 @@ recordings/
 *.wav
 *.aif
 *.aiff
+
+# Release packaging artifacts
+release/
+pkg/
+
