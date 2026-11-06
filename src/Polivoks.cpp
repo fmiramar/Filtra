@@ -1,4 +1,4 @@
-#include "FSPolivoks.hpp"
+#include "Polivoks.hpp"
 #include <cmath>
 #include <algorithm>
 
@@ -53,7 +53,7 @@ static inline double soft_rail(double x) {
     return rail * std::tanh(x * inv_rail);
 }
 
-void FSPolivoks_Ctor(FSPolivoks* unit) {
+void Polivoks_Ctor(Polivoks* unit) {
     unit->m_freq = IN0(1);
     unit->m_res = IN0(2);
     unit->m_mode = static_cast<int>(IN0(3));
@@ -67,16 +67,16 @@ void FSPolivoks_Ctor(FSPolivoks* unit) {
     if (unit->m_mode == 1) {
         // Band-Pass mode
         if (isAudioRateFreq) {
-            SETCALC(FSPolivoks_next_bp_a);
+            SETCALC(Polivoks_next_bp_a);
         } else {
-            SETCALC(FSPolivoks_next_bp_k);
+            SETCALC(Polivoks_next_bp_k);
         }
     } else {
         // Low-Pass mode (default)
         if (isAudioRateFreq) {
-            SETCALC(FSPolivoks_next_lp_a);
+            SETCALC(Polivoks_next_lp_a);
         } else {
-            SETCALC(FSPolivoks_next_lp_k);
+            SETCALC(Polivoks_next_lp_k);
         }
     }
 
@@ -85,7 +85,7 @@ void FSPolivoks_Ctor(FSPolivoks* unit) {
 }
 
 // Low-Pass: Control-rate frequency & resonance
-void FSPolivoks_next_lp_k(FSPolivoks* unit, int inNumSamples) {
+void Polivoks_next_lp_k(Polivoks* unit, int inNumSamples) {
     const float* in = IN(0);
     float* out = OUT(0);
 
@@ -161,7 +161,7 @@ void FSPolivoks_next_lp_k(FSPolivoks* unit, int inNumSamples) {
 }
 
 // Band-Pass: Control-rate frequency & resonance
-void FSPolivoks_next_bp_k(FSPolivoks* unit, int inNumSamples) {
+void Polivoks_next_bp_k(Polivoks* unit, int inNumSamples) {
     const float* in = IN(0);
     float* out = OUT(0);
 
@@ -235,7 +235,7 @@ void FSPolivoks_next_bp_k(FSPolivoks* unit, int inNumSamples) {
 }
 
 // Low-Pass: Audio-rate frequency
-void FSPolivoks_next_lp_a(FSPolivoks* unit, int inNumSamples) {
+void Polivoks_next_lp_a(Polivoks* unit, int inNumSamples) {
     const float* in = IN(0);
     const float* freqIn = IN(1);
     float* out = OUT(0);
@@ -308,7 +308,7 @@ void FSPolivoks_next_lp_a(FSPolivoks* unit, int inNumSamples) {
 }
 
 // Band-Pass: Audio-rate frequency
-void FSPolivoks_next_bp_a(FSPolivoks* unit, int inNumSamples) {
+void Polivoks_next_bp_a(Polivoks* unit, int inNumSamples) {
     const float* in = IN(0);
     const float* freqIn = IN(1);
     float* out = OUT(0);

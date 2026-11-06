@@ -1,10 +1,10 @@
-TITLE:: FSWasp
+TITLE:: Wasp
 summary:: Virtual Analog Model of the Electronic Dream Plant (EDP) Wasp VCF
 categories:: UGens>Filters
 related:: Classes/MS20Diode, Classes/MS20Circuit, Classes/MS20OTA
 
 DESCRIPTION::
-FSWasp is a virtual analog model of the distinctive state-variable filter (VCF) from the Electronic Dream Plant (EDP) Wasp synthesizer (1978).
+Wasp is a virtual analog model of the distinctive state-variable filter (VCF) from the Electronic Dream Plant (EDP) Wasp synthesizer (1978).
 
 The circuit uses CA3080 operational transconductance amplifiers (OTAs) as controllable integrators and CD4069 unbuffered CMOS inverters as summing nodes and inverting amplifiers.
 
@@ -49,7 +49,7 @@ s.boot;
 x = {
     var src = Saw.ar([110, 110.5]) * 0.2;
     var cutoff = SinOsc.kr(0.2).exprange(100, 8000);
-    FSWasp.ar(src, freq: cutoff, res: 0.6, drive: 1.0, mode: 0) * 0.3;
+    Wasp.ar(src, freq: cutoff, res: 0.6, drive: 1.0, mode: 0) * 0.3;
 }.play;
 )
 x.free;
@@ -60,7 +60,7 @@ x = {
     var src = PinkNoise.ar(0.3 ! 2);
     var cutoff = SinOsc.kr(0.15).exprange(200, 4000);
     var res = Line.kr(0.1, 0.95, 4);
-    FSWasp.ar(src, freq: cutoff, res: res, drive: 1.0, mode: 1) * 0.25;
+    Wasp.ar(src, freq: cutoff, res: res, drive: 1.0, mode: 1) * 0.25;
 }.play;
 )
 x.free;
@@ -70,7 +70,7 @@ x.free;
 x = {
     var src = Saw.ar([110, 110.2]) * 0.3;
     var drive = Line.kr(1.0, 6.0, 5);
-    FSWasp.ar(src, freq: 1200, res: 0.7, drive: drive, mode: 0) * 0.25;
+    Wasp.ar(src, freq: 1200, res: 0.7, drive: drive, mode: 0) * 0.25;
 }.play;
 )
 x.free;

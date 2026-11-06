@@ -4,10 +4,10 @@
 
 namespace fs {
 
-// FSSteiner: Virtual Analog Model of the Steiner-Parker Multimode Diode VCF
+// Steiner: Virtual Analog Model of the Steiner-Parker Multimode Diode VCF
 // Reference: Nyle Steiner (Electronic Design, 1974), "Voltage-tunable active filter features
 // low, high and bandpass modes", and Yves Usson (YuSynth 2004) diode-limited Sallen-Key topology.
-struct FSSteiner : public Unit {
+struct Steiner : public Unit {
     float m_freq;
     float m_res;
     float m_drive;
@@ -18,12 +18,16 @@ struct FSSteiner : public Unit {
     double m_s2; // Capacitor C2 state (between Node 2 and ground/input)
 };
 
-void FSSteiner_Ctor(FSSteiner* unit);
-void FSSteiner_next_lp_k(FSSteiner* unit, int inNumSamples);
-void FSSteiner_next_bp_k(FSSteiner* unit, int inNumSamples);
-void FSSteiner_next_hp_k(FSSteiner* unit, int inNumSamples);
-void FSSteiner_next_lp_a(FSSteiner* unit, int inNumSamples);
-void FSSteiner_next_bp_a(FSSteiner* unit, int inNumSamples);
-void FSSteiner_next_hp_a(FSSteiner* unit, int inNumSamples);
+using FSSteiner = Steiner;
+
+void Steiner_Ctor(Steiner* unit);
+void Steiner_next_lp_k(Steiner* unit, int inNumSamples);
+void Steiner_next_bp_k(Steiner* unit, int inNumSamples);
+void Steiner_next_hp_k(Steiner* unit, int inNumSamples);
+void Steiner_next_lp_a(Steiner* unit, int inNumSamples);
+void Steiner_next_bp_a(Steiner* unit, int inNumSamples);
+void Steiner_next_hp_a(Steiner* unit, int inNumSamples);
+
+inline void FSSteiner_Ctor(FSSteiner* unit) { Steiner_Ctor(unit); }
 
 } // namespace fs

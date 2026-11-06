@@ -1,5 +1,5 @@
 /*
-    FilterSuite - FSZMorph Audition & Demonstration
+    FilterSuite - ZMorph Audition & Demonstration
     Original Digital Multiresonant Filter Response Morphing
 */
 
@@ -8,7 +8,7 @@ s.boot;
 (
 s.waitForBoot({
     "=================================================".postln;
-    "  FilterSuite: FSZMorph Audition Demo             ".postln;
+    "  FilterSuite: ZMorph Audition Demo             ".postln;
     "=================================================".postln;
 
     // 1. Audition Vocal Morph: Vowel A -> Vowel I
@@ -16,7 +16,7 @@ s.waitForBoot({
     x = {
         var src = Saw.ar([110, 110.5]) * 0.25;
         var morph = SinOsc.kr(0.25).range(0.0, 1.0);
-        var sig = FSZMorph.ar(src, morph: morph, shapeA: 0, shapeB: 1);
+        var sig = ZMorph.ar(src, morph: morph, shapeA: 0, shapeB: 1);
         sig * 0.5;
     }.play;
     3.0.wait;
@@ -27,7 +27,7 @@ s.waitForBoot({
     x = {
         var src = Dust2.ar(80 ! 2) * 0.5;
         var morph = LFTri.kr(0.2).range(0.0, 1.0);
-        var sig = FSZMorph.ar(src, morph: morph, shapeA: 3, shapeB: 4);
+        var sig = ZMorph.ar(src, morph: morph, shapeA: 3, shapeB: 4);
         sig * 0.6;
     }.play;
     3.0.wait;
@@ -38,7 +38,7 @@ s.waitForBoot({
     x = {
         var src = Pulse.ar([82, 82.5], 0.2) * 0.25;
         var morph = XLine.kr(0.001, 0.999, 3.0);
-        var sig = FSZMorph.ar(src, morph: morph, shapeA: 5, shapeB: 2);
+        var sig = ZMorph.ar(src, morph: morph, shapeA: 5, shapeB: 2);
         sig * 0.5;
     }.play;
     3.0.wait;
@@ -49,12 +49,12 @@ s.waitForBoot({
     x = {
         var src = Saw.ar(73) * 0.25 ! 2;
         var morphMod = SinOsc.ar(110).range(0.0, 1.0);
-        var sig = FSZMorph.ar(src, morph: morphMod, shapeA: 1, shapeB: 4);
+        var sig = ZMorph.ar(src, morph: morphMod, shapeA: 1, shapeB: 4);
         sig * 0.45;
     }.play;
     3.0.wait;
     x.free;
 
-    "FSZMorph audition complete!".postln;
+    "ZMorph audition complete!".postln;
 });
 )

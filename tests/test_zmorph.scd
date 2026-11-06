@@ -1,5 +1,5 @@
 // =====================================================================
-// test_fszmorph.scd: Verification Test Suite for FSZMorph
+// test_fszmorph.scd: Verification Test Suite for ZMorph
 // Verifies original digital multiresonant filter response morphing:
 // - Exact endpoint correspondence (morph = 0 equals A; morph = 1 equals B)
 // - Shape distinctness across all preset shapes
@@ -31,7 +31,7 @@ s.waitForBoot({
     var numSamples = (dur * 44100).asInteger;
 
     "\n==================================================".postln;
-    "  FSZMorph Verification Suite                    ".postln;
+    "  ZMorph Verification Suite                    ".postln;
     "==================================================\n".postln;
 
     // -------------------------------------------------------------
@@ -40,16 +40,16 @@ s.waitForBoot({
     "--- Test 1: Class and SynthDef Compilation ---".postln;
     {
         var def1 = SynthDef(\test_zmorph_1, { |out=0|
-            var sig = FSZMorph.ar(WhiteNoise.ar(0.1), 0.5, 0, 1);
+            var sig = ZMorph.ar(WhiteNoise.ar(0.1), 0.5, 0, 1);
             Out.ar(out, sig);
         });
         var def2 = SynthDef(\test_zmorph_2, { |out=0|
-            var sig = FSZMorph.ar(WhiteNoise.ar(0.1), 0.5, 3, 4);
+            var sig = ZMorph.ar(WhiteNoise.ar(0.1), 0.5, 3, 4);
             Out.ar(out, sig);
         });
 
-        assert.(def1.notNil, "SynthDef with FSZMorph (shapes 0 -> 1) compiles");
-        assert.(def2.notNil, "SynthDef with FSZMorph (shapes 3 -> 4) compiles");
+        assert.(def1.notNil, "SynthDef with ZMorph (shapes 0 -> 1) compiles");
+        assert.(def2.notNil, "SynthDef with ZMorph (shapes 3 -> 4) compiles");
     }.value;
 
     // -------------------------------------------------------------
@@ -65,9 +65,9 @@ s.waitForBoot({
             {
                 var src = Saw.ar(110) * 0.2;
                 // sigMorph evaluates with morphVal
-                var sigMorph = FSZMorph.ar(src, morphVal, 0, 1);
+                var sigMorph = ZMorph.ar(src, morphVal, 0, 1);
                 // sigTarget evaluates pure target shape by setting shapeA=shapeB=targetShape
-                var sigTarget = FSZMorph.ar(src, 0.0, targetShape, targetShape);
+                var sigTarget = ZMorph.ar(src, 0.0, targetShape, targetShape);
                 var diff = sigMorph - sigTarget;
                 RecordBuf.ar(diff, bufDiff, loop: 0, doneAction: 2);
                 Silent.ar;
@@ -103,7 +103,7 @@ s.waitForBoot({
             s.sync;
             {
                 var src = Saw.ar(90) * 0.25;
-                var flt = FSZMorph.ar(src, 0.0, shapeIdx, shapeIdx);
+                var flt = ZMorph.ar(src, 0.0, shapeIdx, shapeIdx);
                 RecordBuf.ar(flt, buf, loop: 0, doneAction: 2);
                 Silent.ar;
             }.play;
@@ -144,7 +144,7 @@ s.waitForBoot({
         {
             var src = Pulse.ar(100, 0.3) * 0.25;
             var morph = Line.kr(0.0, 1.0, dur);
-            var flt = FSZMorph.ar(src, morph, 0, 4);
+            var flt = ZMorph.ar(src, morph, 0, 4);
             RecordBuf.ar(flt, buf, loop: 0, doneAction: 2);
             Silent.ar;
         }.play;
@@ -176,7 +176,7 @@ s.waitForBoot({
         {
             var src = Saw.ar(70) * 0.25;
             var morphMod = SinOsc.ar(150).range(0.0, 1.0);
-            var flt = FSZMorph.ar(src, morphMod, 1, 3);
+            var flt = ZMorph.ar(src, morphMod, 1, 3);
             RecordBuf.ar(flt, buf, loop: 0, doneAction: 2);
             Silent.ar;
         }.play;
@@ -208,7 +208,7 @@ s.waitForBoot({
 
         {
             var pulse = Impulse.ar(0) * 1.0;
-            var flt = FSZMorph.ar(pulse, 0.5, 2, 4);
+            var flt = ZMorph.ar(pulse, 0.5, 2, 4);
             RecordBuf.ar(flt, buf, loop: 0, doneAction: 2);
             Silent.ar;
         }.play;
@@ -231,7 +231,7 @@ s.waitForBoot({
     // Final Summary
     // -------------------------------------------------------------
     "\n==================================================".postln;
-    ("  FSZMorph Verification Summary: " ++ passCount ++ " / " ++ testCount ++ " tests passed").postln;
+    ("  ZMorph Verification Summary: " ++ passCount ++ " / " ++ testCount ++ " tests passed").postln;
     "==================================================\n".postln;
 
     if (passCount == testCount) {

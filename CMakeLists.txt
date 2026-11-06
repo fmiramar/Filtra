@@ -37,11 +37,11 @@ set(MS20_PLUGIN_SOURCES
     src/MS20Diode.cpp
     src/MS20OTA.cpp
     src/MS20Circuit.cpp
-    src/FSWasp.cpp
-    src/FSSteiner.cpp
-    src/FSPolivoks.cpp
-    src/FSZMorph.cpp
-    src/FSDispersion.cpp
+    src/Wasp.cpp
+    src/Steiner.cpp
+    src/Polivoks.cpp
+    src/ZMorph.cpp
+    src/Dispersion.cpp
 )
 
 add_library(MS20Filters MODULE ${MS20_PLUGIN_SOURCES})

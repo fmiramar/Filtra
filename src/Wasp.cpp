@@ -1,4 +1,4 @@
-#include "FSWasp.hpp"
+#include "Wasp.hpp"
 #include <cmath>
 #include <algorithm>
 
@@ -35,7 +35,7 @@ static inline double compute_kres(double fc, double rho) {
 // -------------------------------------------------------------
 // Linear small-signal state-variable step (Stage W1)
 // -------------------------------------------------------------
-static inline void FSWasp_step(double in_sample, double g, double kres,
+static inline void Wasp_step(double in_sample, double g, double kres,
                                double& s1, double& s2,
                                double& out_lp, double& out_bp, double& out_hp)
 {
@@ -63,7 +63,7 @@ static inline void FSWasp_step(double in_sample, double g, double kres,
 // Models CA3080 differential OTA transconductance saturation (tanh)
 // and CD4069 unbuffered CMOS inverter soft saturation inside the loops.
 // -------------------------------------------------------------
-static inline void FSWasp_step_nl(double in_sample, double g, double kres, double drive,
+static inline void Wasp_step_nl(double in_sample, double g, double kres, double drive,
                                   double& s1, double& s2,
                                   double& out_lp, double& out_bp, double& out_hp)
 {
@@ -159,7 +159,7 @@ static inline void FSWasp_step_nl(double in_sample, double g, double kres, doubl
 // Control-rate frequency modulation (k-rate)
 // -------------------------------------------------------------
 
-void FSWasp_next_lp_k(FSWasp* unit, int inNumSamples) {
+void Wasp_next_lp_k(Wasp* unit, int inNumSamples) {
     const float* in = IN(0);
     float* out = OUT(0);
     const float sr = static_cast<float>(SAMPLERATE);
@@ -182,13 +182,13 @@ void FSWasp_next_lp_k(FSWasp* unit, int inNumSamples) {
     if (drive <= 0.01) {
         for (int i = 0; i < inNumSamples; ++i) {
             double lp, bp, hp;
-            FSWasp_step(static_cast<double>(in[i]), g, kres, s1, s2, lp, bp, hp);
+            Wasp_step(static_cast<double>(in[i]), g, kres, s1, s2, lp, bp, hp);
             out[i] = static_cast<float>(lp);
         }
     } else {
         for (int i = 0; i < inNumSamples; ++i) {
             double lp, bp, hp;
-            FSWasp_step_nl(static_cast<double>(in[i]), g, kres, drive, s1, s2, lp, bp, hp);
+            Wasp_step_nl(static_cast<double>(in[i]), g, kres, drive, s1, s2, lp, bp, hp);
             out[i] = static_cast<float>(lp);
         }
     }
@@ -199,7 +199,7 @@ void FSWasp_next_lp_k(FSWasp* unit, int inNumSamples) {
     unit->m_s2 = zapgremlins(s2);
 }
 
-void FSWasp_next_bp_k(FSWasp* unit, int inNumSamples) {
+void Wasp_next_bp_k(Wasp* unit, int inNumSamples) {
     const float* in = IN(0);
     float* out = OUT(0);
     const float sr = static_cast<float>(SAMPLERATE);
@@ -222,13 +222,13 @@ void FSWasp_next_bp_k(FSWasp* unit, int inNumSamples) {
     if (drive <= 0.01) {
         for (int i = 0; i < inNumSamples; ++i) {
             double lp, bp, hp;
-            FSWasp_step(static_cast<double>(in[i]), g, kres, s1, s2, lp, bp, hp);
+            Wasp_step(static_cast<double>(in[i]), g, kres, s1, s2, lp, bp, hp);
             out[i] = static_cast<float>(bp);
         }
     } else {
         for (int i = 0; i < inNumSamples; ++i) {
             double lp, bp, hp;
-            FSWasp_step_nl(static_cast<double>(in[i]), g, kres, drive, s1, s2, lp, bp, hp);
+            Wasp_step_nl(static_cast<double>(in[i]), g, kres, drive, s1, s2, lp, bp, hp);
             out[i] = static_cast<float>(bp);
         }
     }
@@ -239,7 +239,7 @@ void FSWasp_next_bp_k(FSWasp* unit, int inNumSamples) {
     unit->m_s2 = zapgremlins(s2);
 }
 
-void FSWasp_next_hp_k(FSWasp* unit, int inNumSamples) {
+void Wasp_next_hp_k(Wasp* unit, int inNumSamples) {
     const float* in = IN(0);
     float* out = OUT(0);
     const float sr = static_cast<float>(SAMPLERATE);
@@ -262,13 +262,13 @@ void FSWasp_next_hp_k(FSWasp* unit, int inNumSamples) {
     if (drive <= 0.01) {
         for (int i = 0; i < inNumSamples; ++i) {
             double lp, bp, hp;
-            FSWasp_step(static_cast<double>(in[i]), g, kres, s1, s2, lp, bp, hp);
+            Wasp_step(static_cast<double>(in[i]), g, kres, s1, s2, lp, bp, hp);
             out[i] = static_cast<float>(hp);
         }
     } else {
         for (int i = 0; i < inNumSamples; ++i) {
             double lp, bp, hp;
-            FSWasp_step_nl(static_cast<double>(in[i]), g, kres, drive, s1, s2, lp, bp, hp);
+            Wasp_step_nl(static_cast<double>(in[i]), g, kres, drive, s1, s2, lp, bp, hp);
             out[i] = static_cast<float>(hp);
         }
     }
@@ -283,7 +283,7 @@ void FSWasp_next_hp_k(FSWasp* unit, int inNumSamples) {
 // Audio-rate frequency modulation (a-rate)
 // -------------------------------------------------------------
 
-void FSWasp_next_lp_a(FSWasp* unit, int inNumSamples) {
+void Wasp_next_lp_a(Wasp* unit, int inNumSamples) {
     const float* in = IN(0);
     const float* freqIn = IN(1);
     float* out = OUT(0);
@@ -307,7 +307,7 @@ void FSWasp_next_lp_a(FSWasp* unit, int inNumSamples) {
             const double kres = compute_kres(fc, rho);
 
             double lp, bp, hp;
-            FSWasp_step(static_cast<double>(in[i]), g, kres, s1, s2, lp, bp, hp);
+            Wasp_step(static_cast<double>(in[i]), g, kres, s1, s2, lp, bp, hp);
             out[i] = static_cast<float>(lp);
         }
     } else {
@@ -318,7 +318,7 @@ void FSWasp_next_lp_a(FSWasp* unit, int inNumSamples) {
             const double kres = compute_kres(fc, rho);
 
             double lp, bp, hp;
-            FSWasp_step_nl(static_cast<double>(in[i]), g, kres, drive, s1, s2, lp, bp, hp);
+            Wasp_step_nl(static_cast<double>(in[i]), g, kres, drive, s1, s2, lp, bp, hp);
             out[i] = static_cast<float>(lp);
         }
     }
@@ -329,7 +329,7 @@ void FSWasp_next_lp_a(FSWasp* unit, int inNumSamples) {
     unit->m_s2 = zapgremlins(s2);
 }
 
-void FSWasp_next_bp_a(FSWasp* unit, int inNumSamples) {
+void Wasp_next_bp_a(Wasp* unit, int inNumSamples) {
     const float* in = IN(0);
     const float* freqIn = IN(1);
     float* out = OUT(0);
@@ -353,7 +353,7 @@ void FSWasp_next_bp_a(FSWasp* unit, int inNumSamples) {
             const double kres = compute_kres(fc, rho);
 
             double lp, bp, hp;
-            FSWasp_step(static_cast<double>(in[i]), g, kres, s1, s2, lp, bp, hp);
+            Wasp_step(static_cast<double>(in[i]), g, kres, s1, s2, lp, bp, hp);
             out[i] = static_cast<float>(bp);
         }
     } else {
@@ -364,7 +364,7 @@ void FSWasp_next_bp_a(FSWasp* unit, int inNumSamples) {
             const double kres = compute_kres(fc, rho);
 
             double lp, bp, hp;
-            FSWasp_step_nl(static_cast<double>(in[i]), g, kres, drive, s1, s2, lp, bp, hp);
+            Wasp_step_nl(static_cast<double>(in[i]), g, kres, drive, s1, s2, lp, bp, hp);
             out[i] = static_cast<float>(bp);
         }
     }
@@ -375,7 +375,7 @@ void FSWasp_next_bp_a(FSWasp* unit, int inNumSamples) {
     unit->m_s2 = zapgremlins(s2);
 }
 
-void FSWasp_next_hp_a(FSWasp* unit, int inNumSamples) {
+void Wasp_next_hp_a(Wasp* unit, int inNumSamples) {
     const float* in = IN(0);
     const float* freqIn = IN(1);
     float* out = OUT(0);
@@ -399,7 +399,7 @@ void FSWasp_next_hp_a(FSWasp* unit, int inNumSamples) {
             const double kres = compute_kres(fc, rho);
 
             double lp, bp, hp;
-            FSWasp_step(static_cast<double>(in[i]), g, kres, s1, s2, lp, bp, hp);
+            Wasp_step(static_cast<double>(in[i]), g, kres, s1, s2, lp, bp, hp);
             out[i] = static_cast<float>(hp);
         }
     } else {
@@ -410,7 +410,7 @@ void FSWasp_next_hp_a(FSWasp* unit, int inNumSamples) {
             const double kres = compute_kres(fc, rho);
 
             double lp, bp, hp;
-            FSWasp_step_nl(static_cast<double>(in[i]), g, kres, drive, s1, s2, lp, bp, hp);
+            Wasp_step_nl(static_cast<double>(in[i]), g, kres, drive, s1, s2, lp, bp, hp);
             out[i] = static_cast<float>(hp);
         }
     }
@@ -425,7 +425,7 @@ void FSWasp_next_hp_a(FSWasp* unit, int inNumSamples) {
 // Constructor
 // -------------------------------------------------------------
 
-void FSWasp_Ctor(FSWasp* unit) {
+void Wasp_Ctor(Wasp* unit) {
     unit->m_s1 = 0.0;
     unit->m_s2 = 0.0;
     unit->m_freq = -1.0f;
@@ -440,32 +440,32 @@ void FSWasp_Ctor(FSWasp* unit) {
     switch (unit->m_mode) {
         case 1: // Band-Pass
             if (isAudioRateFreq) {
-                SETCALC(FSWasp_next_bp_a);
-                FSWasp_next_bp_a(unit, 1);
+                SETCALC(Wasp_next_bp_a);
+                Wasp_next_bp_a(unit, 1);
             } else {
-                SETCALC(FSWasp_next_bp_k);
-                FSWasp_next_bp_k(unit, 1);
+                SETCALC(Wasp_next_bp_k);
+                Wasp_next_bp_k(unit, 1);
             }
             break;
 
         case 2: // High-Pass
             if (isAudioRateFreq) {
-                SETCALC(FSWasp_next_hp_a);
-                FSWasp_next_hp_a(unit, 1);
+                SETCALC(Wasp_next_hp_a);
+                Wasp_next_hp_a(unit, 1);
             } else {
-                SETCALC(FSWasp_next_hp_k);
-                FSWasp_next_hp_k(unit, 1);
+                SETCALC(Wasp_next_hp_k);
+                Wasp_next_hp_k(unit, 1);
             }
             break;
 
         case 0: // Low-Pass (default)
         default:
             if (isAudioRateFreq) {
-                SETCALC(FSWasp_next_lp_a);
-                FSWasp_next_lp_a(unit, 1);
+                SETCALC(Wasp_next_lp_a);
+                Wasp_next_lp_a(unit, 1);
             } else {
-                SETCALC(FSWasp_next_lp_k);
-                FSWasp_next_lp_k(unit, 1);
+                SETCALC(Wasp_next_lp_k);
+                Wasp_next_lp_k(unit, 1);
             }
             break;
     }

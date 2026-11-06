@@ -1,10 +1,10 @@
-TITLE:: FSDispersion
+TITLE:: Dispersion
 summary:: Dispersive All-Pass Group-Delay Filter
 categories:: UGens>Filters
 related:: Classes/FSWasp, Classes/FSSteiner, Classes/FSZMorph
 
 DESCRIPTION::
-FSDispersion is a 4-stage cascaded second-order all-pass filter designed to produce controllable temporal dispersion and frequency-dependent group delay. Based on the dispersion modeling principles established by Jonathan S. Abel and Julius O. Smith (DAFx 2006), the filter spreads different frequency components in time while strictly preserving the total signal magnitude and energy.
+Dispersion is a 4-stage cascaded second-order all-pass filter designed to produce controllable temporal dispersion and frequency-dependent group delay. Based on the dispersion modeling principles established by Jonathan S. Abel and Julius O. Smith (DAFx 2006), the filter spreads different frequency components in time while strictly preserving the total signal magnitude and energy.
 
 Each stage is implemented as a 2nd-order Topology-Preserving Transform (TPT) all-pass filter:
 formula::
@@ -43,7 +43,7 @@ s.boot;
 (
 x = {
     var trig = Impulse.ar(3);
-    var dispersed = FSDispersion.ar(trig, center: 1800, spread: 1.5, q: 4.0);
+    var dispersed = Dispersion.ar(trig, center: 1800, spread: 1.5, q: 4.0);
     dispersed * 0.4 ! 2;
 }.play;
 )
@@ -55,7 +55,7 @@ x = {
     var burst = Decay.ar(Impulse.ar(1.5), 0.02) * PinkNoise.ar(0.5);
     var spread = MouseX.kr(0.0, 3.0);
     var q = MouseY.kr(0.5, 10.0);
-    var sig = FSDispersion.ar(burst, center: 2000, spread: spread, q: q);
+    var sig = Dispersion.ar(burst, center: 2000, spread: spread, q: q);
     sig * 0.4 ! 2;
 }.play;
 )
@@ -66,7 +66,7 @@ x.free;
 x = {
     var src = Saw.ar(55) * 0.25 ! 2;
     var mod = SinOsc.ar(120) * 1500;
-    var sig = FSDispersion.ar(src, center: 2500 + mod, spread: 1.2, q: 3.0);
+    var sig = Dispersion.ar(src, center: 2500 + mod, spread: 1.2, q: 3.0);
     sig * 0.4;
 }.play;
 )

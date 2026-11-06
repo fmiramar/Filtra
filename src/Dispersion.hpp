@@ -32,10 +32,10 @@ struct APSection {
     }
 };
 
-// FSDispersion: Dispersive All-Pass Group-Delay Filter
+// Dispersion: Dispersive All-Pass Group-Delay Filter
 // Reference: Abel and Smith (DAFx 2006), "Robust Design of Very High-Order Allpass Dispersion Filters"
 // Four cascaded 2nd-order all-pass sections with geometric frequency distribution around center
-struct FSDispersion : public Unit {
+struct Dispersion : public Unit {
     float m_center;
     float m_spread;
     float m_q;
@@ -43,8 +43,12 @@ struct FSDispersion : public Unit {
     APSection m_sections[4];
 };
 
-void FSDispersion_Ctor(FSDispersion* unit);
-void FSDispersion_next_k(FSDispersion* unit, int inNumSamples);
-void FSDispersion_next_a(FSDispersion* unit, int inNumSamples);
+using FSDispersion = Dispersion;
+
+void Dispersion_Ctor(Dispersion* unit);
+void Dispersion_next_k(Dispersion* unit, int inNumSamples);
+void Dispersion_next_a(Dispersion* unit, int inNumSamples);
+
+inline void FSDispersion_Ctor(FSDispersion* unit) { Dispersion_Ctor(unit); }
 
 } // namespace fs

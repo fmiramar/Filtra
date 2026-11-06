@@ -8,15 +8,15 @@ Distributed as native compiled binaries for SuperCollider via **GitHub Releases*
 
 ## Included Filter Models
 
-### 1. Expanded FilterSuite Models (`FS*`)
+### 1. Expanded Filter Models
 
 | UGen | Circuit / Architecture | Linearity | Features & Modes | Sonic Character |
 |---|---|---|---|---|
-| **`FSWasp`** | EDP Wasp (CA3080 OTA + CD4069 CMOS Inverters) | Nonlinear (implicit NR solver) | LP, BP, HP (12 dB/oct); analytical damping pot network | Brash, dirty, aggressive CMOS soft-saturation and OTA limiting (Köper et al., DAFx 2022). |
-| **`FSSteiner`** | Steiner–Parker Multimode Diode VCF | Nonlinear (diode feedback limiter) | LP (-12 dB/oct), BP (symmetric), HP (+6 dB/oct zero); multi-input injection | Raw diode variable resistance, singing self-oscillation limit cycle (Steiner, 1974; YuSynth). |
-| **`FSPolivoks`** | Formanta Polivoks VCF (K140UD12 / µA776) | Nonlinear (op-amp transconductance + rail sat) | LP (12 dB/oct), BP (6 dB/oct); exact hardware modes | "Capacitor-less" programmable op-amp slew/transconductance saturation and scream (Kuzmin, 1982). |
-| **`FSZMorph`** | Original Digital Multiresonant Filter Morphing | Linear parallel TPT banks | 4-section parallel TPT SVF banks; 6 built-in vocal & metallic presets | Equal-gain continuous response morphing with guaranteed stability (inspired by Rossum Z-plane). |
-| **`FSDispersion`** | Dispersive All-Pass Group-Delay Filter | Linear TPT all-pass cascade | 4 cascaded 2nd-order all-pass sections; geometric frequency spread | Exactly flat magnitude ($|H| \equiv 1.0$), Parseval energy conservation, acoustic stiffness and laser chirps (Abel & Smith, DAFx 2006). |
+| **`Wasp`** *(alias `FSWasp`)* | EDP Wasp (CA3080 OTA + CD4069 CMOS Inverters) | Nonlinear (implicit NR solver) | LP, BP, HP (12 dB/oct); analytical damping pot network | Brash, dirty, aggressive CMOS soft-saturation and OTA limiting (Köper et al., DAFx 2022). |
+| **`Steiner`** *(alias `FSSteiner`)* | Steiner–Parker Multimode Diode VCF | Nonlinear (diode feedback limiter) | LP (-12 dB/oct), BP (symmetric), HP (+6 dB/oct zero); multi-input injection | Raw diode variable resistance, singing self-oscillation limit cycle (Steiner, 1974; YuSynth). |
+| **`Polivoks`** *(alias `FSPolivoks`)* | Formanta Polivoks VCF (K140UD12 / µA776) | Nonlinear (op-amp transconductance + rail sat) | LP (12 dB/oct), BP (6 dB/oct); exact hardware modes | "Capacitor-less" programmable op-amp slew/transconductance saturation and scream (Kuzmin, 1982). |
+| **`ZMorph`** *(alias `FSZMorph`)* | Original Digital Multiresonant Filter Morphing | Linear parallel TPT banks | 4-section parallel TPT SVF banks; 6 built-in vocal & metallic presets | Equal-gain continuous response morphing with guaranteed stability (inspired by Rossum Z-plane). |
+| **`Dispersion`** *(alias `FSDispersion`)* | Dispersive All-Pass Group-Delay Filter | Linear TPT all-pass cascade | 4 cascaded 2nd-order all-pass sections; geometric frequency spread | Exactly flat magnitude ($|H| \equiv 1.0$), Parseval energy conservation, acoustic stiffness and laser chirps (Abel & Smith, DAFx 2006). |
 
 ### 2. Korg MS-20 Suite (`MS20*`)
 
@@ -56,7 +56,7 @@ Distributed as native compiled binaries for SuperCollider via **GitHub Releases*
 {
     var src = Saw.ar([110, 110.5]) * 0.25;
     var cutoff = SinOsc.kr(0.2).exprange(150, 6000);
-    FSWasp.ar(src, freq: cutoff, res: 0.7, drive: 2.0, mode: 0) * 0.4;
+    Wasp.ar(src, freq: cutoff, res: 0.7, drive: 2.0, mode: 0) * 0.4;
 }.play;
 ```
 
@@ -65,7 +65,7 @@ Distributed as native compiled binaries for SuperCollider via **GitHub Releases*
 {
     var src = Pulse.ar([80, 80.5], 0.3) * 0.2;
     var cutoff = LFTri.kr(0.15).exprange(200, 5000);
-    FSSteiner.ar(src, freq: cutoff, res: 0.85, mode: 1, drive: 1.5) * 0.4;
+    Steiner.ar(src, freq: cutoff, res: 0.85, mode: 1, drive: 1.5) * 0.4;
 }.play;
 ```
 
@@ -74,7 +74,7 @@ Distributed as native compiled binaries for SuperCollider via **GitHub Releases*
 {
     var src = Saw.ar(55) * 0.25 ! 2;
     var cutoff = SinOsc.kr(0.25).exprange(200, 4500);
-    FSPolivoks.ar(src, freq: cutoff, res: 0.95, mode: 0, drive: 2.0) * 0.35;
+    Polivoks.ar(src, freq: cutoff, res: 0.95, mode: 0, drive: 2.0) * 0.35;
 }.play;
 ```
 
@@ -83,7 +83,7 @@ Distributed as native compiled binaries for SuperCollider via **GitHub Releases*
 {
     var src = Saw.ar([110, 110.5]) * 0.25;
     var morph = SinOsc.kr(0.2).range(0.0, 1.0);
-    FSZMorph.ar(src, morph: morph, shapeA: 0, shapeB: 1) * 0.5;
+    ZMorph.ar(src, morph: morph, shapeA: 0, shapeB: 1) * 0.5;
 }.play;
 ```
 
@@ -91,7 +91,7 @@ Distributed as native compiled binaries for SuperCollider via **GitHub Releases*
 ```supercollider
 {
     var trig = Impulse.ar(3);
-    var sig = FSDispersion.ar(trig, center: 1800, spread: 1.5, q: 4.0);
+    var sig = Dispersion.ar(trig, center: 1800, spread: 1.5, q: 4.0);
     sig * 0.4 ! 2;
 }.play;
 ```

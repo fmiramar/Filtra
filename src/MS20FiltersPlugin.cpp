@@ -3,11 +3,11 @@
 #include "MS20Diode.hpp"
 #include "MS20OTA.hpp"
 #include "MS20Circuit.hpp"
-#include "FSWasp.hpp"
-#include "FSSteiner.hpp"
-#include "FSPolivoks.hpp"
-#include "FSZMorph.hpp"
-#include "FSDispersion.hpp"
+#include "Wasp.hpp"
+#include "Steiner.hpp"
+#include "Polivoks.hpp"
+#include "ZMorph.hpp"
+#include "Dispersion.hpp"
 
 static InterfaceTable* ft;
 
@@ -18,9 +18,18 @@ PluginLoad(MS20Filters) {
     (*ft->fDefineUnit)("MS20Diode", sizeof(ms20::MS20Diode), (UnitCtorFunc)&ms20::MS20Diode_Ctor, 0, 0);
     (*ft->fDefineUnit)("MS20OTA", sizeof(ms20::MS20OTA), (UnitCtorFunc)&ms20::MS20OTA_Ctor, 0, 0);
     (*ft->fDefineUnit)("MS20Circuit", sizeof(ms20::MS20Circuit), (UnitCtorFunc)&ms20::MS20Circuit_Ctor, 0, 0);
-    (*ft->fDefineUnit)("FSWasp", sizeof(fs::FSWasp), (UnitCtorFunc)&fs::FSWasp_Ctor, 0, 0);
-    (*ft->fDefineUnit)("FSSteiner", sizeof(fs::FSSteiner), (UnitCtorFunc)&fs::FSSteiner_Ctor, 0, 0);
-    (*ft->fDefineUnit)("FSPolivoks", sizeof(fs::FSPolivoks), (UnitCtorFunc)&fs::FSPolivoks_Ctor, 0, 0);
-    (*ft->fDefineUnit)("FSZMorph", sizeof(fs::FSZMorph), (UnitCtorFunc)&fs::FSZMorph_Ctor, 0, 0);
-    (*ft->fDefineUnit)("FSDispersion", sizeof(fs::FSDispersion), (UnitCtorFunc)&fs::FSDispersion_Ctor, 0, 0);
+
+    // Primary filter names
+    (*ft->fDefineUnit)("Wasp", sizeof(fs::Wasp), (UnitCtorFunc)&fs::Wasp_Ctor, 0, 0);
+    (*ft->fDefineUnit)("Steiner", sizeof(fs::Steiner), (UnitCtorFunc)&fs::Steiner_Ctor, 0, 0);
+    (*ft->fDefineUnit)("Polivoks", sizeof(fs::Polivoks), (UnitCtorFunc)&fs::Polivoks_Ctor, 0, 0);
+    (*ft->fDefineUnit)("ZMorph", sizeof(fs::ZMorph), (UnitCtorFunc)&fs::ZMorph_Ctor, 0, 0);
+    (*ft->fDefineUnit)("Dispersion", sizeof(fs::Dispersion), (UnitCtorFunc)&fs::Dispersion_Ctor, 0, 0);
+
+    // Backward-compatible FS aliases
+    (*ft->fDefineUnit)("FSWasp", sizeof(fs::Wasp), (UnitCtorFunc)&fs::Wasp_Ctor, 0, 0);
+    (*ft->fDefineUnit)("FSSteiner", sizeof(fs::Steiner), (UnitCtorFunc)&fs::Steiner_Ctor, 0, 0);
+    (*ft->fDefineUnit)("FSPolivoks", sizeof(fs::Polivoks), (UnitCtorFunc)&fs::Polivoks_Ctor, 0, 0);
+    (*ft->fDefineUnit)("FSZMorph", sizeof(fs::ZMorph), (UnitCtorFunc)&fs::ZMorph_Ctor, 0, 0);
+    (*ft->fDefineUnit)("FSDispersion", sizeof(fs::Dispersion), (UnitCtorFunc)&fs::Dispersion_Ctor, 0, 0);
 }

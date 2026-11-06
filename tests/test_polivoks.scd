@@ -1,5 +1,5 @@
 // =====================================================================
-// test_fspolivoks.scd: Verification Test Suite for FSPolivoks (Stages P1 & P2)
+// test_fspolivoks.scd: Verification Test Suite for Polivoks (Stages P1 & P2)
 // Verifies Formanta Polivoks VCF:
 // - Stage P1: Linear small-signal 2-stage state-variable integrator cascade
 // - Stage P2: Bounded K140UD12 op-amp transconductance saturation & limit cycle
@@ -30,7 +30,7 @@ s.waitForBoot({
     var numSamples = (dur * 44100).asInteger;
 
     "\n==================================================".postln;
-    "  FSPolivoks Stages P1 & P2 Verification Suite   ".postln;
+    "  Polivoks Stages P1 & P2 Verification Suite   ".postln;
     "==================================================\n".postln;
 
     // -------------------------------------------------------------
@@ -39,16 +39,16 @@ s.waitForBoot({
     "--- Test 1: Class and SynthDef Compilation ---".postln;
     {
         var defLP = SynthDef(\test_polivoks_lp, { |out=0|
-            var sig = FSPolivoks.ar(WhiteNoise.ar(0.1), 1000, 0.3, 0, 1.0);
+            var sig = Polivoks.ar(WhiteNoise.ar(0.1), 1000, 0.3, 0, 1.0);
             Out.ar(out, sig);
         });
         var defBP = SynthDef(\test_polivoks_bp, { |out=0|
-            var sig = FSPolivoks.ar(WhiteNoise.ar(0.1), 1000, 0.3, 1, 1.0);
+            var sig = Polivoks.ar(WhiteNoise.ar(0.1), 1000, 0.3, 1, 1.0);
             Out.ar(out, sig);
         });
 
-        assert.(defLP.notNil, "SynthDef with FSPolivoks (LP mode 0) compiles");
-        assert.(defBP.notNil, "SynthDef with FSPolivoks (BP mode 1) compiles");
+        assert.(defLP.notNil, "SynthDef with Polivoks (LP mode 0) compiles");
+        assert.(defBP.notNil, "SynthDef with Polivoks (BP mode 1) compiles");
     }.value;
 
     // -------------------------------------------------------------
@@ -62,8 +62,8 @@ s.waitForBoot({
 
         {
             var src = SinOsc.ar(440) * 0.0001; // Small signal
-            var sigLin = FSPolivoks.ar(src, 1200, 0.5, 0, drive: 0.0);
-            var sigNL  = FSPolivoks.ar(src, 1200, 0.5, 0, drive: 1.0);
+            var sigLin = Polivoks.ar(src, 1200, 0.5, 0, drive: 0.0);
+            var sigNL  = Polivoks.ar(src, 1200, 0.5, 0, drive: 1.0);
             var diff = sigNL - sigLin;
             RecordBuf.ar(diff, bufDiff, loop: 0, doneAction: 2);
             Silent.ar;
@@ -92,7 +92,7 @@ s.waitForBoot({
             s.sync;
             {
                 var sig = SinOsc.ar(freq) * 0.05;
-                var flt = FSPolivoks.ar(sig, fc, res, filterMode, drive);
+                var flt = Polivoks.ar(sig, fc, res, filterMode, drive);
                 RecordBuf.ar(flt, buf, loop: 0, doneAction: 2);
                 Silent.ar;
             }.play;
@@ -119,7 +119,7 @@ s.waitForBoot({
         ("  LP Passband Gain (50 Hz, fc=1000 Hz): " ++ lp_pass.round(0.001)).postln;
         ("  LP Stopband (2500 Hz): " ++ lp_stop1.round(0.001) ++ ", (5000 Hz): " ++ lp_stop2.round(0.001)).postln;
         ("  LP Measured Stopband Slope: " ++ lp_slope.round(0.1) ++ " dB/octave").postln;
-        assert.(lp_slope < -10.0 && lp_slope > -14.5, "FSPolivoks LP exhibits expected ~ -12 dB/octave 2-pole slope (measured " ++ lp_slope.round(0.1) ++ " dB/oct)");
+        assert.(lp_slope < -10.0 && lp_slope > -14.5, "Polivoks LP exhibits expected ~ -12 dB/octave 2-pole slope (measured " ++ lp_slope.round(0.1) ++ " dB/oct)");
 
         // BP Mode 1: Cutoff 1000 Hz, res = 0.5
         bp_low    = measureRMS.(250, 1, 1000, 0.5);
@@ -127,7 +127,7 @@ s.waitForBoot({
         bp_high   = measureRMS.(4000, 1, 1000, 0.5);
 
         ("  BP (250 Hz): " ++ bp_low.round(0.001) ++ ", Center (1000 Hz): " ++ bp_center.round(0.001) ++ ", (4000 Hz): " ++ bp_high.round(0.001)).postln;
-        assert.(bp_center > (bp_low * 2.0) && (bp_center > (bp_high * 2.0)), "FSPolivoks BP exhibits clear bandpass peaking at cutoff");
+        assert.(bp_center > (bp_low * 2.0) && (bp_center > (bp_high * 2.0)), "Polivoks BP exhibits clear bandpass peaking at cutoff");
 
         // Small-signal resonance gain growth: fc = 1000 Hz, test frequency = 1000 Hz
         res_low  = measureRMS.(1000, 0, 1000, 0.0);
@@ -149,7 +149,7 @@ s.waitForBoot({
             s.sync;
             {
                 var src = SinOsc.ar(300) * 0.4;
-                var flt = FSPolivoks.ar(src, 1000, 0.4, 0, drive: driveVal);
+                var flt = Polivoks.ar(src, 1000, 0.4, 0, drive: driveVal);
                 RecordBuf.ar(flt, buf, loop: 0, doneAction: 2);
                 Silent.ar;
             }.play;
@@ -186,7 +186,7 @@ s.waitForBoot({
         {
             // Initial tiny excitation, then silence
             var trig = Impulse.ar(0) * 0.1;
-            var flt = FSPolivoks.ar(trig, 880, 1.05, 0, drive: 1.0);
+            var flt = Polivoks.ar(trig, 880, 1.05, 0, drive: 1.0);
             RecordBuf.ar(flt, buf, loop: 0, doneAction: 2);
             Silent.ar;
         }.play;
@@ -204,7 +204,7 @@ s.waitForBoot({
         buf.free;
 
         ("  Self-Oscillation Tail Peak: " ++ tailPeak.round(0.001) ++ ", Tail RMS: " ++ tailRMS.round(0.001)).postln;
-        assert.(hasNaN.not && (tailRMS > 0.02) && (tailPeak < 2.0), "FSPolivoks sustains an autonomous, bounded self-oscillation limit cycle at res >= 1.0 (peak " ++ tailPeak.round(0.001) ++ ", RMS " ++ tailRMS.round(0.001) ++ ")");
+        assert.(hasNaN.not && (tailRMS > 0.02) && (tailPeak < 2.0), "Polivoks sustains an autonomous, bounded self-oscillation limit cycle at res >= 1.0 (peak " ++ tailPeak.round(0.001) ++ ", RMS " ++ tailRMS.round(0.001) ++ ")");
     }.value;
 
     // -------------------------------------------------------------
@@ -221,7 +221,7 @@ s.waitForBoot({
             var src = Saw.ar(110) * 0.3;
             var fm = SinOsc.ar(250) * 1500;
             var fc = (2000 + fm).clip(20, 20000);
-            var flt = FSPolivoks.ar(src, fc, 0.9, 0, drive: 2.5);
+            var flt = Polivoks.ar(src, fc, 0.9, 0, drive: 2.5);
             RecordBuf.ar(flt, buf, loop: 0, doneAction: 2);
             Silent.ar;
         }.play;
@@ -253,7 +253,7 @@ s.waitForBoot({
         {
             var src = Pulse.ar(80, 0.3) * 0.25;
             var fc = XLine.kr(20, 20000, dur);
-            var flt = FSPolivoks.ar(src, fc, 0.95, 0, drive: 1.5);
+            var flt = Polivoks.ar(src, fc, 0.95, 0, drive: 1.5);
             RecordBuf.ar(flt, buf, loop: 0, doneAction: 2);
             Silent.ar;
         }.play;
@@ -284,7 +284,7 @@ s.waitForBoot({
 
         {
             var pulse = Impulse.ar(0) * 1.0;
-            var flt = FSPolivoks.ar(pulse, 1000, 0.9, 0, drive: 1.0);
+            var flt = Polivoks.ar(pulse, 1000, 0.9, 0, drive: 1.0);
             RecordBuf.ar(flt, buf, loop: 0, doneAction: 2);
             Silent.ar;
         }.play;
@@ -314,7 +314,7 @@ s.waitForBoot({
 
         {
             var src = Saw.ar(130) * 0.2;
-            var polivoksSig = FSPolivoks.ar(src, 1500, 0.6, 0, drive: 1.0);
+            var polivoksSig = Polivoks.ar(src, 1500, 0.6, 0, drive: 1.0);
             var rlpfSig = RLPF.ar(src, 1500, 0.4);
             var diff = polivoksSig - rlpfSig;
             RecordBuf.ar(diff, bufDiff, loop: 0, doneAction: 2);
@@ -330,14 +330,14 @@ s.waitForBoot({
         bufDiff.free;
 
         ("  RMS Difference vs RLPF: " ++ diffRMS.round(0.001)).postln;
-        assert.(diffRMS > 0.008, "FSPolivoks exhibits distinct topological response from generic RLPF (diff RMS: " ++ diffRMS.round(0.001) ++ ")");
+        assert.(diffRMS > 0.008, "Polivoks exhibits distinct topological response from generic RLPF (diff RMS: " ++ diffRMS.round(0.001) ++ ")");
     }.value;
 
     // -------------------------------------------------------------
     // Final Summary
     // -------------------------------------------------------------
     "\n==================================================".postln;
-    ("  FSPolivoks Verification Summary: " ++ passCount ++ " / " ++ testCount ++ " tests passed").postln;
+    ("  Polivoks Verification Summary: " ++ passCount ++ " / " ++ testCount ++ " tests passed").postln;
     "==================================================\n".postln;
 
     if (passCount == testCount) {

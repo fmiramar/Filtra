@@ -1,4 +1,4 @@
-#include "FSDispersion.hpp"
+#include "Dispersion.hpp"
 #include <cmath>
 #include <algorithm>
 
@@ -10,7 +10,7 @@ static inline double clamp_d(double val, double minVal, double maxVal) {
 
 static const double kOffsets[4] = { -0.75, -0.25, 0.25, 0.75 };
 
-void FSDispersion_Ctor(FSDispersion* unit) {
+void Dispersion_Ctor(Dispersion* unit) {
     unit->m_center = IN0(1);
     unit->m_spread = IN0(2);
     unit->m_q = IN0(3);
@@ -21,15 +21,15 @@ void FSDispersion_Ctor(FSDispersion* unit) {
 
     bool isAudioRateFreq = (INRATE(1) == calc_FullRate);
     if (isAudioRateFreq) {
-        SETCALC(FSDispersion_next_a);
+        SETCALC(Dispersion_next_a);
     } else {
-        SETCALC(FSDispersion_next_k);
+        SETCALC(Dispersion_next_k);
     }
 
     OUT0(0) = 0.0f;
 }
 
-void FSDispersion_next_k(FSDispersion* unit, int inNumSamples) {
+void Dispersion_next_k(Dispersion* unit, int inNumSamples) {
     const float* in = IN(0);
     float* out = OUT(0);
 
@@ -59,7 +59,7 @@ void FSDispersion_next_k(FSDispersion* unit, int inNumSamples) {
     }
 }
 
-void FSDispersion_next_a(FSDispersion* unit, int inNumSamples) {
+void Dispersion_next_a(Dispersion* unit, int inNumSamples) {
     const float* in = IN(0);
     const float* centerIn = IN(1);
     float* out = OUT(0);

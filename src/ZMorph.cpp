@@ -1,4 +1,4 @@
-#include "FSZMorph.hpp"
+#include "ZMorph.hpp"
 #include <cmath>
 #include <algorithm>
 
@@ -37,7 +37,7 @@ void ZFilterBank::init(int shapeIdx, double sampleRate) {
     }
 }
 
-void FSZMorph_Ctor(FSZMorph* unit) {
+void ZMorph_Ctor(ZMorph* unit) {
     unit->m_morph = IN0(1);
     unit->m_shapeA = static_cast<int>(IN0(2));
     unit->m_shapeB = static_cast<int>(IN0(3));
@@ -47,15 +47,15 @@ void FSZMorph_Ctor(FSZMorph* unit) {
 
     bool isAudioRateMorph = (INRATE(1) == calc_FullRate);
     if (isAudioRateMorph) {
-        SETCALC(FSZMorph_next_a);
+        SETCALC(ZMorph_next_a);
     } else {
-        SETCALC(FSZMorph_next_k);
+        SETCALC(ZMorph_next_k);
     }
 
     (unit->mCalcFunc)(unit, 1);
 }
 
-void FSZMorph_next_k(FSZMorph* unit, int inNumSamples) {
+void ZMorph_next_k(ZMorph* unit, int inNumSamples) {
     const float* in = IN(0);
     float* out = OUT(0);
 
@@ -71,7 +71,7 @@ void FSZMorph_next_k(FSZMorph* unit, int inNumSamples) {
     }
 }
 
-void FSZMorph_next_a(FSZMorph* unit, int inNumSamples) {
+void ZMorph_next_a(ZMorph* unit, int inNumSamples) {
     const float* in = IN(0);
     const float* morphIn = IN(1);
     float* out = OUT(0);

@@ -1,12 +1,12 @@
-TITLE:: FSZMorph
+TITLE:: ZMorph
 summary:: Original Digital Multiresonant Filter Response Morphing
 categories:: UGens>Filters
 related:: Classes/FSWasp, Classes/FSSteiner, Classes/FSPolivoks
 
 DESCRIPTION::
-FSZMorph is an original digital multiresonant filter that smoothly morphs between complex spectral profiles. Inspired by the Z-plane filter concept originally pioneered by Dave Rossum and E-mu Systems, this is a clean-room digital implementation using original acoustic and synthetic filter configurations (containing no proprietary ROM, presets, or code).
+ZMorph is an original digital multiresonant filter that smoothly morphs between complex spectral profiles. Inspired by the Z-plane filter concept originally pioneered by Dave Rossum and E-mu Systems, this is a clean-room digital implementation using original acoustic and synthetic filter configurations (containing no proprietary ROM, presets, or code).
 
-Each filter shape consists of a parallel bank of four 2nd-order Topology-Preserving Transform (TPT) state-variable peaking/bandpass resonators combined with a direct passband path. FSZMorph processes Shape A and Shape B in parallel and performs an equal-gain response crossfade:
+Each filter shape consists of a parallel bank of four 2nd-order Topology-Preserving Transform (TPT) state-variable peaking/bandpass resonators combined with a direct passband path. ZMorph processes Shape A and Shape B in parallel and performs an equal-gain response crossfade:
 formula::
 y[n] = (1 - \text{morph}) \cdot y_A[n] + \text{morph} \cdot y_B[n]
 ::
@@ -55,7 +55,7 @@ s.boot;
 x = {
     var src = Saw.ar([110, 110.5]) * 0.25;
     var morph = SinOsc.kr(0.2).range(0.0, 1.0);
-    FSZMorph.ar(src, morph: morph, shapeA: 0, shapeB: 1) * 0.4;
+    ZMorph.ar(src, morph: morph, shapeA: 0, shapeB: 1) * 0.4;
 }.play;
 )
 x.free;
@@ -65,7 +65,7 @@ x.free;
 x = {
     var src = PinkNoise.ar(0.3 ! 2);
     var morph = LFTri.kr(0.15).range(0.0, 1.0);
-    FSZMorph.ar(src, morph: morph, shapeA: 3, shapeB: 4) * 0.5;
+    ZMorph.ar(src, morph: morph, shapeA: 3, shapeB: 4) * 0.5;
 }.play;
 )
 x.free;
@@ -75,7 +75,7 @@ x.free;
 x = {
     var src = Pulse.ar(65, 0.25) * 0.3 ! 2;
     var morphMod = SinOsc.ar(80).range(0.0, 1.0);
-    FSZMorph.ar(src, morph: morphMod, shapeA: 0, shapeB: 4) * 0.4;
+    ZMorph.ar(src, morph: morphMod, shapeA: 0, shapeB: 4) * 0.4;
 }.play;
 )
 x.free;

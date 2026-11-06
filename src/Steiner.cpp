@@ -1,4 +1,4 @@
-#include "FSSteiner.hpp"
+#include "Steiner.hpp"
 #include <cmath>
 #include <algorithm>
 
@@ -10,7 +10,7 @@ static constexpr double kMaxK = 3.6; // K = 3.0 is self-oscillation threshold; u
 // -------------------------------------------------------------
 // Core Steiner-Parker TPT Solver Step
 // -------------------------------------------------------------
-static inline void FSSteiner_step(int mode, double x, double g, double K, double drive,
+static inline void Steiner_step(int mode, double x, double g, double K, double drive,
                                   double& s1, double& s2, double& out)
 {
     const double det0 = g * g + 3.0 * g + 1.0;
@@ -115,7 +115,7 @@ static inline void FSSteiner_step(int mode, double x, double g, double K, double
 // Control-Rate Calculation Loops (k-rate)
 // -------------------------------------------------------------
 
-void FSSteiner_next_lp_k(FSSteiner* unit, int inNumSamples) {
+void Steiner_next_lp_k(Steiner* unit, int inNumSamples) {
     const float* in = IN(0);
     float* out = OUT(0);
     const float sr = static_cast<float>(SAMPLERATE);
@@ -136,7 +136,7 @@ void FSSteiner_next_lp_k(FSSteiner* unit, int inNumSamples) {
 
     for (int i = 0; i < inNumSamples; ++i) {
         double y;
-        FSSteiner_step(0, static_cast<double>(in[i]), g, K, drive, s1, s2, y);
+        Steiner_step(0, static_cast<double>(in[i]), g, K, drive, s1, s2, y);
         out[i] = static_cast<float>(y);
     }
 
@@ -146,7 +146,7 @@ void FSSteiner_next_lp_k(FSSteiner* unit, int inNumSamples) {
     unit->m_s2 = zapgremlins(s2);
 }
 
-void FSSteiner_next_bp_k(FSSteiner* unit, int inNumSamples) {
+void Steiner_next_bp_k(Steiner* unit, int inNumSamples) {
     const float* in = IN(0);
     float* out = OUT(0);
     const float sr = static_cast<float>(SAMPLERATE);
@@ -167,7 +167,7 @@ void FSSteiner_next_bp_k(FSSteiner* unit, int inNumSamples) {
 
     for (int i = 0; i < inNumSamples; ++i) {
         double y;
-        FSSteiner_step(1, static_cast<double>(in[i]), g, K, drive, s1, s2, y);
+        Steiner_step(1, static_cast<double>(in[i]), g, K, drive, s1, s2, y);
         out[i] = static_cast<float>(y);
     }
 
@@ -177,7 +177,7 @@ void FSSteiner_next_bp_k(FSSteiner* unit, int inNumSamples) {
     unit->m_s2 = zapgremlins(s2);
 }
 
-void FSSteiner_next_hp_k(FSSteiner* unit, int inNumSamples) {
+void Steiner_next_hp_k(Steiner* unit, int inNumSamples) {
     const float* in = IN(0);
     float* out = OUT(0);
     const float sr = static_cast<float>(SAMPLERATE);
@@ -198,7 +198,7 @@ void FSSteiner_next_hp_k(FSSteiner* unit, int inNumSamples) {
 
     for (int i = 0; i < inNumSamples; ++i) {
         double y;
-        FSSteiner_step(2, static_cast<double>(in[i]), g, K, drive, s1, s2, y);
+        Steiner_step(2, static_cast<double>(in[i]), g, K, drive, s1, s2, y);
         out[i] = static_cast<float>(y);
     }
 
@@ -212,7 +212,7 @@ void FSSteiner_next_hp_k(FSSteiner* unit, int inNumSamples) {
 // Audio-Rate Calculation Loops (a-rate FM)
 // -------------------------------------------------------------
 
-void FSSteiner_next_lp_a(FSSteiner* unit, int inNumSamples) {
+void Steiner_next_lp_a(Steiner* unit, int inNumSamples) {
     const float* in = IN(0);
     const float* freqIn = IN(1);
     float* out = OUT(0);
@@ -234,7 +234,7 @@ void FSSteiner_next_lp_a(FSSteiner* unit, int inNumSamples) {
         const double g = std::tan(kPi * fc / static_cast<double>(sr));
 
         double y;
-        FSSteiner_step(0, static_cast<double>(in[i]), g, K, drive, s1, s2, y);
+        Steiner_step(0, static_cast<double>(in[i]), g, K, drive, s1, s2, y);
         out[i] = static_cast<float>(y);
     }
 
@@ -244,7 +244,7 @@ void FSSteiner_next_lp_a(FSSteiner* unit, int inNumSamples) {
     unit->m_s2 = zapgremlins(s2);
 }
 
-void FSSteiner_next_bp_a(FSSteiner* unit, int inNumSamples) {
+void Steiner_next_bp_a(Steiner* unit, int inNumSamples) {
     const float* in = IN(0);
     const float* freqIn = IN(1);
     float* out = OUT(0);
@@ -266,7 +266,7 @@ void FSSteiner_next_bp_a(FSSteiner* unit, int inNumSamples) {
         const double g = std::tan(kPi * fc / static_cast<double>(sr));
 
         double y;
-        FSSteiner_step(1, static_cast<double>(in[i]), g, K, drive, s1, s2, y);
+        Steiner_step(1, static_cast<double>(in[i]), g, K, drive, s1, s2, y);
         out[i] = static_cast<float>(y);
     }
 
@@ -276,7 +276,7 @@ void FSSteiner_next_bp_a(FSSteiner* unit, int inNumSamples) {
     unit->m_s2 = zapgremlins(s2);
 }
 
-void FSSteiner_next_hp_a(FSSteiner* unit, int inNumSamples) {
+void Steiner_next_hp_a(Steiner* unit, int inNumSamples) {
     const float* in = IN(0);
     const float* freqIn = IN(1);
     float* out = OUT(0);
@@ -298,7 +298,7 @@ void FSSteiner_next_hp_a(FSSteiner* unit, int inNumSamples) {
         const double g = std::tan(kPi * fc / static_cast<double>(sr));
 
         double y;
-        FSSteiner_step(2, static_cast<double>(in[i]), g, K, drive, s1, s2, y);
+        Steiner_step(2, static_cast<double>(in[i]), g, K, drive, s1, s2, y);
         out[i] = static_cast<float>(y);
     }
 
@@ -312,7 +312,7 @@ void FSSteiner_next_hp_a(FSSteiner* unit, int inNumSamples) {
 // Constructor
 // -------------------------------------------------------------
 
-void FSSteiner_Ctor(FSSteiner* unit) {
+void Steiner_Ctor(Steiner* unit) {
     unit->m_s1 = 0.0;
     unit->m_s2 = 0.0;
     unit->m_freq = -1.0f;
@@ -327,32 +327,32 @@ void FSSteiner_Ctor(FSSteiner* unit) {
     switch (unit->m_mode) {
         case 1: // Band-Pass
             if (isAudioRateFreq) {
-                SETCALC(FSSteiner_next_bp_a);
-                FSSteiner_next_bp_a(unit, 1);
+                SETCALC(Steiner_next_bp_a);
+                Steiner_next_bp_a(unit, 1);
             } else {
-                SETCALC(FSSteiner_next_bp_k);
-                FSSteiner_next_bp_k(unit, 1);
+                SETCALC(Steiner_next_bp_k);
+                Steiner_next_bp_k(unit, 1);
             }
             break;
 
         case 2: // High-Pass
             if (isAudioRateFreq) {
-                SETCALC(FSSteiner_next_hp_a);
-                FSSteiner_next_hp_a(unit, 1);
+                SETCALC(Steiner_next_hp_a);
+                Steiner_next_hp_a(unit, 1);
             } else {
-                SETCALC(FSSteiner_next_hp_k);
-                FSSteiner_next_hp_k(unit, 1);
+                SETCALC(Steiner_next_hp_k);
+                Steiner_next_hp_k(unit, 1);
             }
             break;
 
         case 0: // Low-Pass (default)
         default:
             if (isAudioRateFreq) {
-                SETCALC(FSSteiner_next_lp_a);
-                FSSteiner_next_lp_a(unit, 1);
+                SETCALC(Steiner_next_lp_a);
+                Steiner_next_lp_a(unit, 1);
             } else {
-                SETCALC(FSSteiner_next_lp_k);
-                FSSteiner_next_lp_k(unit, 1);
+                SETCALC(Steiner_next_lp_k);
+                Steiner_next_lp_k(unit, 1);
             }
             break;
     }

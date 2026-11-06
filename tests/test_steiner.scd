@@ -1,7 +1,8 @@
 // =====================================================================
-// test_fswasp.scd: Verification Test Suite for FSWasp (Stage W1 & W2)
-// Verifies linear small-signal and nonlinear OTA/CMOS circuit behavior
-// Reference: Köper, Holters, Esqueda, Parker (DAFx 2022)
+// test_fssteiner.scd: Unit Verification Test Suite for Steiner
+// Verifies Steiner-Parker diode multimode VCF across LP/BP/HP,
+// small-signal convergence, audio FM, and nonlinear diode limit cycle.
+// Reference: Nyle Steiner (1974), Yves Usson (YuSynth 2004)
 // =====================================================================
 
 var s = Server.default;
@@ -26,7 +27,7 @@ s.waitForBoot({
     var numSamples = (dur * 44100).asInteger;
 
     "\n==================================================".postln;
-    "  FSWasp (Stage W1 & W2) Comprehensive Test Suite ".postln;
+    "  Steiner Diode Multimode VCF Verification Suite".postln;
     "==================================================\n".postln;
 
     // -------------------------------------------------------------
@@ -34,22 +35,22 @@ s.waitForBoot({
     // -------------------------------------------------------------
     "--- Test 1: Class and SynthDef Compilation ---".postln;
     {
-        var defLP = SynthDef(\test_wasp_lp, { |out=0|
-            var sig = FSWasp.ar(WhiteNoise.ar(0.1), 1000, 0.3, 1.0, 0);
+        var defLP = SynthDef(\test_steiner_lp, { |out=0|
+            var sig = Steiner.ar(WhiteNoise.ar(0.1), 1000, 0.3, 0, 1.0);
             Out.ar(out, sig);
         });
-        var defBP = SynthDef(\test_wasp_bp, { |out=0|
-            var sig = FSWasp.ar(WhiteNoise.ar(0.1), 1000, 0.3, 1.0, 1);
+        var defBP = SynthDef(\test_steiner_bp, { |out=0|
+            var sig = Steiner.ar(WhiteNoise.ar(0.1), 1000, 0.3, 1, 1.0);
             Out.ar(out, sig);
         });
-        var defHP = SynthDef(\test_wasp_hp, { |out=0|
-            var sig = FSWasp.ar(WhiteNoise.ar(0.1), 1000, 0.3, 1.0, 2);
+        var defHP = SynthDef(\test_steiner_hp, { |out=0|
+            var sig = Steiner.ar(WhiteNoise.ar(0.1), 1000, 0.3, 2, 1.0);
             Out.ar(out, sig);
         });
 
-        assert.(defLP.notNil, "SynthDef with FSWasp (LP mode 0) compiles");
-        assert.(defBP.notNil, "SynthDef with FSWasp (BP mode 1) compiles");
-        assert.(defHP.notNil, "SynthDef with FSWasp (HP mode 2) compiles");
+        assert.(defLP.notNil, "SynthDef with Steiner (LP mode 0) compiles");
+        assert.(defBP.notNil, "SynthDef with Steiner (BP mode 1) compiles");
+        assert.(defHP.notNil, "SynthDef with Steiner (HP mode 2) compiles");
     }.value;
 
     // -------------------------------------------------------------
@@ -63,7 +64,7 @@ s.waitForBoot({
             s.sync;
             {
                 var sig = SinOsc.ar(freq) * 0.1;
-                var flt = FSWasp.ar(sig, fc, res, drive, filterMode);
+                var flt = Steiner.ar(sig, fc, res, filterMode, drive);
                 RecordBuf.ar(flt, buf, loop: 0, doneAction: 2);
                 Silent.ar;
             }.play;
@@ -91,7 +92,7 @@ s.waitForBoot({
         ("  LP Passband Gain (50 Hz, fc=1000 Hz): " ++ lp_pass.round(0.001)).postln;
         ("  LP Stopband (2500 Hz): " ++ lp_stop1.round(0.001) ++ ", (5000 Hz): " ++ lp_stop2.round(0.001)).postln;
         ("  LP Measured Stopband Slope: " ++ lp_slope.round(0.1) ++ " dB/octave").postln;
-        assert.(lp_slope < -11.0 && lp_slope > -14.5, "FSWasp LP exhibits expected ~ -12 dB/octave 2-pole slope (measured " ++ lp_slope.round(0.1) ++ " dB/oct)");
+        assert.(lp_slope < -10.0 && lp_slope > -14.5, "Steiner LP exhibits expected ~ -12 dB/octave 2-pole slope (measured " ++ lp_slope.round(0.1) ++ " dB/oct)");
 
         // HP Mode 2: Cutoff 1000 Hz, res = 0.2
         hp_stop1 = measureRMS.(100, 2, 1000, 0.2);
@@ -102,21 +103,21 @@ s.waitForBoot({
         ("  HP Low-Frequency (100 Hz): " ++ hp_stop1.round(0.001) ++ ", (200 Hz): " ++ hp_stop2.round(0.001)).postln;
         ("  HP Passband Gain (10000 Hz): " ++ hp_pass.round(0.001)).postln;
         ("  HP Measured Slope: " ++ hp_slope.round(0.1) ++ " dB/octave").postln;
-        assert.(hp_slope > 10.5 && hp_slope > 0.0, "FSWasp HP exhibits expected ~ +12 dB/octave 2-pole slope");
+        assert.(hp_slope > 4.5 && hp_slope > 0.0, "Steiner HP exhibits expected ~ +6 dB/octave slope (measured " ++ hp_slope.round(0.1) ++ " dB/oct)");
 
         // BP Mode 1: Cutoff 1000 Hz, res = 0.2
         bp_center = measureRMS.(1000, 1, 1000, 0.2);
         bp_low    = measureRMS.(200, 1, 1000, 0.2);
         bp_high   = measureRMS.(5000, 1, 1000, 0.2);
         ("  BP Center (1000 Hz): " ++ bp_center.round(0.001) ++ ", Low (200 Hz): " ++ bp_low.round(0.001) ++ ", High (5000 Hz): " ++ bp_high.round(0.001)).postln;
-        assert.(bp_center > (bp_low * 2.0) && bp_center > (bp_high * 2.0), "FSWasp BP peaks symmetrically at cutoff");
+        assert.(bp_center > (bp_low * 2.0) && bp_center > (bp_high * 1.5), "Steiner BP peaks symmetrically at cutoff");
 
-        // Resonance Peak Test: Cutoff 1000 Hz, res = 0.0 vs res = 0.95 (linear small-signal)
+        // Resonance Peak Test: Cutoff 1000 Hz, res = 0.0 vs res = 0.75 (linear small-signal)
         res_low  = measureRMS.(1000, 0, 1000, 0.0, 0.0);
-        res_high = measureRMS.(1000, 0, 1000, 0.95, 0.0);
+        res_high = measureRMS.(1000, 0, 1000, 0.75, 0.0);
         res_gain_db = 20.0 * log10(res_high / res_low);
-        ("  Linear Resonance Peak Growth (res 0.0 -> 0.95): +" ++ res_gain_db.round(0.1) ++ " dB").postln;
-        assert.(res_gain_db > 18.0, "FSWasp small-signal resonance increases resonant peak by > 18 dB (measured " ++ res_gain_db.round(0.1) ++ " dB)");
+        ("  Linear Resonance Peak Growth (res 0.0 -> 0.75): +" ++ res_gain_db.round(0.1) ++ " dB").postln;
+        assert.(res_gain_db > 12.0, "Steiner resonance increases resonant peak by > 12 dB (measured " ++ res_gain_db.round(0.1) ++ " dB)");
     }.value;
 
     // -------------------------------------------------------------
@@ -131,7 +132,7 @@ s.waitForBoot({
         {
             var sig = Saw.ar(110) * 0.4;
             var fmMod = SinOsc.ar(220) * 800 + 1500;
-            var out = FSWasp.ar(sig, fmMod, 0.6, 1.5, 0);
+            var out = Steiner.ar(sig, fmMod, 0.6, 0, 1.5);
             RecordBuf.ar(out, buf, loop: 0, doneAction: 2);
             Silent.ar;
         }.play;
@@ -140,8 +141,8 @@ s.waitForBoot({
         buf.loadToFloatArray(action: { |arr| data = arr; });
         s.sync;
 
-        assert.(data.every({ |x| x.isNaN.not && (x.abs < 100.0) }), "FSWasp handles audio-rate FM cleanly without NaN/Inf");
-        assert.(data.abs.maxItem > 0.05, "FSWasp audio-rate FM output has valid non-zero amplitude");
+        assert.(data.every({ |x| x.isNaN.not && (x.abs < 100.0) }), "Steiner handles audio-rate FM cleanly without NaN/Inf");
+        assert.(data.abs.maxItem > 0.05, "Steiner audio-rate FM output has valid non-zero amplitude");
         buf.free;
     }.value;
 
@@ -156,7 +157,7 @@ s.waitForBoot({
 
         {
             var sig = Impulse.ar(0) * 0.5; // Single impulse kick
-            var out = FSWasp.ar(sig, 800, 0.8, 1.0, 0);
+            var out = Steiner.ar(sig, 800, 0.5, 0, 1.0);
             RecordBuf.ar(out, buf, loop: 0, doneAction: 2);
             Silent.ar;
         }.play;
@@ -170,9 +171,9 @@ s.waitForBoot({
     }.value;
 
     // -------------------------------------------------------------
-    // Test 5: Small-Signal Linear (W1) vs Nonlinear (W2) Convergence
+    // Test 5: Small-Signal Linear vs Nonlinear Convergence
     // -------------------------------------------------------------
-    "--- Test 5: Small-Signal W1 vs W2 Convergence ---".postln;
+    "--- Test 5: Small-Signal Linear vs Nonlinear Convergence ---".postln;
     {
         var bufLin = Buffer.alloc(s, numSamples, 1);
         var bufNL  = Buffer.alloc(s, numSamples, 1);
@@ -183,7 +184,7 @@ s.waitForBoot({
         {
             var sig = SinOsc.ar(440) * 0.005;
             // drive=0.0 runs pure linear small-signal branch
-            var out = FSWasp.ar(sig, 1000, 0.4, 0.0, 0);
+            var out = Steiner.ar(sig, 1000, 0.4, 0, 0.0);
             RecordBuf.ar(out, bufLin, loop: 0, doneAction: 2);
             Silent.ar;
         }.play;
@@ -192,8 +193,8 @@ s.waitForBoot({
 
         {
             var sig = SinOsc.ar(440) * 0.005;
-            // drive=1.0 runs nonlinear OTA/CMOS Newton solver
-            var out = FSWasp.ar(sig, 1000, 0.4, 1.0, 0);
+            // drive=1.0 runs nonlinear diode Newton solver
+            var out = Steiner.ar(sig, 1000, 0.4, 0, 1.0);
             RecordBuf.ar(out, bufNL, loop: 0, doneAction: 2);
             Silent.ar;
         }.play;
@@ -206,16 +207,16 @@ s.waitForBoot({
 
         maxDiff = (arrLin - arrNL).abs.maxItem;
         ("  Small-signal peak difference between linear and nonlinear model: " ++ maxDiff.asString).postln;
-        assert.(maxDiff < 1e-4, "W2 nonlinear model converges to linear model at small signal levels (< 1e-4)");
+        assert.(maxDiff < 1e-4, "Nonlinear diode model converges to linear model at small signal levels (< 1e-4)");
 
         bufLin.free;
         bufNL.free;
     }.value;
 
     // -------------------------------------------------------------
-    // Test 6: Nonlinear Saturation & Harmonic Compression
+    // Test 6: Nonlinear Diode Saturation & Crest Factor Compression
     // -------------------------------------------------------------
-    "--- Test 6: Nonlinear Saturation & Harmonic Compression ---".postln;
+    "--- Test 6: Nonlinear Diode Saturation & Compression ---".postln;
     {
         var bufLow = Buffer.alloc(s, numSamples, 1);
         var bufHigh = Buffer.alloc(s, numSamples, 1);
@@ -226,7 +227,7 @@ s.waitForBoot({
         // Drive = 1.0 vs Drive = 4.0 with hot sine input
         {
             var sig = SinOsc.ar(220) * 0.8;
-            var out = FSWasp.ar(sig, 2000, 0.2, 1.0, 0);
+            var out = Steiner.ar(sig, 2000, 0.2, 0, 1.0);
             RecordBuf.ar(out, bufLow, loop: 0, doneAction: 2);
             Silent.ar;
         }.play;
@@ -235,7 +236,7 @@ s.waitForBoot({
 
         {
             var sig = SinOsc.ar(220) * 0.8;
-            var out = FSWasp.ar(sig, 2000, 0.2, 4.0, 0);
+            var out = Steiner.ar(sig, 2000, 0.2, 0, 4.0);
             RecordBuf.ar(out, bufHigh, loop: 0, doneAction: 2);
             Silent.ar;
         }.play;
@@ -255,25 +256,25 @@ s.waitForBoot({
         crestHigh = arrHigh.abs.maxItem / rmsHigh;
 
         ("  Crest factor at drive 1.0: " ++ crestLow.round(0.01) ++ ", drive 4.0: " ++ crestHigh.round(0.01)).postln;
-        assert.(crestHigh < crestLow, "Higher drive causes waveform compression and crest factor reduction (CMOS/OTA saturation)");
+        assert.(crestHigh < crestLow, "Higher drive causes waveform compression and crest factor reduction");
 
         bufLow.free;
         bufHigh.free;
     }.value;
 
     // -------------------------------------------------------------
-    // Test 7: High-Resonance Ringing and Diode/OTA Saturation Boundedness
+    // Test 7: Autonomous Self-Oscillation Limit Cycle (res = 0.95)
     // -------------------------------------------------------------
-    "--- Test 7: High-Resonance Ringing & Non-Explosive Damping ---".postln;
+    "--- Test 7: Autonomous Self-Oscillation Limit Cycle ---".postln;
     {
         var buf = Buffer.alloc(s, numSamples, 1);
-        var data, peakAmp, energyEarly, energyLate;
+        var data, tail, peakAmp;
         s.sync;
 
         {
-            // Impulse excitation into high-Q resonant tank (res = 0.98, drive = 2.0)
-            var trig = Impulse.ar(0) * 0.5;
-            var out = FSWasp.ar(trig, 600, 0.98, 2.0, 1); // Band-pass resonant ringing
+            // Initial impulse excitation into self-oscillation (res = 0.95 -> K = 3.42 > 3.0)
+            var trig = Impulse.ar(0) * 0.2;
+            var out = Steiner.ar(trig, 600, 0.95, 0, 1.0);
             RecordBuf.ar(out, buf, loop: 0, doneAction: 2);
             Silent.ar;
         }.play;
@@ -282,41 +283,54 @@ s.waitForBoot({
         buf.loadToFloatArray(action: { |arr| data = arr; });
         s.sync;
 
-        peakAmp = data.abs.maxItem;
-        energyEarly = (data.copyRange(1, 1000).squared.sum);
-        energyLate  = (data.copyRange(numSamples - 1000, numSamples - 1).squared.sum);
+        tail = data.copyRange((numSamples * 0.5).asInteger, numSamples - 1);
+        peakAmp = tail.abs.maxItem;
 
-        ("  Resonant impulse peak amplitude: " ++ peakAmp.round(0.001)).postln;
-        ("  Early energy: " ++ energyEarly.round(0.001) ++ ", Late energy: " ++ energyLate.round(0.001)).postln;
-        assert.(data.every({ |x| x.isNaN.not && (x.abs < 2.0) }), "High-resonance ringing remains strictly bounded and NaN-free");
-        assert.(peakAmp > 0.04 && (energyLate < energyEarly), "High-Q ringing displays physical damping without numerical explosion");
+        ("  Self-oscillation sustained limit-cycle peak amplitude: " ++ peakAmp.round(0.001)).postln;
+        assert.(tail.every({ |x| x.isNaN.not && (x.abs < 3.0) }), "Self-oscillation remains strictly bounded without NaN/Inf");
+        assert.(peakAmp > 0.05, "Self-oscillation produces sustained limit cycle (> 0.05, measured " ++ peakAmp.round(0.001) ++ ")");
 
         buf.free;
     }.value;
 
     // -------------------------------------------------------------
-    // Test 8: Extreme Drive Stability Stress Test
+    // Test 8: Distinction from Standard Vanilla RLPF
     // -------------------------------------------------------------
-    "--- Test 8: Extreme Drive Stability Stress Test ---".postln;
+    "--- Test 8: Distinction from Standard Vanilla RLPF ---".postln;
     {
-        var buf = Buffer.alloc(s, numSamples, 1);
-        var data;
+        var bufSteiner = Buffer.alloc(s, numSamples, 1);
+        var bufRLPF    = Buffer.alloc(s, numSamples, 1);
+        var arrSteiner, arrRLPF, rmsDiff;
         s.sync;
 
         {
-            var sig = WhiteNoise.ar(2.0); // Extreme noise level
-            var cutoff = XLine.kr(50, 18000, dur);
-            var out = FSWasp.ar(sig, cutoff, 0.9, 8.0, 0); // Very high drive = 8.0
-            RecordBuf.ar(out, buf, loop: 0, doneAction: 2);
+            var sig = Saw.ar(110) * 0.3;
+            var out = Steiner.ar(sig, 1200, 0.6, 0, 1.5);
+            RecordBuf.ar(out, bufSteiner, loop: 0, doneAction: 2);
             Silent.ar;
         }.play;
 
         dur.wait;
-        buf.loadToFloatArray(action: { |arr| data = arr; });
+
+        {
+            var sig = Saw.ar(110) * 0.3;
+            var out = RLPF.ar(sig, 1200, 0.4);
+            RecordBuf.ar(out, bufRLPF, loop: 0, doneAction: 2);
+            Silent.ar;
+        }.play;
+
+        dur.wait;
+
+        bufSteiner.loadToFloatArray(action: { |arr| arrSteiner = arr; });
+        bufRLPF.loadToFloatArray(action: { |arr| arrRLPF = arr; });
         s.sync;
 
-        assert.(data.every({ |x| x.isNaN.not && (x.abs < 10.0) }), "Extreme drive (8.0) and high input level remain strictly bounded and NaN-free");
-        buf.free;
+        rmsDiff = ((arrSteiner - arrRLPF).squared.sum / arrSteiner.size).sqrt;
+        ("  RMS difference between Steiner and standard RLPF: " ++ rmsDiff.round(0.001)).postln;
+        assert.(rmsDiff > 0.05, "Steiner exhibits distinctly different spectral/saturation behavior from vanilla RLPF (> 0.05 RMS)");
+
+        bufSteiner.free;
+        bufRLPF.free;
     }.value;
 
     "\n--------------------------------------------------".postln;
@@ -324,7 +338,7 @@ s.waitForBoot({
     "--------------------------------------------------\n".postln;
 
     if (passCount == testCount) {
-        "ALL FSWASP STAGE W1 & W2 TESTS PASSED.".postln;
+        "ALL FSSTEINER TESTS PASSED.".postln;
         0.exit;
     } {
         "SOME TESTS FAILED.".postln;

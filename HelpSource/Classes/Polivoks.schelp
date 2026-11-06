@@ -1,10 +1,10 @@
-TITLE:: FSPolivoks
+TITLE:: Polivoks
 summary:: Virtual Analog Model of the Formanta Polivoks VCF
 categories:: UGens>Filters
 related:: Classes/FSWasp, Classes/FSSteiner, Classes/MS20Diode
 
 DESCRIPTION::
-FSPolivoks is a virtual analog model of the legendary voltage-controlled filter designed by Vladimir Kuzmin in 1982 for the Soviet Formanta Polivoks synthesizer.
+Polivoks is a virtual analog model of the legendary voltage-controlled filter designed by Vladimir Kuzmin in 1982 for the Soviet Formanta Polivoks synthesizer.
 
 The Polivoks VCF is an idiosyncratic state-variable integrator cascade built using two Soviet K140UD12 (К140УД12 / µA776 equivalent) programmable operational amplifiers. In this classic Soviet circuit, no external capacitors are used in the core integrators; instead, dynamic control of the op-amp programming current (I_set) modulates the internal slew rate and transconductance to sweep the cutoff frequency.
 
@@ -49,7 +49,7 @@ s.boot;
 x = {
     var src = Saw.ar([110, 110.5]) * 0.2;
     var cutoff = SinOsc.kr(0.2).exprange(100, 8000);
-    FSPolivoks.ar(src, freq: cutoff, res: 0.6, mode: 0, drive: 1.0) * 0.3;
+    Polivoks.ar(src, freq: cutoff, res: 0.6, mode: 0, drive: 1.0) * 0.3;
 }.play;
 )
 x.free;
@@ -59,7 +59,7 @@ x.free;
 x = {
     var src = PinkNoise.ar(0.3 ! 2);
     var cutoff = SinOsc.kr(0.15).exprange(200, 4000);
-    FSPolivoks.ar(src, freq: cutoff, res: 0.85, mode: 1, drive: 1.0) * 0.4;
+    Polivoks.ar(src, freq: cutoff, res: 0.85, mode: 1, drive: 1.0) * 0.4;
 }.play;
 )
 x.free;
@@ -70,7 +70,7 @@ x = {
     var mod = SinOsc.ar(150) * 1200;
     var cutoff = (2000 + mod).clip(20, 18000);
     var src = Pulse.ar(55, 0.3) * 0.25 ! 2;
-    FSPolivoks.ar(src, freq: cutoff, res: 0.7, mode: 0, drive: 1.0) * 0.3;
+    Polivoks.ar(src, freq: cutoff, res: 0.7, mode: 0, drive: 1.0) * 0.3;
 }.play;
 )
 x.free;

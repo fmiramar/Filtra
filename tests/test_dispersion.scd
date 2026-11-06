@@ -1,5 +1,5 @@
 // =====================================================================
-// test_fsdispersion.scd: Verification Test Suite for FSDispersion
+// test_fsdispersion.scd: Verification Test Suite for Dispersion
 // Verifies 4-stage cascaded 2nd-order TPT all-pass dispersion filter:
 // - Exact flat magnitude preservation across audio frequencies
 // - Temporal impulse dispersion and Parseval energy conservation
@@ -31,7 +31,7 @@ s.waitForBoot({
     var numSamples = (dur * 44100).asInteger;
 
     "\n==================================================".postln;
-    "  FSDispersion Verification Suite                ".postln;
+    "  Dispersion Verification Suite                ".postln;
     "==================================================\n".postln;
 
     // -------------------------------------------------------------
@@ -40,11 +40,11 @@ s.waitForBoot({
     "--- Test 1: Class and SynthDef Compilation ---".postln;
     {
         var def = SynthDef(\test_dispersion_def, { |out=0|
-            var sig = FSDispersion.ar(WhiteNoise.ar(0.1), 1500, 1.0, 2.0);
+            var sig = Dispersion.ar(WhiteNoise.ar(0.1), 1500, 1.0, 2.0);
             Out.ar(out, sig);
         });
 
-        assert.(def.notNil, "SynthDef with FSDispersion compiles");
+        assert.(def.notNil, "SynthDef with Dispersion compiles");
     }.value;
 
     // -------------------------------------------------------------
@@ -60,7 +60,7 @@ s.waitForBoot({
 
             {
                 var src = SinOsc.ar(testFreq) * 0.2;
-                var flt = FSDispersion.ar(src, centerFreq, spreadVal, qVal);
+                var flt = Dispersion.ar(src, centerFreq, spreadVal, qVal);
                 RecordBuf.ar(src, bufIn, loop: 0, doneAction: 2);
                 RecordBuf.ar(flt, bufOut, loop: 0, doneAction: 0);
                 Silent.ar;
@@ -111,7 +111,7 @@ s.waitForBoot({
 
         {
             var pulse = Impulse.ar(0) * 1.0;
-            var flt = FSDispersion.ar(pulse, 1500, 1.5, 4.0);
+            var flt = Dispersion.ar(pulse, 1500, 1.5, 4.0);
             RecordBuf.ar(flt, buf, loop: 0, doneAction: 2);
             Silent.ar;
         }.play;
@@ -145,7 +145,7 @@ s.waitForBoot({
 
         {
             var src = Saw.ar(130) * 0.25;
-            var flt = FSDispersion.ar(src, 1200, 1.0, 3.0);
+            var flt = Dispersion.ar(src, 1200, 1.0, 3.0);
             var diff = src - flt;
             RecordBuf.ar(diff, bufDiff, loop: 0, doneAction: 2);
             Silent.ar;
@@ -160,7 +160,7 @@ s.waitForBoot({
         bufDiff.free;
 
         ("  RMS Difference vs Dry Signal: " ++ diffRMS.round(0.001)).postln;
-        assert.(diffRMS > 0.05, "FSDispersion creates distinct phase shift / group delay (diff RMS " ++ diffRMS.round(0.001) ++ ")");
+        assert.(diffRMS > 0.05, "Dispersion creates distinct phase shift / group delay (diff RMS " ++ diffRMS.round(0.001) ++ ")");
     }.value;
 
     // -------------------------------------------------------------
@@ -176,7 +176,7 @@ s.waitForBoot({
         {
             var src = Pulse.ar(90, 0.3) * 0.25;
             var centerSweep = XLine.kr(100, 12000, dur);
-            var flt = FSDispersion.ar(src, centerSweep, 1.5, 4.0);
+            var flt = Dispersion.ar(src, centerSweep, 1.5, 4.0);
             RecordBuf.ar(flt, buf, loop: 0, doneAction: 2);
             Silent.ar;
         }.play;
@@ -208,7 +208,7 @@ s.waitForBoot({
         {
             var src = Saw.ar(80) * 0.25;
             var mod = SinOsc.ar(250) * 1500;
-            var flt = FSDispersion.ar(src, (2500 + mod).clip(50, 18000), 1.0, 3.0);
+            var flt = Dispersion.ar(src, (2500 + mod).clip(50, 18000), 1.0, 3.0);
             RecordBuf.ar(flt, buf, loop: 0, doneAction: 2);
             Silent.ar;
         }.play;
@@ -239,7 +239,7 @@ s.waitForBoot({
 
         {
             var pulse = Impulse.ar(0) * 1.0;
-            var flt = FSDispersion.ar(pulse, 2000, 0.0, 10.0);
+            var flt = Dispersion.ar(pulse, 2000, 0.0, 10.0);
             RecordBuf.ar(flt, buf, loop: 0, doneAction: 2);
             Silent.ar;
         }.play;
@@ -262,7 +262,7 @@ s.waitForBoot({
     // Final Summary
     // -------------------------------------------------------------
     "\n==================================================".postln;
-    ("  FSDispersion Verification Summary: " ++ passCount ++ " / " ++ testCount ++ " tests passed").postln;
+    ("  Dispersion Verification Summary: " ++ passCount ++ " / " ++ testCount ++ " tests passed").postln;
     "==================================================\n".postln;
 
     if (passCount == testCount) {

@@ -48,10 +48,10 @@ struct ZFilterBank {
     }
 };
 
-// FSZMorph: Original digital multiresonant filter response morphing
+// ZMorph: Original digital multiresonant filter response morphing
 // Reference concept: Rossum / E-mu Z-plane morphing (original DSP and presets, no proprietary ROM)
 // Parallel processing of Shape A and Shape B with equal-gain response crossfade morph in [0, 1]
-struct FSZMorph : public Unit {
+struct ZMorph : public Unit {
     float m_morph;
     int m_shapeA;
     int m_shapeB;
@@ -60,8 +60,12 @@ struct FSZMorph : public Unit {
     ZFilterBank m_bankB;
 };
 
-void FSZMorph_Ctor(FSZMorph* unit);
-void FSZMorph_next_k(FSZMorph* unit, int inNumSamples);
-void FSZMorph_next_a(FSZMorph* unit, int inNumSamples);
+using FSZMorph = ZMorph;
+
+void ZMorph_Ctor(ZMorph* unit);
+void ZMorph_next_k(ZMorph* unit, int inNumSamples);
+void ZMorph_next_a(ZMorph* unit, int inNumSamples);
+
+inline void FSZMorph_Ctor(FSZMorph* unit) { ZMorph_Ctor(unit); }
 
 } // namespace fs
