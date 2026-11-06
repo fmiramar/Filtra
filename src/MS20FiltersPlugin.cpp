@@ -8,6 +8,8 @@
 #include "Polivoks.hpp"
 #include "ZMorph.hpp"
 #include "Dispersion.hpp"
+#include "CS80.hpp"
+#include "RolandOTA.hpp"
 
 static InterfaceTable* ft;
 
@@ -25,4 +27,6 @@ PluginLoad(MS20Filters) {
     (*ft->fDefineUnit)("Polivoks", sizeof(fs::Polivoks), (UnitCtorFunc)&fs::Polivoks_Ctor, 0, 0);
     (*ft->fDefineUnit)("ZMorph", sizeof(fs::ZMorph), (UnitCtorFunc)&fs::ZMorph_Ctor, 0, 0);
     (*ft->fDefineUnit)("Dispersion", sizeof(fs::Dispersion), (UnitCtorFunc)&fs::Dispersion_Ctor, 0, 0);
+    (*ft->fDefineUnit)("CS80", sizeof(fs::CS80), (UnitCtorFunc)&fs::CS80_Ctor, 0, 0);
+    (*ft->fDefineUnit)("RolandOTA", sizeof(fs::RolandOTA), (UnitCtorFunc)&fs::RolandOTA_Ctor, 0, 0);
 }

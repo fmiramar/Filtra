@@ -1,0 +1,60 @@
+TITLE:: CS80
+summary:: Yamaha CS-80 Series Independently Resonant High-Pass -> Low-Pass Filter Pair
+categories:: UGens>Filters
+related:: Guides/Filtra, Classes/RolandOTA, Classes/Wasp, Classes/Steiner, Classes/Polivoks
+
+DESCRIPTION::
+CS80 models the iconic series dual-filter architecture of the Yamaha CS-50, CS-60, and CS-80 polyphonic synthesizers (based on custom Yamaha IG00153 / IG00156 VCF hybrid circuits).
+
+The architecture places a 2-pole (12 dB/octave) resonant High-Pass filter and a 2-pole (12 dB/octave) resonant Low-Pass filter in direct series, each with completely independent cutoff frequency and resonance control. An inter-stage nonlinear drive stage provides authentic analog soft-clipping and harmonic warmth.
+
+When both resonance controls are elevated, CS80 produces the famous dual-formant resonant peaks responsible for the singing, vocal qualities of classic CS-80 brass, pads, and sweeping lead voices. Both sections are modeled with Zero-Delay Feedback (TPT/ZDF) trapezoidal integrators, ensuring unconditional numerical stability even when the high-pass cutoff sweeps above the low-pass cutoff.
+
+CLASSMETHODS::
+
+METHOD:: ar
+
+ARGUMENT:: in
+Audio-rate input signal.
+
+ARGUMENT:: hpFreq
+High-pass filter cutoff frequency in Hertz (10 Hz to 0.49 * sampleRate). Supports audio rate and control rate. Default: 100.0.
+
+ARGUMENT:: hpRes
+High-pass filter resonance in [0.0, 1.0]. Values approaching 1.0 produce sharp high-pass formant ringing and self-oscillation. Default: 0.0.
+
+ARGUMENT:: lpFreq
+Low-pass filter cutoff frequency in Hertz (10 Hz to 0.49 * sampleRate). Supports audio rate and control rate. Default: 8000.0.
+
+ARGUMENT:: lpRes
+Low-pass filter resonance in [0.0, 1.0]. Values approaching 1.0 produce sharp low-pass formant ringing and self-oscillation. Default: 0.0.
+
+ARGUMENT:: drive
+Inter-stage non-linear drive gain (range [0.01, 20.0], default: 1.0). Controls warm soft-clipping between the HP and LP stages.
+
+returns:: An audio-rate filtered signal.
+
+EXAMPLES::
+
+CODE::
+s.boot;
+
+// 1. Classic CS-80 Dual-Resonant Brass Sweep
+(
+x = {
+    var saw = Saw.ar([55, 55.4]) * 0.25;
+    var hpCutoff = SinOsc.kr(0.1, 0).exprange(80, 600);
+    var lpCutoff = SinOsc.kr(0.15, pi).exprange(1200, 6000);
+    CS80.ar(saw, hpFreq: hpCutoff, hpRes: 0.75, lpFreq: lpCutoff, lpRes: 0.8, drive: 1.5) * 0.4;
+}.play;
+)
+
+// 2. High-Pass Squelch & Formant Modulation
+(
+x = {
+    var pulse = Pulse.ar([110, 110.5], 0.3) * 0.2;
+    var hpMod = LFTri.kr(0.3).exprange(100, 2000);
+    CS80.ar(pulse, hpFreq: hpMod, hpRes: 0.9, lpFreq: 10000, lpRes: 0.2, drive: 2.0) * 0.4;
+}.play;
+)
+::

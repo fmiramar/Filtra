@@ -250,5 +250,43 @@
     When $\text{spread} = 0$, all 4 sections align at `center`, concentrating the group delay into a sharp resonant ping ($\tau_g = 16 Q / \omega_c$). When $\text{spread} > 0$, frequencies fan out to produce realistic acoustic stiffness, string inharmonicity, and dispersive spring/plate reverb smears.
 
 
+## 16. Milestone 6: Yamaha CS-80 Series HP -> LP Pair (`CS80`)
+* **Primary References:**
+  * Yamaha Corporation (1977), *Yamaha CS-80 Synthesizer Service Manual & Circuit Schematics*, Hamamatsu, Japan.
+  * Yamaha IG00153 / IG00156 custom hybrid VCF circuit analyses and patent documentation.
+* **Filter Architecture & Mathematical Formulation:**
+  * Implemented as a direct cascade of two independent 2-pole (12 dB/octave) state-variable / Sallen-Key filters in series:
+    1. **High-Pass Stage (HPF):**
+       $$g_{hp} = \tan\left(\frac{\pi f_{hp}}{f_s}\right), \quad R_{hp} = 2 \cdot (1 - 0.999 \cdot \text{res}_{hp}), \quad D_{hp} = 1 + R_{hp} g_{hp} + g_{hp}^2$$
+       $$v_{hp} = \frac{v_{in} - R_{hp} s_{1, hp} - s_{2, hp}}{D_{hp}}$$
+       $$v_{mid} = \tanh(\text{drive} \cdot v_{hp})$$
+    2. **Low-Pass Stage (LPF):**
+       $$g_{lp} = \tan\left(\frac{\pi f_{lp}}{f_s}\right), \quad R_{lp} = 2 \cdot (1 - 0.999 \cdot \text{res}_{lp}), \quad D_{lp} = 1 + R_{lp} g_{lp} + g_{lp}^2$$
+       $$v_{lp, hp} = \frac{v_{mid} - R_{lp} s_{1, lp} - s_{2, lp}}{D_{lp}}$$
+       $$v_{lp} = g_{lp}^2 v_{lp, hp} + g_{lp} s_{1, lp} + s_{2, lp}$$
+  * **Dual Resonant Peaks & Inverse Overlap Stability:**
+    * When $f_{hp} < f_{lp}$, the combined cascade forms a dual-formant resonant bandpass filter with independent lower and upper formant resonance.
+    * When $f_{hp} > f_{lp}$, the passbands overlap inversely; the TPT trapezoidal solver maintains strict numerical stability ($|v_{out}| < 0.2$) with smooth band-reject attenuation and zero pole divergence.
+
+
+## 17. Milestone 7: Roland IR3109 4-Stage OTA Cascade (`RolandOTA`)
+* **Primary References:**
+  * Roland Corporation (1981–1984), *Roland Juno-6, Juno-60, Jupiter-8, and SH-101 Service Manuals & VCF Schematics*, Osaka, Japan.
+  * Colin Fraser and Electric Druid, *Roland Filter Designs with the IR3109 and AS3109*, https://electricdruid.net/roland-filter-designs-with-the-ir3109-or-as3109/
+* **Circuit Topology & Mathematical Formulation:**
+  * Four active 1st-order operational transconductance amplifier (OTA) integrators in cascade with global negative feedback:
+    $$u_1 = v_{in} \cdot (1 + 4 k_{res} \cdot \text{resComp}) - 4 k_{res} \cdot \tanh(\text{drive} \cdot y_4) / \text{drive}$$
+  * Each 1st-order TPT integrator stage ($G = \frac{g}{1 + g}, S_k = \frac{s_k}{1 + g}$):
+    $$y_k = \tanh(\text{drive} \cdot (G \cdot u_k + S_k)) / \text{drive}$$
+    $$s_k \leftarrow 2 y_k - s_k$$
+  * **Closed-Form Zero-Delay Prediction:**
+    The 4-stage feedback algebraic loop is solved instantaneously in closed form:
+    $$y_4 = \frac{G^4 v_{in} + G^3 S_1 + G^2 S_2 + G S_3 + S_4}{1 + 4 k_{res} G^4}$$
+  * **Authentic Roland Bass Drop & Compensation:**
+    * At DC ($s \to 0$), the closed-loop gain is $H(0) = \frac{1}{1 + 4 k_{res}}$. At high resonance ($k_{res} = 1.0$), low frequencies attenuate by $-14\text{ dB}$, producing the iconic Roland thin/cutting resonant lead tone.
+    * The `resComp` parameter scales input passband gain by $(1 + 4 k_{res} \cdot \text{resComp})$, allowing users to switch between vintage authentic bass drop (`resComp = 0.0`) and full low-end punch (`resComp = 1.0`).
+
+
+
 
 

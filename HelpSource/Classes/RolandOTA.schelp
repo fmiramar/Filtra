@@ -1,0 +1,67 @@
+TITLE:: RolandOTA
+summary:: Virtual Analog Model of the Roland IR3109 4-Stage OTA Cascade VCF
+categories:: UGens>Filters
+related:: Guides/Filtra, Classes/CS80, Classes/Wasp, Classes/MS20OTA
+
+DESCRIPTION::
+RolandOTA is a virtual analog model of the 4-pole (24 dB/octave) low-pass filter based on the custom Roland IR3109 integrated circuit, famously featured in the Juno-6, Juno-60, Jupiter-8, and SH-101 synthesizers.
+
+The circuit topology consists of four cascaded 1st-order operational transconductance amplifier (OTA) integrators enclosed in a global negative feedback loop. At high resonance settings (res >= 1.0), the filter enters autonomous sinusoidal self-oscillation. Each OTA stage incorporates hyperbolic tangent (tanh) soft-saturation corresponding to the bipolar differential transistor pair.
+
+RolandOTA features an authentic simulation of the natural "bass drop" characteristic of vintage Roland ladders under high resonance, along with an optional strong>resComp:: parameter to compensate for low-frequency attenuation when modern punch is required.
+
+CLASSMETHODS::
+
+METHOD:: ar
+
+ARGUMENT:: in
+Audio-rate input signal.
+
+ARGUMENT:: freq
+Filter cutoff frequency in Hertz (10 Hz to 0.49 * sampleRate). Supports audio rate and control rate. Default: 1000.0.
+
+ARGUMENT:: res
+Resonance parameter in [0.0, 1.2]. Self-oscillation occurs at res >= 1.0. Default: 0.0.
+
+ARGUMENT:: drive
+Overdrive factor (default 1.0, range [0.01, 20.0]). Controls input and inter-stage OTA saturation depth.
+
+ARGUMENT:: resComp
+Resonance bass-loss compensation factor in [0.0, 1.0].
+When set to 0.0, displays authentic vintage Roland bass attenuation as resonance increases.
+When set to 1.0, actively compensates low frequencies, maintaining low-end energy while ringing. Default: 0.0.
+
+returns:: An audio-rate filtered signal.
+
+EXAMPLES::
+
+CODE::
+s.boot;
+
+// 1. Classic Juno/Jupiter 4-pole Low-Pass Acid Sweep
+(
+x = {
+    var saw = Saw.ar([110, 110.5]) * 0.25;
+    var cutoff = SinOsc.kr(0.2).exprange(150, 4500);
+    RolandOTA.ar(saw, freq: cutoff, res: 0.85, drive: 1.5, resComp: 0.0) * 0.4;
+}.play;
+)
+
+// 2. Bass-Loss Compensation (resComp = 0 vs 1)
+(
+x = {
+    var bass = Pulse.ar(55, 0.4) * 0.3 ! 2;
+    var toggle = LFPulse.kr(0.5); // alternates every 2 seconds
+    RolandOTA.ar(bass, freq: 800, res: 0.9, drive: 1.0, resComp: toggle) * 0.4;
+}.play;
+)
+
+// 3. Singing Self-Oscillation Sine Melody
+(
+x = {
+    var trig = Impulse.ar(0);
+    var pitch = Demand.kr(Impulse.kr(4), 0, Dseq([440, 554.37, 659.25, 880], inf));
+    RolandOTA.ar(trig * 0.1, freq: pitch, res: 1.05, drive: 1.0) * 0.5 ! 2;
+}.play;
+)
+::

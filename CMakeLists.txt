@@ -46,6 +46,8 @@ set(MS20_PLUGIN_SOURCES
     src/Polivoks.cpp
     src/ZMorph.cpp
     src/Dispersion.cpp
+    src/CS80.cpp
+    src/RolandOTA.cpp
 )
 
 add_library(MS20Filters MODULE ${MS20_PLUGIN_SOURCES})

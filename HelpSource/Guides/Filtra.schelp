@@ -1,17 +1,19 @@
 TITLE:: Filtra
 summary:: A SuperCollider UGen Suite for Filter and Resonance
 categories:: Guides>Filters, UGens>Filters
-related:: Classes/Wasp, Classes/Steiner, Classes/Polivoks, Classes/ZMorph, Classes/Dispersion, Classes/MS20SK, Classes/MS20TPT, Classes/MS20Diode, Classes/MS20OTA, Classes/MS20Circuit, Guides/MS20Filters
+related:: Classes/Wasp, Classes/Steiner, Classes/Polivoks, Classes/ZMorph, Classes/Dispersion, Classes/CS80, Classes/RolandOTA, Classes/MS20SK, Classes/MS20TPT, Classes/MS20Diode, Classes/MS20OTA, Classes/MS20Circuit, Guides/MS20Filters
 
 DESCRIPTION::
 image::filtra_banner.png#Filtra - A SuperCollider UGen Suite for Filter and Resonance::
 
-strong::Filtra:: is a comprehensive, physically informed suite of ten real-time SuperCollider server UGens providing virtual-analog models of historic vintage synthesizer filters alongside original digital multiresonant and dispersive processors.
+strong::Filtra:: is a comprehensive, physically informed suite of twelve real-time SuperCollider server UGens providing virtual-analog models of historic vintage synthesizer filters alongside original digital multiresonant and dispersive processors.
 
 Each filter has been modeled using modern Zero-Delay Feedback (ZDF) and Topology-Preserving Transform (TPT) numerical techniques, capturing the exact capacitor state dynamics, nonlinear transfer curves, saturation harmonics, and autonomous self-oscillation limit cycles of the original analog hardware without numerical delay-memory artifacts.
 
 TABLE::
 ## UGen || Architecture / Origin || Order || Modes || Nonlinear Element || Key Sonic Character
+## link::Classes/CS80:: || Yamaha CS-80 Series (IG00153 / IG00156) || 4 || Series HP -> LP || Inter-stage Differential Saturation || Iconic dual resonant formant peaks, independent HP/LP sweeps, Vangelis brass.
+## link::Classes/RolandOTA:: || Roland IR3109 (Juno-60 / Jupiter-8) || 4 || LP (-24 dB/oct) || OTA Differential Tanh Limiting || Liquid singing self-oscillation, authentic Roland bass drop with optional compensation.
 ## link::Classes/Wasp:: || Electronic Dream Plant (EDP) Wasp (1978) || 2 || LP, BP, HP || CA3080 OTA + CD4069 CMOS Inverters || Biting, aggressive odd harmonics, dirty British synth character.
 ## link::Classes/Steiner:: || Steiner–Parker Synthacon (1974) || 2 || LP, BP, HP || Antiparallel Silicon Diode Limiter || Variable diode resistance, singing limit cycles, multi-input injection.
 ## link::Classes/Polivoks:: || Formanta Polivoks (1982) || 2 || LP, BP || K140UD12 Programmable Op-Amp Saturation || "Capacitor-less" slew/transconductance saturation and dirty Soviet growl.
