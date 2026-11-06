@@ -135,3 +135,30 @@
     Monotonically increasing ($F'(v) \ge 1$), strictly guaranteed unique real root, solved in max 4 iterations via Newton-Raphson to machine precision ($< 10^{-6}$).
   * High-drive harmonic compression: higher drive compresses fundamental crest factor and produces authentic odd-order analog warmth.
   * Small-signal convergence: converges to Stage W1 linear model to within $< 10^{-7}$ for quiet signals.
+
+
+## 12. Milestone 2: Steiner-Parker Multimode Diode VCF (`FSSteiner`)
+* **Primary References:**
+  * Nyle A. Steiner (1974), "Voltage-tunable active filter features low, high and bandpass modes", *Electronic Design*, Issue 25, Dec 6, 1974.
+  * Yves Usson (2004), *Steiner VCF (2SC1583 + OPA revision)*, YuSynth Modular Synthesizer Project, http://yusynth.net/Modular/EN/STEINERVCF/index.html.
+  * Yasunori Hirakawa / Osamu Hoshuyama circuit contributions (diode limiter in resonance feedback loop).
+* **Circuit Topology & Multi-Input Injection:**
+  * The Steiner-Parker VCF is a 2-pole Sallen-Key multimode filter where the conventional resistors are replaced by strings of forward-biased 1N4148 diodes acting as voltage-controlled variable resistors.
+  * Unlike standard filters that take a single input and tap multiple output points, the Steiner-Parker filter has a **single active output** $v_{out}$ and selects modes by injecting the audio signal into distinct circuit nodes:
+    * **Low-Pass (LP, mode = 0):** Injected at the input of the first diode resistance stage ($B_{open} = [-1, 0]^T$). Roll-off is $-12\text{ dB/octave}$ (2 poles, 0 transmission zeros).
+    * **Band-Pass (BP, mode = 1):** Injected at the feedback capacitor node ($B_{open} = [2, 1]^T$). Center frequency peak with symmetric $+6\text{ dB/oct}$ low skirt and $-6\text{ dB/oct}$ high skirt.
+    * **High-Pass (HP, mode = 2):** Injected at the second capacitor node ($B_{open} = [-1, -1]^T$). Passband gain at Nyquist is $0\text{ dB}$, with a $+6\text{ dB/octave}$ low-frequency roll-off due to the finite zero at $s = -2\omega_c$.
+* **Continuous-Time Transfer Functions:**
+  $$D(s) = s^2 + (3 - K) s + 1$$
+  $$H_{LP}(s) = \frac{1}{s^2 + (3 - K) s + 1}$$
+  $$H_{BP}(s) = \frac{s}{s^2 + (3 - K) s + 1}$$
+  $$H_{HP}(s) = \frac{s^2 + 2s}{s^2 + (3 - K) s + 1}$$
+* **Topology-Preserving Transform (TPT / ZDF) State-Space Discretization:**
+  * Open-loop system matrix: $A_{open} = \begin{pmatrix} -2 & -1 \\ -1 & -1 \end{pmatrix}$.
+  * Resolvent: $M_0 = (I - g A_{open})^{-1} = \frac{1}{g^2 + 3g + 1} \begin{pmatrix} 1 + g & -g \\ -g & 1 + 2g \end{pmatrix}$.
+  * Feedback vector: $F = \begin{pmatrix} 2 \\ 1 \end{pmatrix}$, feedback scalar gain $\gamma = \frac{g}{g^2 + 3g + 1}$.
+  * Instantaneous 1-D scalar loop:
+    $$F(v_{out}) = v_{out} - v_{open} - \gamma \cdot K \cdot f_{nl}(v_{out}) = 0$$
+  * Diode limiting across op-amp U2 feedback: $f_{nl}(v) = \frac{\tanh(\alpha v)}{\alpha}$ where $\alpha = \text{drive}$.
+  * Solved in max 4 iterations via bounded Newton-Raphson iteration.
+  * Self-oscillation: at $K \ge 3.0$ ($\text{res} \ge 0.83$), the diode limiter stabilizes the positive feedback loop into an autonomous, non-exploding sinusoidal limit cycle (measured peak $\approx 0.77$).

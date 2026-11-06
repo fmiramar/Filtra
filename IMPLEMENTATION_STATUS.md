@@ -8,7 +8,7 @@
 | **Korg MS-20 OTA** | `MS20OTA` | **passed** | KLM-307 buffered dual-OTA filter with feedback limiter and 2x oversampling. |
 | **Korg MS-20 Circuit** | `MS20Circuit` | **passed** | Discrete BJT MNA model with reverse-saturation 2nd harmonic and 2x oversampling. |
 | **EDP Wasp VCF** | `FSWasp` | **passed** | Stages W1 & W2 complete: Linear small-signal & circuit-informed nonlinear OTA/CMOS model verified (LP/BP/HP, 12 dB/oct slopes, DAFx 2022). |
-| **Steiner-Parker VCF** | `FSSteiner` | **not started** | Core candidate 2; diode multimode routing. |
+| **Steiner-Parker VCF** | `FSSteiner` | **passed** | Multimode Sallen-Key diode network verified (LP/BP/HP injection, TPT ZDF solver, diode limiter self-oscillation). |
 | **Formanta Polivoks VCF** | `FSPolivoks` | **not started** | Core candidate 3; programmable op-amp K140UD12 integrator model. |
 | **Z-Plane Morph** | `FSZMorph` | **not started** | Core candidate 4; original parallel multiresonant response morphing. |
 | **Dispersive All-Pass** | `FSDispersion` | **not started** | Core candidate 5; cascaded second-order all-pass group delay spreading. |
