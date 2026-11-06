@@ -1,7 +1,7 @@
 TITLE:: Polivoks
 summary:: Virtual Analog Model of the Formanta Polivoks VCF
 categories:: UGens>Filters
-related:: Classes/FSWasp, Classes/FSSteiner, Classes/MS20Diode
+related:: Guides/Filtra, Classes/Wasp, Classes/Steiner, Classes/MS20Diode
 
 DESCRIPTION::
 Polivoks is a virtual analog model of the legendary voltage-controlled filter designed by Vladimir Kuzmin in 1982 for the Soviet Formanta Polivoks synthesizer.

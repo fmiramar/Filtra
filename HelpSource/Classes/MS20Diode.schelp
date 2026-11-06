@@ -1,7 +1,7 @@
 TITLE:: MS20Diode
 summary:: Nonlinear early Korg-35 filter model with forward amplifier diode limiting
 categories:: UGens>Filters>Nonlinear
-related:: Classes/MS20SK, Classes/MS20TPT, Classes/MS20OTA
+related:: Guides/Filtra, Classes/MS20SK, Classes/MS20TPT, Classes/MS20OTA
 
 DESCRIPTION::
 MS20Diode implements a physically motivated, nonlinear model of the early Korg-35 filter from the Korg MS-10 and MS-20 synthesizers.

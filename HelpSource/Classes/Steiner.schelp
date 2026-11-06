@@ -1,7 +1,7 @@
 TITLE:: Steiner
 summary:: Virtual Analog Model of the Steiner-Parker Multimode Diode VCF
 categories:: UGens>Filters
-related:: Classes/FSWasp, Classes/MS20Diode, Classes/MS20OTA
+related:: Guides/Filtra, Classes/Wasp, Classes/MS20Diode, Classes/MS20OTA
 
 DESCRIPTION::
 Steiner is a virtual analog model of the legendary multimode diode-based filter originally designed by Nyle Steiner in 1974 for the Steiner-Parker Synthacon and SynthaSystem synthesizers.

@@ -1,7 +1,7 @@
 TITLE:: MS20Filters
 summary:: Comprehensive Guide to the Korg MS-20 Filter Family Suite
 categories:: Guides>Filters, UGens>Filters
-related:: Classes/MS20SK, Classes/MS20TPT, Classes/MS20Diode, Classes/MS20OTA, Classes/MS20Circuit
+related:: Guides/Filtra, Classes/MS20SK, Classes/MS20TPT, Classes/MS20Diode, Classes/MS20OTA, Classes/MS20Circuit
 
 DESCRIPTION::
 The MS20Filters suite provides a collection of five distinct, scientifically derived real-time SuperCollider UGens modeling both the early Korg-35 and later KLM-307 OTA revisions of the legendary Korg MS-20 synthesizer filter.

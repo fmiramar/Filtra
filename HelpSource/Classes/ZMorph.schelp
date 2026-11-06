@@ -1,13 +1,13 @@
 TITLE:: ZMorph
 summary:: Original Digital Multiresonant Filter Response Morphing
 categories:: UGens>Filters
-related:: Classes/FSWasp, Classes/FSSteiner, Classes/FSPolivoks
+related:: Guides/Filtra, Classes/Wasp, Classes/Steiner, Classes/Polivoks
 
 DESCRIPTION::
 ZMorph is an original digital multiresonant filter that smoothly morphs between complex spectral profiles. Inspired by the Z-plane filter concept originally pioneered by Dave Rossum and E-mu Systems, this is a clean-room digital implementation using original acoustic and synthetic filter configurations (containing no proprietary ROM, presets, or code).
 
 Each filter shape consists of a parallel bank of four 2nd-order Topology-Preserving Transform (TPT) state-variable peaking/bandpass resonators combined with a direct passband path. ZMorph processes Shape A and Shape B in parallel and performs an equal-gain response crossfade:
-formula::
+teletype::
 y[n] = (1 - \text{morph}) \cdot y_A[n] + \text{morph} \cdot y_B[n]
 ::
 This response-domain morphing guarantees unconditional stability across all continuous sweeps, completely eliminating the recursive coefficient divergence and transient explosions associated with interpolating high-order IIR poles directly.

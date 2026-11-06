@@ -1,7 +1,7 @@
 TITLE:: MS20SK
 summary:: Linear Korg-35 Sallen-Key low-pass and authentic MS-20 high-pass filter
 categories:: UGens>Filters>Linear
-related:: Classes/MS20TPT, Classes/MS20Diode, Classes/MS20OTA
+related:: Guides/Filtra, Classes/MS20TPT, Classes/MS20Diode, Classes/MS20OTA
 
 DESCRIPTION::
 MS20SK provides a linear, component-topology-informed digital model of the early Korg-35 Sallen-Key filter from the Korg MS-10 and MS-20 synthesizers. It is discretized via the prewarped Bilinear Transform (Tustin) implemented as a Transposed Direct Form II biquad.

@@ -1,7 +1,7 @@
 TITLE:: Wasp
 summary:: Virtual Analog Model of the Electronic Dream Plant (EDP) Wasp VCF
 categories:: UGens>Filters
-related:: Classes/MS20Diode, Classes/MS20Circuit, Classes/MS20OTA
+related:: Guides/Filtra, Classes/MS20Diode, Classes/MS20Circuit, Classes/MS20OTA
 
 DESCRIPTION::
 Wasp is a virtual analog model of the distinctive state-variable filter (VCF) from the Electronic Dream Plant (EDP) Wasp synthesizer (1978).

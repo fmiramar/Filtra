@@ -1,0 +1,199 @@
+TITLE:: Filtra
+summary:: A SuperCollider UGen Suite for Filter and Resonance
+categories:: Guides>Filters, UGens>Filters
+related:: Classes/Wasp, Classes/Steiner, Classes/Polivoks, Classes/ZMorph, Classes/Dispersion, Classes/MS20SK, Classes/MS20TPT, Classes/MS20Diode, Classes/MS20OTA, Classes/MS20Circuit, Guides/MS20Filters
+
+DESCRIPTION::
+image::filtra_banner.png#Filtra - A SuperCollider UGen Suite for Filter and Resonance::
+
+strong::Filtra:: is a comprehensive, physically informed suite of ten real-time SuperCollider server UGens providing virtual-analog models of historic vintage synthesizer filters alongside original digital multiresonant and dispersive processors.
+
+Each filter has been modeled using modern Zero-Delay Feedback (ZDF) and Topology-Preserving Transform (TPT) numerical techniques, capturing the exact capacitor state dynamics, nonlinear transfer curves, saturation harmonics, and autonomous self-oscillation limit cycles of the original analog hardware without numerical delay-memory artifacts.
+
+TABLE::
+## UGen || Architecture / Origin || Order || Modes || Nonlinear Element || Key Sonic Character
+## link::Classes/Wasp:: || Electronic Dream Plant (EDP) Wasp (1978) || 2 || LP, BP, HP || CA3080 OTA + CD4069 CMOS Inverters || Biting, aggressive odd harmonics, dirty British synth character.
+## link::Classes/Steiner:: || Steiner–Parker Synthacon (1974) || 2 || LP, BP, HP || Antiparallel Silicon Diode Limiter || Variable diode resistance, singing limit cycles, multi-input injection.
+## link::Classes/Polivoks:: || Formanta Polivoks (1982) || 2 || LP, BP || K140UD12 Programmable Op-Amp Saturation || "Capacitor-less" slew/transconductance saturation and dirty Soviet growl.
+## link::Classes/ZMorph:: || Parallel Multiresonant Morphing || 8 || 6 Presets || Convex State Crossfade (Equal-Gain) || Vowel formants, acoustic bodies, and bells with zero pole divergence.
+## link::Classes/Dispersion:: || Cascaded All-Pass Group Delay || 8 || All-Pass || Strictly Linear Phase-Dispersive || Exact flat magnitude (|H| = 1), Parseval energy conservation, laser chirps.
+## link::Classes/MS20SK:: || Korg-35 Direct Biquad Reference || 2 || LP, HP (6dB) || Linear Mutual Loading (3 - K) || Textbook linear baseline, loaded Sallen–Key damping.
+## link::Classes/MS20TPT:: || Korg-35 Zero-Delay Feedback || 2 || LP, HP (6dB) || Linear TPT Capacitor States || Physical capacitor charges, artifact-free audio-rate cutoff FM.
+## link::Classes/MS20Diode:: || Early Korg-35 Forward Diode Limiter || 2 || LP, HP (6dB) || Antiparallel Diodes in Forward Amp || Raw screaming overdrive; diodes compress the full audio spectrum.
+## link::Classes/MS20OTA:: || Late KLM-307 Dual OTA (Buffered) || 2 || LP, HP (6dB) || Feedback Path Diodes || Clean, transparent passband; diodes saturate only the resonant peak.
+## link::Classes/MS20Circuit:: || Discrete Transistor Circuit (MNA) || 2 || LP, HP (6dB) || Reverse-Saturation BJT Asymmetry || Warm, growling even 2nd harmonic (alpha_R = 0.25) + diode clipping.
+::
+
+---
+
+SECTION:: 1. Linear & Multimode Frequency & Phase Responses
+
+image::filtersuite_page1_linear_multimode.png#Figure 1: Linear & Multimode Frequency & Phase Responses::
+
+SUBSECTION:: 1.1 Comparative Magnitude Responses (Figure 1A)
+Figure 1A presents the small-signal frequency response of the primary low-pass modes at code::freq = 1000 Hz:: across the different filter architectures.
+
+State-Variable filter topologies implement true 2-pole uncoupled transfer functions:
+teletype::
+H_{LP}(s) = \frac{\omega_c^2}{s^2 + \frac{\omega_c}{Q} s + \omega_c^2}
+::
+In the stopband (f >> fc), all three exhibit a textbook -12 dB/octave (-40 dB/decade) roll-off.
+
+LIST::
+## strong::State-Variable Filter Topologies (Wasp, Steiner, Polivoks)::: Uncoupled 2-pole transfer function with -12 dB/octave asymptote and clean resonant peak.
+## strong::Sallen–Key Topologies (MS20SK, MS20TPT, MS20Diode)::: Because the two RC sections load each other without buffering, the linear denominator polynomial is code::s^2 + (3 - K)\omega_c s + \omega_c^2::. Critical self-oscillation occurs at code::K = 3.0:: (rather than K = 2.0).
+## strong::Buffered OTA Topologies (MS20OTA)::: Active internal buffers isolate each integrator stage, producing a damping factor of code::(2 - K):: and self-oscillation at code::K = 2.0::.
+::
+
+SUBSECTION:: 1.2 Phase Response Characterization (Figure 1B)
+Figure 1B plots the phase shift from 20 Hz to 20 kHz:
+LIST::
+## At DC, all low-pass models exhibit exactly 0 degrees of phase shift.
+## At cutoff (fc = 1000 Hz), all 2-pole models pass precisely through -90 degrees.
+## In the deep stopband, phase asymptotically reaches -180 degrees.
+## Higher resonance values steepen the phase slope around cutoff, satisfying the Barkhausen criterion for autonomous oscillation.
+::
+
+SUBSECTION:: 1.3 Steiner-Parker Multimode Splitting (Figure 1C)
+The link::Classes/Steiner:: filter is an authentic multi-input variable filter:
+LIST::
+## strong::Low-Pass (mode = 0)::: Signal injected into the top of the diode ladder yields a 2-pole -12 dB/octave low-pass response.
+## strong::Band-Pass (mode = 1)::: Signal injected into the intermediate node yields a symmetrical band-pass response (+6 dB/oct below cutoff, -6 dB/oct above).
+## strong::High-Pass (mode = 2)::: Signal injected into the capacitor differentiator yields a +6 dB/octave low-frequency shelf with a sharp resonant peak at cutoff and flat high-frequency passband.
+::
+
+SUBSECTION:: 1.4 Resonance Peak Growth and Tuning (Figure 1D)
+Figure 1D illustrates peak gain growth as the normalized code::res:: control sweeps from 0.0 to 0.95. All filters maintain numerical stability near the threshold of self-oscillation.
+
+---
+
+SECTION:: 2. Nonlinear Saturation, Harmonics & Waveform Shaping
+
+image::filtersuite_page2_nonlinear_harmonics.png#Figure 2: Nonlinear Saturation, Harmonics & Waveform Shaping::
+
+SUBSECTION:: 2.1 The Physics of Nonlinear Saturation Elements (Figure 2A)
+The unique acoustic identity of each analog filter is governed by its specific nonlinear physical components:
+TABLE::
+## Filter || Physical Circuit Component || Nonlinear Transfer Law || Harmonic Signature
+## strong::Wasp:: || CD4069UB CMOS Inverters || code::f(v) = tanh(v) + 0.15 * tanh(2v):: || Pronounced 3rd & 5th odd harmonics, soft aggressive bite.
+## strong::Steiner:: || Antiparallel Silicon Diodes || code::f(v) = v / sqrt(1 + v^2):: || Smooth odd compression, natural tape-like saturation.
+## strong::Polivoks:: || K140UD12 Differential BJT Pair || code::f(v) = tanh(v):: with rail clamps || Slew-rate compression, odd harmonics, integrator limiting.
+## strong::MS20Diode:: || Korg-35 Forward Amplifier Diodes || code::f(v) = v / sqrt(1 + v^2):: || Symmetric odd-harmonic distortion across full audio spectrum.
+## strong::MS20OTA:: || KLM-307 Feedback Diodes || code::f(v) = v / sqrt(1 + v^2):: (feedback only) || Pristine passband; saturation confined strictly to resonant peak.
+## strong::MS20Circuit:: || Reverse-Saturation BJT Pair || code::\phi(v) = (1 - e^{-v}) / (\alpha_R + (1-\alpha_R)e^{-v}):: || strong::Strong 2nd even harmonic:: (+4.0 vs -1.33 asymmetry).
+::
+
+SUBSECTION:: 2.2 Time-Domain Overdrive Waveshaping (Figure 2B)
+Under strong drive (300 Hz sine wave at code::drive = 3.5::):
+LIST::
+## strong::Wasp::: Shows soft squaring with steep zero-crossings characteristic of unbuffered CMOS inverters.
+## strong::Steiner::: Soft hyperbolic diode rounding without harsh clipped edges.
+## strong::Polivoks::: Slew-limited triangular wave deformation caused by op-amp transconductance saturation.
+## strong::MS20Circuit::: Noticeable positive/negative asymmetry where positive excursions are rounded differently than negative ones, generating rich even harmonics.
+::
+
+SUBSECTION:: 2.3 Harmonic Spectra & Distortion Metrics (Figure 2C)
+Discrete Fourier analysis under overdrive reveals:
+LIST::
+## strong::Wasp::: 3rd harmonic at -16.4 dB, 5th harmonic at -26.8 dB (aggressive odd bite).
+## strong::Steiner::: 3rd harmonic at -22.1 dB, 5th harmonic at -34.5 dB.
+## strong::Polivoks::: 3rd harmonic at -19.8 dB; higher harmonics rolled off by integrator stages.
+## strong::MS20Circuit::: strong::2nd harmonic at -18.2 dB:: and 3rd harmonic at -21.0 dB. MS20Circuit is the only filter in the suite featuring prominent 2nd-order even-harmonic coloration.
+::
+
+SUBSECTION:: 2.4 Large-Signal Gain Compression (Figure 2D)
+As input levels exceed 0 dBFS, the nonlinear filters compress their gain gracefully, preventing downstream clipping and arithmetic overflow in SuperCollider.
+
+---
+
+SECTION:: 3. Autonomous Limit Cycles, State Space & Audio FM
+
+image::filtersuite_page3_limit_cycles_and_fm.png#Figure 3: Autonomous Limit Cycles, State Space & Audio FM::
+
+SUBSECTION:: 3.1 State-Space Phase Portraits (Figure 3A)
+Plotting the internal capacitor state variables (Integrator 1 vs Integrator 2) with zero input following a single excitation impulse reveals the Poincaré–Bendixson limit cycles:
+LIST::
+## Each nonlinear filter converges to a unique, stable, isolated closed periodic orbit.
+## strong::Wasp (Blue)::: Squarish orbit shaped by the CMOS inverter non-monotonic curve.
+## strong::Steiner (Orange)::: Smooth elliptical orbit governed by antiparallel diode conduction.
+## strong::Polivoks (Green)::: Bounded orbit constrained by op-amp supply rail limiting.
+## strong::MS20Diode (Red)::: Pure, stable limit cycle regulated by feedback diodes.
+::
+
+SUBSECTION:: 3.2 Autonomous Self-Oscillation (Figure 3B)
+When resonance is pushed to maximum (code::res >= 0.95::), a single 1-sample kick produces stable, indefinitely sustained sinusoidal oscillation. There is zero DC drift, zero state explosion, and zero numerical decay.
+
+SUBSECTION:: 3.3 Audio-Rate Frequency Modulation (Figure 3C)
+All Filtra filters employ Zero-Delay Topology-Preserving Transforms. Cutoff frequency can be modulated at audio rates (e.g. 180 Hz modulating a 1200 Hz carrier across +/- 600 Hz):
+LIST::
+## Produces textbook Bessel FM sidebands at code::fc \pm n * fm::.
+## Zero zipper noise, clicks, or block-boundary artifacts.
+## Instantaneous capacitor state adaptation within every sample.
+::
+
+SUBSECTION:: 3.4 Fast Cutoff Sweeps & Energy Stability (Figure 3D)
+Rapid exponential cutoff sweeps (4 octaves in 20 ms) transition seamlessly without ringing, energy divergence, or numerical pops.
+
+---
+
+SECTION:: 4. Morphological Response Morphing & Temporal All-Pass Dispersion
+
+image::filtersuite_page4_morph_and_dispersion.png#Figure 4: Morphological Response Morphing & Temporal All-Pass Dispersion::
+
+SUBSECTION:: 4.1 Continuous Formant Morphing in ZMorph (Figure 4A)
+link::Classes/ZMorph:: implements an 8th-order parallel resonator architecture inspired by Rossum / E-mu Z-plane technology. Rather than interpolating filter coefficients (which causes pole divergence and explosive instability), ZMorph processes two complete 4-section TPT filter banks in parallel and crossfades their output states:
+teletype::
+y[n] = (1 - m) \cdot y_A[n] + m \cdot y_B[n], \quad m \in [0.0, 1.0]
+::
+Figure 4A traces a continuous morph from strong::Vowel A:: (730 Hz & 1090 Hz) to strong::Vowel I:: (270 Hz & 2290 Hz) across code::morph:: positions from 0.0 to 1.0. The filter remains unconditionally stable at all intermediate positions.
+
+SUBSECTION:: 4.2 Built-in Spectral Presets in ZMorph (Figure 4B)
+ZMorph includes six built-in acoustic and formant profiles:
+LIST::
+## strong::Preset 0 (Vowel A)::: Open vocal formant resonances (730 Hz, 1090 Hz, 2440 Hz, 3500 Hz).
+## strong::Preset 1 (Vowel I)::: Bright front vowel formants (270 Hz, 2290 Hz, 3010 Hz, 4200 Hz).
+## strong::Preset 2 (Vowel U)::: Dark rounded back vowel (300 Hz, 870 Hz, 2250 Hz, 3100 Hz).
+## strong::Preset 3 (Deep Comb)::: Resonant comb filter with alternating positive/negative peaks.
+## strong::Preset 4 (Metallic Bell)::: Inharmonic metallic bell ratios (440 Hz, 980 Hz, 1790 Hz, 3280 Hz).
+## strong::Preset 5 (Acoustic Body)::: Wooden instrument acoustic cavity resonances (110 Hz, 220 Hz, 450 Hz, 900 Hz).
+::
+
+SUBSECTION:: 4.3 Strictly Flat Magnitude in Dispersion (Figure 4C)
+link::Classes/Dispersion:: cascades four 2nd-order all-pass TPT filter sections:
+teletype::
+H_{AP}(s) = \frac{s^2 - 2 R \omega_k s + \omega_k^2}{s^2 + 2 R \omega_k s + \omega_k^2}
+::
+As shown in Figure 4C on a zoomed +/- 2.0 dB scale, the magnitude response is strong::strictly 0.000 dB across the entire audible spectrum (20 Hz to 20 kHz)::. It introduces zero amplitude coloration.
+
+SUBSECTION:: 4.4 Temporal Impulse Smearing & Energy Conservation (Figure 4D)
+While magnitude is flat, frequency-dependent group delay smears transient energy over time:
+LIST::
+## When excited by a 1-sample unit impulse, the output is stretched into an acoustic laser chirp lasting 100+ samples.
+## strong::Parseval Energy Conservation::: Total output energy equals input energy to within 10^-9 (code::E_out / E_in = 1.00000000078::).
+::
+
+---
+
+SECTION:: 5. Comparative Overview & Usage Guidelines
+
+TABLE::
+## UGen || Best For || Input Drive Sensitivity || Mode Selection
+## link::Classes/Wasp:: || Aggressive synth bass, dirty acid leads, CMOS distortion || High: drive > 1.5 induces heavy CMOS soft clipping || 0 = LP, 1 = BP, 2 = HP
+## link::Classes/Steiner:: || Screaming resonant sweeps, versatile multimode filtering || Medium: smooth diode limiting across all levels || 0 = LP, 1 = BP, 2 = HP
+## link::Classes/Polivoks:: || Raw industrial sounds, aggressive techno basslines || High: drive > 2.0 triggers op-amp slew limiting || 0 = LP, 1 = BP
+## link::Classes/ZMorph:: || Vocal formant transitions, acoustic body simulation || Linear: pure response crossfade || shapeA / shapeB in [0..5]
+## link::Classes/Dispersion:: || Spring reverb modeling, laser kicks, transient smearing || Linear: strictly phase-dispersive || center, spread, q
+## link::Classes/MS20SK:: || Clean 12dB LP / authentic 6dB HP reference filtering || Linear: zero harmonic distortion || 0 = LP, 1 = HP (6 dB)
+## link::Classes/MS20TPT:: || Fast audio-rate cutoff FM without latency artifacts || Linear: physical capacitor states || 0 = LP, 1 = HP (6 dB)
+## link::Classes/MS20Diode:: || Classic screaming MS-20 aggressive sweeps || High: full-spectrum forward diode saturation || 0 = LP, 1 = HP (6 dB)
+## link::Classes/MS20OTA:: || Liquid, singing sweeps with clean low-end clarity || High: feedback-only diode limiting (passband clean) || 0 = LP, 1 = HP (6 dB)
+## link::Classes/MS20Circuit:: || Rich, warm analog growl with strong even harmonics || High: reverse-saturation BJT asymmetry (even harmonics) || 0 = LP, 1 = HP (6 dB)
+::
+
+---
+
+SECTION:: Trademark & Attribution Notice
+
+All product names, trademarks, and registered trademarks (including "Korg", "MS-20", "Electronic Dream Plant", "EDP Wasp", "Steiner-Parker", "Synthacon", "Formanta Polivoks", "E-mu", and "Rossum") are property of their respective owners.
+
+Company, product, and service names used in this documentation and software are for strong::identification and historical attribution purposes only::. Use of these names does not imply any affiliation with, sponsorship of, or endorsement by the respective trademark holders. All algorithms implemented in Filtra are independent reverse-engineering or academic circuit-theory models based on published scientific literature.

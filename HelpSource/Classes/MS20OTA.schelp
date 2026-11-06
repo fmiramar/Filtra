@@ -1,7 +1,7 @@
 TITLE:: MS20OTA
 summary:: Later MS-20 filter revision (KLM-307) with dual OTA stages and resonance feedback limiter
 categories:: UGens>Filters>Nonlinear
-related:: Classes/MS20Diode, Classes/MS20TPT, Classes/MS20SK
+related:: Guides/Filtra, Classes/MS20Diode, Classes/MS20TPT, Classes/MS20SK
 
 DESCRIPTION::
 MS20OTA models the later revision of the Korg MS-20 filter, constructed around the KLM-307 daughterboard using dual Operational Transconductance Amplifiers (LM13600 OTAs).

@@ -1,13 +1,13 @@
 TITLE:: Dispersion
 summary:: Dispersive All-Pass Group-Delay Filter
 categories:: UGens>Filters
-related:: Classes/FSWasp, Classes/FSSteiner, Classes/FSZMorph
+related:: Guides/Filtra, Classes/Wasp, Classes/Steiner, Classes/ZMorph
 
 DESCRIPTION::
 Dispersion is a 4-stage cascaded second-order all-pass filter designed to produce controllable temporal dispersion and frequency-dependent group delay. Based on the dispersion modeling principles established by Jonathan S. Abel and Julius O. Smith (DAFx 2006), the filter spreads different frequency components in time while strictly preserving the total signal magnitude and energy.
 
 Each stage is implemented as a 2nd-order Topology-Preserving Transform (TPT) all-pass filter:
-formula::
+teletype::
 H_{ap}(s) = \frac{s^2 - \frac{\omega_k}{Q} s + \omega_k^2}{s^2 + \frac{\omega_k}{Q} s + \omega_k^2}
 ::
 Because $|H_{ap}(e^{j\omega})| \equiv 1.0$ identically for all frequencies, the 4-stage cascade maintains a completely flat magnitude response. The four stage frequencies are geometrically distributed around LINK::#*center:: according to LINK::#*spread::, creating an acoustic frequency-dependent time delay (chirp/twang) that emulates physical stiffness in strings, membranes, and metal plates.
