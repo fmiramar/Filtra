@@ -9,7 +9,7 @@
 | **Korg MS-20 Circuit** | `MS20Circuit` | **passed** | Discrete BJT MNA model with reverse-saturation 2nd harmonic and 2x oversampling. |
 | **EDP Wasp VCF** | `FSWasp` | **passed** | Stages W1 & W2 complete: Linear small-signal & circuit-informed nonlinear OTA/CMOS model verified (LP/BP/HP, 12 dB/oct slopes, DAFx 2022). |
 | **Steiner-Parker VCF** | `FSSteiner` | **passed** | Multimode Sallen-Key diode network verified (LP/BP/HP injection, TPT ZDF solver, diode limiter self-oscillation). |
-| **Formanta Polivoks VCF** | `FSPolivoks` | **passed (P1)** | Stage P1 complete: Linearized 2-stage K140UD12 state-variable cascade verified (LP/BP, prewarped TPT tuning, resonance peaking, audio FM). |
+| **Formanta Polivoks VCF** | `FSPolivoks` | **passed** | Stages P1 & P2 complete: Linearized small-signal & bounded K140UD12 op-amp transconductance saturation and limit cycle verified (LP/BP, Newton-Raphson solver). |
 | **Z-Plane Morph** | `FSZMorph` | **not started** | Core candidate 4; original parallel multiresonant response morphing. |
 | **Dispersive All-Pass** | `FSDispersion` | **not started** | Core candidate 5; cascaded second-order all-pass group delay spreading. |
 | **Roland OTA Cascade** | `FSRolandOTA` | **not started** | Later candidate; IR3109 four-stage cascade. |

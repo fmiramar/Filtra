@@ -164,7 +164,7 @@
   * Self-oscillation: at $K \ge 3.0$ ($\text{res} \ge 0.83$), the diode limiter stabilizes the positive feedback loop into an autonomous, non-exploding sinusoidal limit cycle (measured peak $\approx 0.77$).
 
 
-## 13. Milestone 3: Formanta Polivoks VCF (`FSPolivoks` Stage P1)
+## 13. Milestone 3: Formanta Polivoks VCF (`FSPolivoks` Stages P1 & P2)
 * **Primary References:**
   * Vladimir Kuzmin (1982), *Formanta Polivoks Synthesizer Schematic & Service Manual*, Ural production association "Formanta", USSR.
   * Marc Bareille (Papareil Synth Labs, 2003), *Polivoks VCF Modular Adaptation*.
@@ -191,4 +191,18 @@
     $$s_1[n+1] = 2 v_{BP} - s_1[n]$$
     $$s_2[n+1] = 2 v_{LP} - s_2[n]$$
   * Unconditional linear stability: because $r > 0$ strictly for all $\text{res} \in [0, 1]$, the denominator $D = 1 + r g + g^2 > 1$ is strictly positive and bounded away from zero, and filter poles lie strictly within the open unit disk $|z| < 1$.
+* **Stage P2: Physically Motivated Op-Amp Transconductance Saturation & Rail Clamping:**
+  * Slew-rate limiting inside the K140UD12 emerges from differential input pair current saturation charging the compensation capacitor:
+    $$\dot{v} = \omega_c \cdot f_{sat}(\Delta V_{in})$$
+    where $f_{sat}(x) = \frac{\tanh(\alpha x)}{\alpha}$ with $\alpha = \text{drive}$.
+  * Implicit Zero-Delay Feedback Equation:
+    $$F(x) = x + r g f_{sat}(x) + g f_{sat}(g f_{sat}(x) + s_1) + r s_1 + s_2 - v_{in} \cdot \text{drive} = 0$$
+    with derivative:
+    $$F'(x) = 1 + g f'_{sat}(x) [r + g f'_{sat}(u)] \ge 1.0 > 0$$
+    guaranteeing a strictly monotonic function, unique real root, and quadratic Newton-Raphson convergence in $\le 3$ iterations.
+  * Op-Amp Output Rail Saturation:
+    $$v_{out} = \text{soft\_rail}(v) = 1.5 \cdot \tanh(v / 1.5)$$
+    prevents integrator state runaway at $r \le 0$ ($res \ge 1.0$) and stabilizes autonomous, non-exploding sinusoidal limit cycles (measured peak $\approx 0.167$, RMS $\approx 0.118$).
+  * Small-signal convergence: verified to converge to the linear Stage P1 model to within $< 3 \times 10^{-7}$ for quiet signals.
+
 

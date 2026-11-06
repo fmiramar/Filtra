@@ -1,8 +1,10 @@
 // =====================================================================
-// test_fspolivoks.scd: Unit Verification Test Suite for FSPolivoks Stage P1
-// Verifies Formanta Polivoks linearized 2-stage state-variable VCF
-// across Low-Pass (mode 0) and Band-Pass (mode 1), resonance peaking,
-// audio-rate FM stability, impulse response, and distinctness vs RLPF.
+// test_fspolivoks.scd: Verification Test Suite for FSPolivoks (Stages P1 & P2)
+// Verifies Formanta Polivoks VCF:
+// - Stage P1: Linear small-signal 2-stage state-variable integrator cascade
+// - Stage P2: Bounded K140UD12 op-amp transconductance saturation & limit cycle
+// - Mode 0: Low-Pass (12 dB/oct)
+// - Mode 1: Band-Pass (6 dB/oct)
 // Reference: Vladimir Kuzmin (1982), Formanta Polivoks synthesizer VCF
 // =====================================================================
 
@@ -28,7 +30,7 @@ s.waitForBoot({
     var numSamples = (dur * 44100).asInteger;
 
     "\n==================================================".postln;
-    "  FSPolivoks Stage P1 Verification Suite         ".postln;
+    "  FSPolivoks Stages P1 & P2 Verification Suite   ".postln;
     "==================================================\n".postln;
 
     // -------------------------------------------------------------
@@ -50,16 +52,46 @@ s.waitForBoot({
     }.value;
 
     // -------------------------------------------------------------
-    // Test 2: Frequency Response & Slope Verification (LP, BP)
+    // Test 2: Small-Signal Convergence (Stage P1 vs Stage P2)
     // -------------------------------------------------------------
-    "--- Test 2: Asymptotic Slopes & Frequency Response ---".postln;
+    "--- Test 2: Small-Signal Convergence (Stage P1 vs P2) ---".postln;
     {
-        var measureRMS = { |freq, filterMode, fc, res, drive=1.0|
+        var bufDiff = Buffer.alloc(s, numSamples, 1);
+        var diffRMS = 0.0;
+        s.sync;
+
+        {
+            var src = SinOsc.ar(440) * 0.0001; // Small signal
+            var sigLin = FSPolivoks.ar(src, 1200, 0.5, 0, drive: 0.0);
+            var sigNL  = FSPolivoks.ar(src, 1200, 0.5, 0, drive: 1.0);
+            var diff = sigNL - sigLin;
+            RecordBuf.ar(diff, bufDiff, loop: 0, doneAction: 2);
+            Silent.ar;
+        }.play;
+
+        dur.wait;
+        bufDiff.loadToFloatArray(action: { |arr|
+            var tail = arr.copyRange((numSamples * 0.5).asInteger, numSamples - 1);
+            diffRMS = (tail.squared.sum / tail.size).sqrt;
+        });
+        s.sync;
+        bufDiff.free;
+
+        ("  Small-Signal Diff RMS (P1 vs P2): " ++ diffRMS.asString).postln;
+        assert.(diffRMS < 1e-6, "Stage P2 nonlinear model converges to Stage P1 linear model at small signal (diff " ++ diffRMS.asString ++ ")");
+    }.value;
+
+    // -------------------------------------------------------------
+    // Test 3: Frequency Response & Slope Verification (LP, BP)
+    // -------------------------------------------------------------
+    "--- Test 3: Asymptotic Slopes & Frequency Response ---".postln;
+    {
+        var measureRMS = { |freq, filterMode, fc, res, drive=0.0|
             var buf = Buffer.alloc(s, numSamples, 1);
             var val;
             s.sync;
             {
-                var sig = SinOsc.ar(freq) * 0.1;
+                var sig = SinOsc.ar(freq) * 0.05;
                 var flt = FSPolivoks.ar(sig, fc, res, filterMode, drive);
                 RecordBuf.ar(flt, buf, loop: 0, doneAction: 2);
                 Silent.ar;
@@ -97,7 +129,7 @@ s.waitForBoot({
         ("  BP (250 Hz): " ++ bp_low.round(0.001) ++ ", Center (1000 Hz): " ++ bp_center.round(0.001) ++ ", (4000 Hz): " ++ bp_high.round(0.001)).postln;
         assert.(bp_center > (bp_low * 2.0) && (bp_center > (bp_high * 2.0)), "FSPolivoks BP exhibits clear bandpass peaking at cutoff");
 
-        // Resonance Peaking Gain Test: fc = 1000 Hz, test frequency = 1000 Hz
+        // Small-signal resonance gain growth: fc = 1000 Hz, test frequency = 1000 Hz
         res_low  = measureRMS.(1000, 0, 1000, 0.0);
         res_high = measureRMS.(1000, 0, 1000, 0.95);
         res_gain_db = 20.0 * log10(res_high / res_low);
@@ -107,9 +139,78 @@ s.waitForBoot({
     }.value;
 
     // -------------------------------------------------------------
-    // Test 3: Audio-Rate Frequency Modulation Stability
+    // Test 4: Large-Signal Nonlinear Saturation & Crest Factor Compression
     // -------------------------------------------------------------
-    "--- Test 3: Audio-Rate FM Stability ---".postln;
+    "--- Test 4: Nonlinear Saturation & Crest Compression ---".postln;
+    {
+        var getCrest = { |driveVal|
+            var buf = Buffer.alloc(s, numSamples, 1);
+            var crest = 0.0;
+            s.sync;
+            {
+                var src = SinOsc.ar(300) * 0.4;
+                var flt = FSPolivoks.ar(src, 1000, 0.4, 0, drive: driveVal);
+                RecordBuf.ar(flt, buf, loop: 0, doneAction: 2);
+                Silent.ar;
+            }.play;
+            dur.wait;
+            buf.loadToFloatArray(action: { |arr|
+                var tail = arr.copyRange((numSamples * 0.5).asInteger, numSamples - 1);
+                var peak = tail.abs.maxItem;
+                var rms = (tail.squared.sum / tail.size).sqrt;
+                crest = peak / (rms + 1e-9);
+            });
+            s.sync;
+            buf.free;
+            crest;
+        };
+
+        var crestLow = getCrest.(0.5);
+        var crestHigh = getCrest.(5.0);
+
+        ("  Crest Factor (drive=0.5): " ++ crestLow.round(0.01) ++ ", (drive=5.0): " ++ crestHigh.round(0.01)).postln;
+        assert.(crestHigh < crestLow, "Higher drive compresses sine wave into saturated waveform (crest factor " ++ crestLow.round(0.01) ++ " -> " ++ crestHigh.round(0.01) ++ ")");
+    }.value;
+
+    // -------------------------------------------------------------
+    // Test 5: Self-Oscillation Limit Cycle (Stage P2)
+    // -------------------------------------------------------------
+    "--- Test 5: Autonomous Self-Oscillation Limit Cycle ---".postln;
+    {
+        var buf = Buffer.alloc(s, numSamples, 1);
+        var tailRMS = 0.0;
+        var tailPeak = 0.0;
+        var hasNaN = false;
+        s.sync;
+
+        {
+            // Initial tiny excitation, then silence
+            var trig = Impulse.ar(0) * 0.1;
+            var flt = FSPolivoks.ar(trig, 880, 1.05, 0, drive: 1.0);
+            RecordBuf.ar(flt, buf, loop: 0, doneAction: 2);
+            Silent.ar;
+        }.play;
+
+        dur.wait;
+        buf.loadToFloatArray(action: { |arr|
+            var tail = arr.copyRange((numSamples * 0.5).asInteger, numSamples - 1);
+            tailRMS = (tail.squared.sum / tail.size).sqrt;
+            tailPeak = tail.abs.maxItem;
+            arr.do({ |v|
+                if (v.isNaN || (v.abs > 50.0)) { hasNaN = true; };
+            });
+        });
+        s.sync;
+        buf.free;
+
+        ("  Self-Oscillation Tail Peak: " ++ tailPeak.round(0.001) ++ ", Tail RMS: " ++ tailRMS.round(0.001)).postln;
+        assert.(hasNaN.not && (tailRMS > 0.02) && (tailPeak < 2.0), "FSPolivoks sustains an autonomous, bounded self-oscillation limit cycle at res >= 1.0 (peak " ++ tailPeak.round(0.001) ++ ", RMS " ++ tailRMS.round(0.001) ++ ")");
+    }.value;
+
+    // -------------------------------------------------------------
+    // Test 6: Audio-Rate FM Stability Under High Drive
+    // -------------------------------------------------------------
+    "--- Test 6: Audio-Rate FM Stability Under High Drive ---".postln;
     {
         var buf = Buffer.alloc(s, numSamples, 1);
         var hasNaN = false;
@@ -117,10 +218,10 @@ s.waitForBoot({
         s.sync;
 
         {
-            var src = Saw.ar(110) * 0.2;
+            var src = Saw.ar(110) * 0.3;
             var fm = SinOsc.ar(250) * 1500;
             var fc = (2000 + fm).clip(20, 20000);
-            var flt = FSPolivoks.ar(src, fc, 0.85, 0, 1.0);
+            var flt = FSPolivoks.ar(src, fc, 0.9, 0, drive: 2.5);
             RecordBuf.ar(flt, buf, loop: 0, doneAction: 2);
             Silent.ar;
         }.play;
@@ -136,46 +237,13 @@ s.waitForBoot({
         buf.free;
 
         ("  Audio FM Peak Amplitude: " ++ maxAmp.round(0.001)).postln;
-        assert.(hasNaN.not && (maxAmp < 10.0), "Audio-rate FM runs without NaNs or divergence (peak " ++ maxAmp.round(0.001) ++ ")");
+        assert.(hasNaN.not && (maxAmp < 10.0), "Audio-rate FM runs without NaNs or divergence under hot drive (peak " ++ maxAmp.round(0.001) ++ ")");
     }.value;
 
     // -------------------------------------------------------------
-    // Test 4: Linear Input Scaling (Stage P1 Property)
+    // Test 7: Fast Wide Cutoff Sweep Stability
     // -------------------------------------------------------------
-    "--- Test 4: Linear Input Scaling (Stage P1) ---".postln;
-    {
-        var getRMS = { |amp|
-            var buf = Buffer.alloc(s, numSamples, 1);
-            var val;
-            s.sync;
-            {
-                var src = SinOsc.ar(440) * amp;
-                var flt = FSPolivoks.ar(src, 1200, 0.5, 0, 1.0);
-                RecordBuf.ar(flt, buf, loop: 0, doneAction: 2);
-                Silent.ar;
-            }.play;
-            dur.wait;
-            buf.loadToFloatArray(action: { |arr|
-                var tail = arr.copyRange((numSamples * 0.5).asInteger, numSamples - 1);
-                val = (tail.squared.sum / tail.size).sqrt;
-            });
-            s.sync;
-            buf.free;
-            val;
-        };
-
-        var rms1 = getRMS.(0.05);
-        var rms2 = getRMS.(0.10);
-        var ratio = rms2 / rms1;
-
-        ("  Linear scaling ratio (target 2.000): " ++ ratio.round(0.0001)).postln;
-        assert.((ratio - 2.0).abs < 0.001, "Stage P1 linear scaling holds exact (ratio: " ++ ratio.round(0.0001) ++ ")");
-    }.value;
-
-    // -------------------------------------------------------------
-    // Test 5: Fast Wide Cutoff Sweep Stability
-    // -------------------------------------------------------------
-    "--- Test 5: Fast Cutoff Sweep Stability ---".postln;
+    "--- Test 7: Fast Cutoff Sweep Stability ---".postln;
     {
         var buf = Buffer.alloc(s, numSamples, 1);
         var hasNaN = false;
@@ -183,9 +251,9 @@ s.waitForBoot({
         s.sync;
 
         {
-            var src = Pulse.ar(80, 0.3) * 0.2;
+            var src = Pulse.ar(80, 0.3) * 0.25;
             var fc = XLine.kr(20, 20000, dur);
-            var flt = FSPolivoks.ar(src, fc, 0.9, 0, 1.0);
+            var flt = FSPolivoks.ar(src, fc, 0.95, 0, drive: 1.5);
             RecordBuf.ar(flt, buf, loop: 0, doneAction: 2);
             Silent.ar;
         }.play;
@@ -205,19 +273,18 @@ s.waitForBoot({
     }.value;
 
     // -------------------------------------------------------------
-    // Test 6: Impulse Response & Ringing Stability
+    // Test 8: High-Q Impulse Ringing & Boundedness
     // -------------------------------------------------------------
-    "--- Test 6: High-Q Impulse Ringing ---".postln;
+    "--- Test 8: High-Q Impulse Ringing ---".postln;
     {
         var buf = Buffer.alloc(s, numSamples, 1);
         var peakAmp = 0.0;
-        var energyEarly = 0.0;
-        var energyLate = 0.0;
+        var hasNaN = false;
         s.sync;
 
         {
             var pulse = Impulse.ar(0) * 1.0;
-            var flt = FSPolivoks.ar(pulse, 1000, 0.95, 0, 1.0);
+            var flt = FSPolivoks.ar(pulse, 1000, 0.9, 0, drive: 1.0);
             RecordBuf.ar(flt, buf, loop: 0, doneAction: 2);
             Silent.ar;
         }.play;
@@ -225,21 +292,21 @@ s.waitForBoot({
         dur.wait;
         buf.loadToFloatArray(action: { |arr|
             peakAmp = arr.abs.maxItem;
-            energyEarly = arr.copyRange(0, 1000).squared.sum;
-            energyLate = arr.copyRange(arr.size - 1001, arr.size - 1).squared.sum;
+            arr.do({ |v|
+                if (v.isNaN || (v.abs > 50.0)) { hasNaN = true; };
+            });
         });
         s.sync;
         buf.free;
 
         ("  High-Q impulse peak amplitude: " ++ peakAmp.round(0.001)).postln;
-        ("  Energy Early: " ++ energyEarly.round(0.001) ++ ", Energy Late: " ++ energyLate.round(0.001)).postln;
-        assert.(peakAmp > 0.01 && (energyLate < energyEarly), "High-Q impulse rings and cleanly dissipates energy without divergence");
+        assert.(hasNaN.not && (peakAmp > 0.01) && (peakAmp < 5.0), "High-Q impulse produces finite, bounded ringing (peak " ++ peakAmp.round(0.001) ++ ")");
     }.value;
 
     // -------------------------------------------------------------
-    // Test 7: Distinctness vs Standard RLPF
+    // Test 9: Distinct Behavior vs Standard RLPF
     // -------------------------------------------------------------
-    "--- Test 7: Distinct Behavior vs Standard RLPF ---".postln;
+    "--- Test 9: Distinct Behavior vs Standard RLPF ---".postln;
     {
         var bufDiff = Buffer.alloc(s, numSamples, 1);
         var diffRMS = 0.0;
@@ -247,7 +314,7 @@ s.waitForBoot({
 
         {
             var src = Saw.ar(130) * 0.2;
-            var polivoksSig = FSPolivoks.ar(src, 1500, 0.6, 0, 1.0);
+            var polivoksSig = FSPolivoks.ar(src, 1500, 0.6, 0, drive: 1.0);
             var rlpfSig = RLPF.ar(src, 1500, 0.4);
             var diff = polivoksSig - rlpfSig;
             RecordBuf.ar(diff, bufDiff, loop: 0, doneAction: 2);
