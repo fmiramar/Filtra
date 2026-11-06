@@ -1,0 +1,52 @@
+TITLE:: ChipVCF
+summary:: Virtual Analog Model of the Solid State Micro Technology SSM2044 4-Pole Low-Pass VCF
+categories:: UGens>Filters
+related:: Guides/Filtra, Classes/RolandOTA, Classes/Wasp, Classes/MS20Diode
+
+DESCRIPTION::
+ChipVCF is a virtual analog model of the classic SSM2044 4-pole (24 dB/octave) low-pass filter integrated circuit manufactured by Solid State Micro Technology, featured prominently in the Korg Polysix, Korg Mono/Poly, PPG Wave 2, and Crumar Bit 01/99 synthesizers.
+
+The circuit features a 4-stage buffered differential ladder with an internal analog multiplier feedback gain cell. Unlike discrete transistor ladders, the SSM2044 incorporates an on-chip bass compensation network that reduces the dramatic low-frequency drop typical of classic ladders under high resonance. At resonance settings >= 1.0, the feedback loop stabilizes into a pure sinusoidal limit cycle with the characteristic biting "squelch" of early 1980s analog polysynths.
+
+CLASSMETHODS::
+
+METHOD:: ar
+
+ARGUMENT:: in
+Audio-rate input signal.
+
+ARGUMENT:: freq
+Filter cutoff frequency in Hertz (10 Hz to 0.49 * sampleRate). Supports audio rate and control rate. Default: 1000.0.
+
+ARGUMENT:: res
+Resonance parameter in [0.0, 1.2]. Self-oscillation occurs at res >= 1.0. Default: 0.0.
+
+ARGUMENT:: drive
+Overdrive factor (default 1.0, range [0.01, 20.0]). Controls input and inter-stage differential pair saturation.
+
+returns:: An audio-rate filtered signal.
+
+EXAMPLES::
+
+CODE::
+s.boot;
+
+// 1. Polysix Style Analog Bass Squelch
+(
+x = {
+    var saw = Saw.ar([55, 55.3]) * 0.3;
+    var env = EnvGen.kr(Env.perc(0.01, 1.2), Impulse.kr(2));
+    var cutoff = env.exprange(100, 4500);
+    ChipVCF.ar(saw, freq: cutoff, res: 0.85, drive: 2.0) * 0.4 ! 2;
+}.play;
+)
+
+// 2. Self-Oscillation Sine Melody
+(
+x = {
+    var trig = Impulse.ar(0);
+    var pitch = Demand.kr(Impulse.kr(4), 0, Dseq([440, 660, 880, 1100], inf));
+    ChipVCF.ar(trig * 0.1, freq: pitch, res: 1.05, drive: 1.0) * 0.5 ! 2;
+}.play;
+)
+::

@@ -1,0 +1,59 @@
+TITLE:: NLMS
+summary:: Real-Time Adaptive Normalized Least-Mean-Squares FIR Filter
+categories:: UGens>Filters
+related:: Guides/Filtra, Classes/ZMorph, Classes/Dispersion
+
+DESCRIPTION::
+NLMS is a real-time digital adaptive FIR filter implementing the Normalized Least-Mean-Squares algorithm (Widrow-Hoff / Haykin).
+
+Rather than using fixed frequency response coefficients, NLMS dynamically updates a 32-tap internal transversal filter weight vector at every sample to match an input strong::reference:: signal to a target strong::desired:: signal:
+teletype::
+e[n] = desired[n] - y[n]
+w_k[n+1] = w_k[n] + \frac{\mu}{\epsilon + ||x||^2} \cdot e[n] \cdot x[n-k]
+::
+
+NLMS is a dual-output UGen returning:
+LIST::
+## strong::Output 0::: The estimated signal code::y[n]:: (the adapted FIR output tracking the target).
+## strong::Output 1::: The residual error code::e[n]:: (the difference / cancelled output).
+::
+
+Applications include real-time acoustic echo and noise cancellation, adaptive inverse modeling, line enhancement, and dynamic resonance suppression.
+
+CLASSMETHODS::
+
+METHOD:: ar
+
+ARGUMENT:: reference
+Audio-rate input signal driving the adaptive FIR transversal delay line.
+
+ARGUMENT:: desired
+Audio-rate target signal that the filter attempts to track or cancel.
+
+ARGUMENT:: mu
+Adaptation step size parameter in [0.0, 1.0]. Larger values adapt faster but may increase steady-state misadjustment. Set to 0.0 to freeze filter weights. Default: 0.05.
+
+ARGUMENT:: eps
+Regularization constant preventing numerical divergence or division by zero during input silence. Range [1e-6, 1.0]. Default: 0.001.
+
+returns:: An array of two audio-rate signals: code::[estimatedSignal, residualError]::.
+
+EXAMPLES::
+
+CODE::
+s.boot;
+
+// 1. Acoustic System Identification & Echo Cancellation
+(
+x = {
+    var ref = PinkNoise.ar(0.3);
+    var target = CombN.ar(ref, 0.02, [0.003, 0.007], 0.2).sum * 0.5;
+    var sigs = NLMS.ar(ref, target, mu: 0.1, eps: 0.001);
+    var estimated = sigs[0];
+    var residualError = sigs[1];
+
+    // Left channel: original target; Right channel: noise-cancelled residual error
+    [target, residualError] * 0.4;
+}.play;
+)
+::

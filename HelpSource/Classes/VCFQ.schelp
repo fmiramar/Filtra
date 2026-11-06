@@ -1,0 +1,90 @@
+TITLE:: VCFQ
+summary:: Serge-Style Variable-Q Ping Resonator and Multimode VCF
+categories:: UGens>Filters
+related:: Guides/Filtra, Classes/Wasp, Classes/Steiner, Classes/MS20TPT
+
+DESCRIPTION::
+VCFQ is a faithful digital model of the iconic Serge Modular VCFQ (Variable-Q Filter) designed by Serge Tcherepnin.
+
+The VCFQ is famous in modular synthesis for its twin capabilities:
+LIST::
+## Serving as a high-character multimode voltage-controlled filter with wide, dynamic resonance sweeps.
+## Operating as an acoustic percussion resonator and "ping" generator, excited by trigger or gate pulses at its dedicated trigger input without requiring any continuous audio input.
+::
+
+Under the hood, VCFQ uses a 2nd-order Topology-Preserving Transform (TPT) State-Variable Filter (SVF) engine equipped with an Automatic Gain Control (AGC) diode feedback saturation loop. When excited by an incoming pulse at the code::trig:: port, the filter rings at its tuned cutoff frequency, producing expressive acoustic bells, wooden strikes, kick drums, and damped marimba tones depending on code::freq:: and code::q::.
+
+CLASSMETHODS::
+
+METHOD:: ar
+
+ARGUMENT:: in
+Audio-rate input signal to filter. Set to code::DC.ar(0):: when using pure ping percussion synthesis.
+
+ARGUMENT:: trig
+Trigger or impulse excitation input (control or audio rate). A positive edge transition (<= 0 to > 0) injects an impulse into the resonant state, causing the filter to "ping" and ring.
+
+ARGUMENT:: freq
+Cutoff or ringing frequency in Hz (control or audio rate). Range [10 Hz, Nyquist * 0.49].
+
+ARGUMENT:: q
+Resonance quality factor (range [0.5, 50.0]). At high Q, the filter produces prolonged ringing acoustic tails.
+
+ARGUMENT:: drive
+Nonlinear feedback and diode drive gain (range [0.1, 20.0], default 1.0). Higher values engage smooth AGC limiting, warming the decay and preventing self-oscillation blowup.
+
+ARGUMENT:: mode
+Filter mode selection (integer, init-only):
+TABLE::
+## Mode || Type
+## 0 || Low-Pass (LP)
+## 1 || Band-Pass (BP - standard for acoustic ping ringing)
+## 2 || High-Pass (HP)
+## 3 || Notch (Band-Reject)
+::
+
+ARGUMENT:: mul
+Output scale factor.
+
+ARGUMENT:: add
+Output offset.
+
+returns:: An audio-rate filtered signal.
+
+EXAMPLES::
+
+CODE::
+s.boot;
+
+// 1. Classic Serge Trigger Ping Percussion (Zero Audio Input)
+(
+x = {
+    var trig = Impulse.kr(4);
+    var pitchSeq = Demand.kr(trig, 0, Dseq([220, 330, 440, 660, 550, 880, 440, 330], inf));
+    var qSeq = Demand.kr(trig, 0, Dseq([10.0, 25.0, 40.0, 15.0], inf));
+    var ping = VCFQ.ar(DC.ar(0), trig: trig, freq: pitchSeq, q: qSeq, drive: 1.5, mode: 1);
+    ping * 0.4 ! 2;
+}.play;
+)
+
+// 2. Multimode Low-Pass with Dynamic Q Resonance Sweeps
+(
+x = {
+    var saw = Saw.ar([110, 110.5]) * 0.3;
+    var cut = SinOsc.kr(0.3).exprange(200, 4500);
+    var q = LFNoise2.kr(1).range(2.0, 30.0);
+    var sig = VCFQ.ar(saw, trig: 0, freq: cut, q: q, drive: 2.0, mode: 0);
+    sig * 0.5 ! 2;
+}.play;
+)
+
+// 3. Audio-Rate FM Ping Bell Synthesis
+(
+x = {
+    var trig = Dust.kr(3);
+    var fmMod = SinOsc.ar(140).exprange(300, 1800);
+    var ping = VCFQ.ar(DC.ar(0), trig: trig, freq: fmMod, q: 35.0, drive: 3.0, mode: 1);
+    ping * 0.4 ! 2;
+}.play;
+)
+::

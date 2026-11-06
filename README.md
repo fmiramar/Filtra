@@ -10,12 +10,17 @@ Distributed as native compiled binaries for SuperCollider via **GitHub Releases*
 
 ## Included Filter Models
 
-### 1. Expanded Filter Models
+### 1. Expanded Virtual Analog & Digital Filter Models
 
 | UGen | Circuit / Architecture | Linearity | Features & Modes | Sonic Character |
 |---|---|---|---|---|
 | **`CS80`** | Yamaha CS-80 Series (IG00153 / IG00156) | Nonlinear (inter-stage soft sat) | Series HP $\to$ LP (4-pole total); independent HP & LP controls | Iconic dual-resonant formant peaks, vocal vowel cavities, classic Vangelis sweeps. |
 | **`RolandOTA`** | Roland IR3109 (Juno-60 / Jupiter-8 / SH-101) | Nonlinear (OTA differential tanh) | 4-pole Low-Pass (-24 dB/oct); `resComp` bass recovery | Liquid singing limit cycle, authentic Roland bass drop with switchable compensation. |
+| **`ChipVCF`** | SSM2044 / CEM3320 4-Pole Ladder (Polysix, Prophet-5) | Nonlinear (differential gain cell sat) | 4-pole Low-Pass (-24 dB/oct); `resComp` bass recovery | Classic 80s polyphonic synth character, punchy bass, autonomous limit cycle. |
+| **`NLMS`** | Adaptive Normalized LMS FIR Filter | Real-time adaptive transversal FIR | 32-tap normalized LMS; dual multi-output `[estimated, residualError]` | Real-time echo cancellation, acoustic feedback suppression, system identification. |
+| **`FormantMorph`** | Coordinated Multi-Formant Vowel Bank | Linear parallel 2-pole TPT resonators | 3 parallel formants; continuous log-frequency morphing across 5 vowels ([a, e, i, o, u]) | Organic human singing diphthongs and vowel sweeps without clicks or volume drops. |
+| **`VCFQ`** | Serge Variable-Q Modular Filter & Resonator Core | Nonlinear (diode AGC feedback) | LP, BP, HP, Notch; dedicated trigger/impulse ping input | Classic Serge acoustic percussion pinging, ringing bells, marimbas, dynamic Q sweeps. |
+| **`DynamicSOS`** | Modulation-Safe Cascaded Biquad | Linear continuous physical TPT states | 7 Modes (LP, HP, BP, Notch, Peak EQ, LowShelf, HighShelf); 4-pole steepness | Artifact-free, click-free audio-rate sweeps and stepped coefficient jumps with zero transient blowup. |
 | **`Wasp`** | EDP Wasp (CA3080 OTA + CD4069 CMOS Inverters) | Nonlinear (implicit NR solver) | LP, BP, HP (12 dB/oct); analytical damping pot network | Brash, dirty, aggressive CMOS soft-saturation and OTA limiting (Köper et al., DAFx 2022). |
 | **`Steiner`** | Steiner–Parker Multimode Diode VCF | Nonlinear (diode feedback limiter) | LP (-12 dB/oct), BP (symmetric), HP (+6 dB/oct zero); multi-input injection | Raw diode variable resistance, singing self-oscillation limit cycle (Steiner, 1974; YuSynth). |
 | **`Polivoks`** | Formanta Polivoks VCF (K140UD12 / µA776) | Nonlinear (op-amp transconductance + rail sat) | LP (12 dB/oct), BP (6 dB/oct); exact hardware modes | "Capacitor-less" programmable op-amp slew/transconductance saturation and scream (Kuzmin, 1982). |
@@ -121,20 +126,25 @@ cmake --install .
 
 ## Verification Test Suites
 
-All 12 UGens are accompanied by automated headless test suites verifying mathematical accuracy, asymptotic slopes, Newton-Raphson solver convergence, audio-rate FM, and regression stability:
+All 17 UGens are accompanied by automated headless test suites verifying mathematical accuracy, asymptotic slopes, Newton-Raphson solver convergence, audio-rate FM, and regression stability:
 
 ```bash
-sclang tests/test_cs80.scd        # 6/6 tests pass (Yamaha CS-80)
-sclang tests/test_roland_ota.scd  # 6/6 tests pass (Roland IR3109 OTA)
-sclang tests/test_wasp.scd        # 15/15 tests pass (EDP Wasp)
-sclang tests/test_steiner.scd     # 15/15 tests pass (Steiner-Parker)
-sclang tests/test_polivoks.scd    # 12/12 tests pass (Formanta Polivoks)
-sclang tests/test_zmorph.scd      # 9/9 tests pass (ZMorph)
-sclang tests/test_dispersion.scd  # 12/12 tests pass (Dispersion)
+sclang tests/test_cs80.scd          # 6/6 tests pass (Yamaha CS-80)
+sclang tests/test_roland_ota.scd    # 6/6 tests pass (Roland IR3109 OTA)
+sclang tests/test_chip_vcf.scd      # 5/5 tests pass (SSM2044 ChipVCF)
+sclang tests/test_nlms.scd          # 4/4 tests pass (Adaptive NLMS FIR)
+sclang tests/test_formant_morph.scd # 4/4 tests pass (FormantMorph Bank)
+sclang tests/test_vcfq.scd          # 5/5 tests pass (Serge VCFQ Ping Resonator)
+sclang tests/test_dynamic_sos.scd   # 5/5 tests pass (Modulation-Safe DynamicSOS)
+sclang tests/test_wasp.scd          # 15/15 tests pass (EDP Wasp)
+sclang tests/test_steiner.scd       # 15/15 tests pass (Steiner-Parker)
+sclang tests/test_polivoks.scd      # 12/12 tests pass (Formanta Polivoks)
+sclang tests/test_zmorph.scd        # 9/9 tests pass (ZMorph)
+sclang tests/test_dispersion.scd    # 12/12 tests pass (Dispersion)
 sclang tests/test_oversampling.scd  # 12/12 tests pass (MS-20 2x oversampling)
 ```
 
-Total: **87 / 87 automated unit tests pass.**
+Total: **110 / 110 automated unit tests pass.**
 
 ---
 

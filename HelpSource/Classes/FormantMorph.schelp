@@ -1,0 +1,67 @@
+TITLE:: FormantMorph
+summary:: Coordinated Multi-Formant Vowel Bank with Continuous Log-Frequency Trajectory Morphing
+categories:: UGens>Filters
+related:: Guides/Filtra, Classes/ZMorph, Classes/CS80
+
+DESCRIPTION::
+FormantMorph is a coordinated multi-formant vocal resonator filter bank. It models the human vocal tract through three parallel 2nd-order Topology-Preserving Transform (TPT) bandpass filter sections.
+
+Unlike simple crossfades between filter outputs, FormantMorph continuously interpolates formant center frequencies strong::in the logarithmic frequency domain::, enabling completely smooth, organic, singing vocal diphthongs and vowel transformations without volume dips, clicks, or pole destabilization.
+
+FormantMorph includes 5 standard phonetic vowel formant profiles:
+TABLE::
+## Index || Vowel || Description || Formants (F1, F2, F3)
+## 0 || [a] || Open back ("father") || 730 Hz, 1090 Hz, 2440 Hz
+## 1 || [e] || Front mid ("bed") || 530 Hz, 1840 Hz, 2480 Hz
+## 2 || [i] || Front high ("bee") || 270 Hz, 2290 Hz, 3010 Hz
+## 3 || [o] || Back mid ("bone") || 570 Hz, 840 Hz, 2410 Hz
+## 4 || [u] || Back high ("boot") || 300 Hz, 870 Hz, 2240 Hz
+::
+
+CLASSMETHODS::
+
+METHOD:: ar
+
+ARGUMENT:: in
+Audio-rate input signal (e.g. rich harmonic sawtooth, pulse, or vocal glottal pulse).
+
+ARGUMENT:: morph
+Continuous interpolation position between vowelA (at 0.0) and vowelB (at 1.0). Supports audio rate and control rate.
+
+ARGUMENT:: vowelA
+Initial vowel preset index (0 to 4, init-only). Default: 0 ([a]).
+
+ARGUMENT:: vowelB
+Target vowel preset index (0 to 4, init-only). Default: 1 ([e]).
+
+ARGUMENT:: freqScale
+Global formant frequency multiplier (default 1.0, range [0.1, 5.0]). Scaling up simulates a smaller vocal tract (e.g. soprano/child); scaling down simulates a larger vocal cavity.
+
+ARGUMENT:: bwScale
+Formant bandwidth multiplier (default 1.0, range [0.1, 5.0]). Lower values yield sharper, more resonant vowels.
+
+returns:: An audio-rate filtered signal.
+
+EXAMPLES::
+
+CODE::
+s.boot;
+
+// 1. Organic Vowel Morphing ([a] -> [i])
+(
+x = {
+    var saw = Saw.ar([110, 110.5]) * 0.25;
+    var morph = SinOsc.kr(0.2).range(0.0, 1.0);
+    FormantMorph.ar(saw, morph: morph, vowelA: 0, vowelB: 2, freqScale: 1.0, bwScale: 1.0) * 0.5 ! 2;
+}.play;
+)
+
+// 2. Audio-rate vocal vibrato FM
+(
+x = {
+    var saw = Saw.ar([70, 70.3]) * 0.3;
+    var morph = SinOsc.ar(6).range(0.1, 0.9);
+    FormantMorph.ar(saw, morph: morph, vowelA: 0, vowelB: 3, freqScale: 0.9, bwScale: 0.7) * 0.5 ! 2;
+}.play;
+)
+::

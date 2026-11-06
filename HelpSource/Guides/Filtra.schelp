@@ -1,12 +1,12 @@
 TITLE:: Filtra
 summary:: A SuperCollider UGen Suite for Filter and Resonance
 categories:: Guides>Filters, UGens>Filters
-related:: Classes/Wasp, Classes/Steiner, Classes/Polivoks, Classes/ZMorph, Classes/Dispersion, Classes/CS80, Classes/RolandOTA, Classes/MS20SK, Classes/MS20TPT, Classes/MS20Diode, Classes/MS20OTA, Classes/MS20Circuit, Guides/MS20Filters
+related:: Classes/CS80, Classes/RolandOTA, Classes/ChipVCF, Classes/NLMS, Classes/FormantMorph, Classes/VCFQ, Classes/DynamicSOS, Classes/Wasp, Classes/Steiner, Classes/Polivoks, Classes/ZMorph, Classes/Dispersion, Classes/MS20SK, Classes/MS20TPT, Classes/MS20Diode, Classes/MS20OTA, Classes/MS20Circuit, Guides/MS20Filters
 
 DESCRIPTION::
 image::filtra_banner.png#Filtra - A SuperCollider UGen Suite for Filter and Resonance::
 
-strong::Filtra:: is a comprehensive, physically informed suite of twelve real-time SuperCollider server UGens providing virtual-analog models of historic vintage synthesizer filters alongside original digital multiresonant and dispersive processors.
+strong::Filtra:: is a comprehensive, physically informed suite of seventeen real-time SuperCollider server UGens providing virtual-analog models of historic vintage synthesizer filters alongside original digital multiresonant, adaptive, and dispersive processors.
 
 Each filter has been modeled using modern Zero-Delay Feedback (ZDF) and Topology-Preserving Transform (TPT) numerical techniques, capturing the exact capacitor state dynamics, nonlinear transfer curves, saturation harmonics, and autonomous self-oscillation limit cycles of the original analog hardware without numerical delay-memory artifacts.
 
@@ -14,6 +14,11 @@ TABLE::
 ## UGen || Architecture / Origin || Order || Modes || Nonlinear Element || Key Sonic Character
 ## link::Classes/CS80:: || Yamaha CS-80 Series (IG00153 / IG00156) || 4 || Series HP -> LP || Inter-stage Differential Saturation || Iconic dual resonant formant peaks, independent HP/LP sweeps, Vangelis brass.
 ## link::Classes/RolandOTA:: || Roland IR3109 (Juno-60 / Jupiter-8) || 4 || LP (-24 dB/oct) || OTA Differential Tanh Limiting || Liquid singing self-oscillation, authentic Roland bass drop with optional compensation.
+## link::Classes/ChipVCF:: || SSM2044 / CEM3320 Integrated Ladder || 4 || LP (-24 dB/oct) || Gain-Cell Differential Saturation || Classic early 80s poly-synth sound (Polysix, Prophet-5 Rev 3), pure sinusoidal resonance limit cycle.
+## link::Classes/NLMS:: || Normalized LMS Adaptive FIR Filter || 32-tap || Dual Out [Est, Err] || Dynamic Tap Error Adaptation || Real-time adaptive system identification, echo cancellation, howling suppression.
+## link::Classes/FormantMorph:: || Multi-Formant Parallel Vocal Bank || 6 (3x 2-pole) || Morphing Vowels || Linear TPT State Integrators || Continuous log-frequency trajectory interpolation across 5 phonetic vowels ([a], [e], [i], [o], [u]).
+## link::Classes/VCFQ:: || Serge Variable-Q Modular Core || 2 || LP, BP, HP, Notch || AGC Diode Feedback Limiting || Dedicated trigger impulse ping excitation, dynamic Q acoustic bells, marimbas, and chimes.
+## link::Classes/DynamicSOS:: || Modulation-Safe Cascaded Biquad || 4 (2x 2-pole) || 7 Modes (LP, HP, BP, Notch, Peak, Shelves) || Continuous Physical Integrator States || Fast audio-rate sweeps and stepped coefficient jumps with zero transient clicks, pops, or pole blowup.
 ## link::Classes/Wasp:: || Electronic Dream Plant (EDP) Wasp (1978) || 2 || LP, BP, HP || CA3080 OTA + CD4069 CMOS Inverters || Biting, aggressive odd harmonics, dirty British synth character.
 ## link::Classes/Steiner:: || Steiner–Parker Synthacon (1974) || 2 || LP, BP, HP || Antiparallel Silicon Diode Limiter || Variable diode resistance, singing limit cycles, multi-input injection.
 ## link::Classes/Polivoks:: || Formanta Polivoks (1982) || 2 || LP, BP || K140UD12 Programmable Op-Amp Saturation || "Capacitor-less" slew/transconductance saturation and dirty Soviet growl.
@@ -180,6 +185,13 @@ SECTION:: 5. Comparative Overview & Usage Guidelines
 
 TABLE::
 ## UGen || Best For || Input Drive Sensitivity || Mode Selection
+## link::Classes/CS80:: || Vangelis cinematic brass, dual vocal sweeps, twin formant shaping || High: inter-stage saturation warms resonance || Series HP -> LP
+## link::Classes/RolandOTA:: || Juno/Jupiter lush pads, liquid acid basslines, clean limit cycles || High: OTA soft saturation + resComp bass restore || 0 = LP (-24 dB/oct)
+## link::Classes/ChipVCF:: || Prophet/Polysix vintage analog warmth, punchy synth basses || High: gain-cell saturation + limit cycle || 0 = LP (-24 dB/oct)
+## link::Classes/NLMS:: || Adaptive echo cancellation, feedback suppression, room de-reverberation || Linear adaptive: step size mu + leakage || Dual Out [Est, Err]
+## link::Classes/FormantMorph:: || Human singing vowels, diphthongs, vocal tract morphing || Linear: 3-formant continuous log-freq morphing || 5 vowels ([a, e, i, o, u])
+## link::Classes/VCFQ:: || Serge acoustic ping percussion, bells, chimes, dynamic Q sweeps || High: diode AGC limiting on ping feedback || 0 = LP, 1 = BP, 2 = HP, 3 = Notch
+## link::Classes/DynamicSOS:: || Modulation-safe biquad cascades, click-free FM, parametric EQ || Linear: continuous physical integrator states || 0 = LP, 1 = HP, 2 = BP, 3 = Notch, 4 = Peak, 5 = LS, 6 = HS
 ## link::Classes/Wasp:: || Aggressive synth bass, dirty acid leads, CMOS distortion || High: drive > 1.5 induces heavy CMOS soft clipping || 0 = LP, 1 = BP, 2 = HP
 ## link::Classes/Steiner:: || Screaming resonant sweeps, versatile multimode filtering || Medium: smooth diode limiting across all levels || 0 = LP, 1 = BP, 2 = HP
 ## link::Classes/Polivoks:: || Raw industrial sounds, aggressive techno basslines || High: drive > 2.0 triggers op-amp slew limiting || 0 = LP, 1 = BP

@@ -1,0 +1,88 @@
+TITLE:: DynamicSOS
+summary:: Modulation-Safe Cascaded Biquad (2x 2nd-order TPT SVF Sections)
+categories:: UGens>Filters
+related:: Guides/Filtra, Classes/SOS, Classes/Biquad, Classes/MS20TPT
+
+DESCRIPTION::
+DynamicSOS is a modulation-safe 4-pole cascaded biquad filter consisting of two series 2nd-order Topology-Preserving Transform (TPT) State-Variable Filter (SVF) sections.
+
+Standard direct-form digital biquads (such as SuperCollider's link::Classes/SOS::) store past output samples in delay registers ($z^{-1}, z^{-2}$). When filter coefficients are rapidly modulated at control or audio rates, the stored delay energy conflicts with the newly calculated poles, frequently causing transient spikes, loud DC pops, audio dropouts, and catastrophic numerical instability.
+
+DynamicSOS solves this by modeling the physical integrator states ($s_1, s_2$) via trapezoidal integration. The state variables represent continuous physical voltages/currents. Even under discontinuous step changes or extreme audio-rate frequency modulation, the states remain bounded, click-free, and unconditionally stable.
+
+DynamicSOS supports 7 distinct filtering modes, each benefiting from 4-pole steepness or cascaded parametric curves.
+
+CLASSMETHODS::
+
+METHOD:: ar
+
+ARGUMENT:: in
+Audio-rate input signal.
+
+ARGUMENT:: freq
+Cutoff or center frequency in Hz (control or audio rate). Range [10 Hz, Nyquist * 0.49].
+
+ARGUMENT:: q
+Resonance quality factor (range [0.1, 50.0], default 1.0). Controls resonance peaking and filter bandwidth ($Q = f_0 / \Delta f$).
+
+ARGUMENT:: gain
+Filter gain in decibels (dB), used in Peak (Mode 4), LowShelf (Mode 5), and HighShelf (Mode 6). Range [-36.0 dB, +36.0 dB]. Default: 0.0 dB. (Ignored in LP, HP, BP, and Notch modes).
+
+ARGUMENT:: mode
+Filter response topology (integer, init-only):
+TABLE::
+## Mode || Type || Description
+## 0 || LowPass || Cascaded 4-pole (24 dB/oct) low-pass filter
+## 1 || HighPass || Cascaded 4-pole (24 dB/oct) high-pass filter
+## 2 || BandPass || Cascaded 4-pole bandpass with normalized 0 dB peak gain
+## 3 || Notch || Cascaded dual-stage deep notch (band-reject)
+## 4 || Peak || Parametric bell EQ with symmetric boost/cut in dB
+## 5 || LowShelf || Low shelving equalizer with smooth corner transition
+## 6 || HighShelf || High shelving equalizer with smooth corner transition
+::
+
+ARGUMENT:: mul
+Output scale factor.
+
+ARGUMENT:: add
+Output offset.
+
+returns:: An audio-rate filtered signal.
+
+EXAMPLES::
+
+CODE::
+s.boot;
+
+// 1. Extreme Audio-Rate Frequency Modulation (Zero Clicks/Pops)
+(
+x = {
+    var saw = Saw.ar([110, 110.5]) * 0.25;
+    var fm = SinOsc.ar(120).exprange(150, 4500);
+    var q = LFNoise1.kr(1).range(1.0, 12.0);
+    var sig = DynamicSOS.ar(saw, freq: fm, q: q, mode: 0);
+    sig * 0.5 ! 2;
+}.play;
+)
+
+// 2. Modulated Parametric Peak Bell EQ (+15 dB Boost Sweeps)
+(
+x = {
+    var noise = PinkNoise.ar(0.2);
+    var cut = SinOsc.kr(0.4).exprange(300, 3500);
+    var boost = SinOsc.kr(0.8).range(0.0, 18.0);
+    var sig = DynamicSOS.ar(noise, freq: cut, q: 6.0, gain: boost, mode: 4);
+    sig * 0.5 ! 2;
+}.play;
+)
+
+// 3. Fast Stepped Discontinuous Cutoff Jumps
+(
+x = {
+    var saw = Saw.ar([80, 80.4]) * 0.3;
+    var stepFreq = Demand.kr(Impulse.kr(8), 0, Dseq([150, 800, 300, 2200, 450, 4000], inf));
+    var sig = DynamicSOS.ar(saw, freq: stepFreq, q: 3.0, mode: 1);
+    sig * 0.5 ! 2;
+}.play;
+)
+::

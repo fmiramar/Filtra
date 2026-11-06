@@ -66,7 +66,7 @@ void CS80_next_kk(CS80* unit, int inNumSamples) {
         const double x = static_cast<double>(in[i]);
 
         // 1. High-Pass Stage (TPT SVF HP output)
-        const double v_hp = (x - R_hp * hp_s1 - hp_s2) * denom_hp;
+        const double v_hp = (x - (R_hp + g_hp) * hp_s1 - hp_s2) * denom_hp;
         const double v_hp_bp = g_hp * v_hp + hp_s1;
         const double v_hp_lp = g_hp * v_hp_bp + hp_s2;
         hp_s1 = 2.0 * v_hp_bp - hp_s1;
@@ -78,7 +78,7 @@ void CS80_next_kk(CS80* unit, int inNumSamples) {
         const double mid = std::tanh(drive * v_hp);
 
         // 3. Low-Pass Stage (TPT SVF LP output)
-        const double v_lp_hp = (mid - R_lp * lp_s1 - lp_s2) * denom_lp;
+        const double v_lp_hp = (mid - (R_lp + g_lp) * lp_s1 - lp_s2) * denom_lp;
         const double v_lp_bp = g_lp * v_lp_hp + lp_s1;
         const double v_lp = g_lp * v_lp_bp + lp_s2;
         lp_s1 = 2.0 * v_lp_bp - lp_s1;
@@ -128,7 +128,7 @@ void CS80_next_ak(CS80* unit, int inNumSamples) {
         const double g_hp = std::tan(kPi * hpFreq / sampleRate);
         const double denom_hp = 1.0 / (1.0 + R_hp * g_hp + g_hp * g_hp);
 
-        const double v_hp = (x - R_hp * hp_s1 - hp_s2) * denom_hp;
+        const double v_hp = (x - (R_hp + g_hp) * hp_s1 - hp_s2) * denom_hp;
         const double v_hp_bp = g_hp * v_hp + hp_s1;
         const double v_hp_lp = g_hp * v_hp_bp + hp_s2;
         hp_s1 = 2.0 * v_hp_bp - hp_s1;
@@ -138,7 +138,7 @@ void CS80_next_ak(CS80* unit, int inNumSamples) {
 
         const double mid = std::tanh(drive * v_hp);
 
-        const double v_lp_hp = (mid - R_lp * lp_s1 - lp_s2) * denom_lp;
+        const double v_lp_hp = (mid - (R_lp + g_lp) * lp_s1 - lp_s2) * denom_lp;
         const double v_lp_bp = g_lp * v_lp_hp + lp_s1;
         const double v_lp = g_lp * v_lp_bp + lp_s2;
         lp_s1 = 2.0 * v_lp_bp - lp_s1;
@@ -184,7 +184,7 @@ void CS80_next_ka(CS80* unit, int inNumSamples) {
     for (int i = 0; i < inNumSamples; ++i) {
         const double x = static_cast<double>(in[i]);
 
-        const double v_hp = (x - R_hp * hp_s1 - hp_s2) * denom_hp;
+        const double v_hp = (x - (R_hp + g_hp) * hp_s1 - hp_s2) * denom_hp;
         const double v_hp_bp = g_hp * v_hp + hp_s1;
         const double v_hp_lp = g_hp * v_hp_bp + hp_s2;
         hp_s1 = 2.0 * v_hp_bp - hp_s1;
@@ -198,7 +198,7 @@ void CS80_next_ka(CS80* unit, int inNumSamples) {
         const double g_lp = std::tan(kPi * lpFreq / sampleRate);
         const double denom_lp = 1.0 / (1.0 + R_lp * g_lp + g_lp * g_lp);
 
-        const double v_lp_hp = (mid - R_lp * lp_s1 - lp_s2) * denom_lp;
+        const double v_lp_hp = (mid - (R_lp + g_lp) * lp_s1 - lp_s2) * denom_lp;
         const double v_lp_bp = g_lp * v_lp_hp + lp_s1;
         const double v_lp = g_lp * v_lp_bp + lp_s2;
         lp_s1 = 2.0 * v_lp_bp - lp_s1;
@@ -245,7 +245,7 @@ void CS80_next_aa(CS80* unit, int inNumSamples) {
         const double g_hp = std::tan(kPi * hpFreq / sampleRate);
         const double denom_hp = 1.0 / (1.0 + R_hp * g_hp + g_hp * g_hp);
 
-        const double v_hp = (x - R_hp * hp_s1 - hp_s2) * denom_hp;
+        const double v_hp = (x - (R_hp + g_hp) * hp_s1 - hp_s2) * denom_hp;
         const double v_hp_bp = g_hp * v_hp + hp_s1;
         const double v_hp_lp = g_hp * v_hp_bp + hp_s2;
         hp_s1 = 2.0 * v_hp_bp - hp_s1;
@@ -259,7 +259,7 @@ void CS80_next_aa(CS80* unit, int inNumSamples) {
         const double g_lp = std::tan(kPi * lpFreq / sampleRate);
         const double denom_lp = 1.0 / (1.0 + R_lp * g_lp + g_lp * g_lp);
 
-        const double v_lp_hp = (mid - R_lp * lp_s1 - lp_s2) * denom_lp;
+        const double v_lp_hp = (mid - (R_lp + g_lp) * lp_s1 - lp_s2) * denom_lp;
         const double v_lp_bp = g_lp * v_lp_hp + lp_s1;
         const double v_lp = g_lp * v_lp_bp + lp_s2;
         lp_s1 = 2.0 * v_lp_bp - lp_s1;

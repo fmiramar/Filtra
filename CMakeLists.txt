@@ -48,6 +48,11 @@ set(MS20_PLUGIN_SOURCES
     src/Dispersion.cpp
     src/CS80.cpp
     src/RolandOTA.cpp
+    src/ChipVCF.cpp
+    src/NLMS.cpp
+    src/FormantMorph.cpp
+    src/VCFQ.cpp
+    src/DynamicSOS.cpp
 )
 
 add_library(MS20Filters MODULE ${MS20_PLUGIN_SOURCES})

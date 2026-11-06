@@ -10,6 +10,11 @@
 #include "Dispersion.hpp"
 #include "CS80.hpp"
 #include "RolandOTA.hpp"
+#include "ChipVCF.hpp"
+#include "NLMS.hpp"
+#include "FormantMorph.hpp"
+#include "VCFQ.hpp"
+#include "DynamicSOS.hpp"
 
 static InterfaceTable* ft;
 
@@ -29,4 +34,9 @@ PluginLoad(MS20Filters) {
     (*ft->fDefineUnit)("Dispersion", sizeof(fs::Dispersion), (UnitCtorFunc)&fs::Dispersion_Ctor, 0, 0);
     (*ft->fDefineUnit)("CS80", sizeof(fs::CS80), (UnitCtorFunc)&fs::CS80_Ctor, 0, 0);
     (*ft->fDefineUnit)("RolandOTA", sizeof(fs::RolandOTA), (UnitCtorFunc)&fs::RolandOTA_Ctor, 0, 0);
+    (*ft->fDefineUnit)("ChipVCF", sizeof(fs::ChipVCF), (UnitCtorFunc)&fs::ChipVCF_Ctor, 0, 0);
+    (*ft->fDefineUnit)("NLMS", sizeof(fs::NLMS), (UnitCtorFunc)&fs::NLMS_Ctor, 0, 0);
+    (*ft->fDefineUnit)("FormantMorph", sizeof(fs::FormantMorph), (UnitCtorFunc)&fs::FormantMorph_Ctor, 0, 0);
+    (*ft->fDefineUnit)("VCFQ", sizeof(fs::VCFQ), (UnitCtorFunc)&fs::VCFQ_Ctor, 0, 0);
+    (*ft->fDefineUnit)("DynamicSOS", sizeof(fs::DynamicSOS), (UnitCtorFunc)&fs::DynamicSOS_Ctor, 0, 0);
 }
