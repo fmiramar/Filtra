@@ -10,7 +10,7 @@
 | **EDP Wasp VCF** | `FSWasp` | **passed** | Stages W1 & W2 complete: Linear small-signal & circuit-informed nonlinear OTA/CMOS model verified (LP/BP/HP, 12 dB/oct slopes, DAFx 2022). |
 | **Steiner-Parker VCF** | `FSSteiner` | **passed** | Multimode Sallen-Key diode network verified (LP/BP/HP injection, TPT ZDF solver, diode limiter self-oscillation). |
 | **Formanta Polivoks VCF** | `FSPolivoks` | **passed** | Stages P1 & P2 complete: Linearized small-signal & bounded K140UD12 op-amp transconductance saturation and limit cycle verified (LP/BP, Newton-Raphson solver). |
-| **Z-Plane Morph** | `FSZMorph` | **not started** | Core candidate 4; original parallel multiresonant response morphing. |
+| **Z-Plane Morph** | `FSZMorph` | **passed (M1)** | Milestone 4 complete: Parallel 4-section TPT SVF banks with bounded equal-gain response morphing verified (6 original presets, exact endpoints, audio-rate morph). |
 | **Dispersive All-Pass** | `FSDispersion` | **not started** | Core candidate 5; cascaded second-order all-pass group delay spreading. |
 | **Roland OTA Cascade** | `FSRolandOTA` | **not started** | Later candidate; IR3109 four-stage cascade. |
 | **Yamaha CS-80 Pair** | `FSCS80` | **not started** | Later candidate; serial independently resonant HP $\to$ LP pair. |

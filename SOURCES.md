@@ -206,3 +206,29 @@
   * Small-signal convergence: verified to converge to the linear Stage P1 model to within $< 3 \times 10^{-7}$ for quiet signals.
 
 
+## 14. Milestone 4: Original Digital Multiresonant Filter Morphing (`FSZMorph` M1)
+* **Reference Concept:**
+  * Dave Rossum / E-mu Systems, *Z-Plane Filter Architecture* (e.g. Morpheus, UltraProteus, E-mu patent US5488665A).
+  * Original clean-room implementation: contains zero proprietary E-mu ROM, presets, code, or calibration tables.
+* **Architecture & Mathematical Formulation:**
+  * Rather than interpolating high-order recursive IIR filter coefficients (which causes transient divergence, instability, and explosive pole migration), `FSZMorph` implements **response-domain parallel morphing**.
+  * Each Shape is a 4-section parallel bank of 2nd-order Topology-Preserving Transform (TPT) bandpass/peaking resonators:
+    $$g_k = \tan\left(\frac{\pi f_k}{f_s}\right), \quad R_k = \frac{1}{Q_k}, \quad D_k = 1 + R_k g_k + g_k^2$$
+    $$v_{hp, k} = \frac{v_{in} - (R_k + g_k) s_{1, k} - s_{2, k}}{D_k}$$
+    $$v_{bp, k} = g_k v_{hp, k} + s_{1, k}$$
+    $$v_{lp, k} = g_k v_{bp, k} + s_{2, k}$$
+    $$y = \sum_{k=1}^4 G_k \cdot v_{bp, k} + G_{direct} \cdot v_{in}$$
+  * Parallel Shape A and Shape B outputs ($y_A, y_B$) are combined via an equal-gain continuous crossfade:
+    $$y[n] = (1 - \text{morph}) \cdot y_A[n] + \text{morph} \cdot y_B[n]$$
+  * **Convex Boundedness & Unconditional Stability:**
+    Because $0 \le \text{morph} \le 1$, $|y[n]| \le \max(|y_A[n]|, |y_B[n]|)$. The filter is unconditionally stable, click-free under fast modulation, and exhibits exact endpoint correspondence ($y = y_A$ at $\text{morph}=0$, $y = y_B$ at $\text{morph}=1$ to floating-point precision).
+* **Original Built-in Presets:**
+  * Shape 0: `VowelA` — Formants at 730 Hz, 1090 Hz, 2440 Hz, 3500 Hz (open vowel "Ah").
+  * Shape 1: `VowelI` — Formants at 270 Hz, 2290 Hz, 3010 Hz, 4200 Hz (front vowel "Ee").
+  * Shape 2: `VowelU` — Formants at 300 Hz, 870 Hz, 2250 Hz, 3100 Hz (back vowel "Oo").
+  * Shape 3: `DeepComb` — Resonant peaks at 220 Hz, 1320 Hz with destructive phase notches at 660 Hz, 2640 Hz.
+  * Shape 4: `MetallicBell` — Inharmonic resonant modes at 440 Hz, 980 Hz, 1790 Hz, 3280 Hz with high Q.
+  * Shape 5: `AcousticBody` — Low wooden body resonance at 110 Hz, 220 Hz, 450 Hz, 900 Hz.
+
+
+
