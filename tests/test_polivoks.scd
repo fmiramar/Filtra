@@ -1,5 +1,5 @@
 // =====================================================================
-// test_fspolivoks.scd: Verification Test Suite for Polivoks (Stages P1 & P2)
+// test_polivoks.scd: Verification Test Suite for Polivoks (Stages P1 & P2)
 // Verifies Formanta Polivoks VCF:
 // - Stage P1: Linear small-signal 2-stage state-variable integrator cascade
 // - Stage P2: Bounded K140UD12 op-amp transconductance saturation & limit cycle
@@ -341,7 +341,7 @@ s.waitForBoot({
     "==================================================\n".postln;
 
     if (passCount == testCount) {
-        "ALL FSPOLIVOKS TESTS PASSED SUCCESSFULLY!".postln;
+        "ALL POLIVOKS TESTS PASSED SUCCESSFULLY!".postln;
     } {
         "SOME TESTS FAILED!".postln;
     };

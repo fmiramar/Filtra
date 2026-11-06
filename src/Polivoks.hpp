@@ -19,14 +19,10 @@ struct Polivoks : public Unit {
     double m_s2; // Stage 2 integrator state (Lowpass node)
 };
 
-using FSPolivoks = Polivoks;
-
 void Polivoks_Ctor(Polivoks* unit);
 void Polivoks_next_lp_k(Polivoks* unit, int inNumSamples);
 void Polivoks_next_bp_k(Polivoks* unit, int inNumSamples);
 void Polivoks_next_lp_a(Polivoks* unit, int inNumSamples);
 void Polivoks_next_bp_a(Polivoks* unit, int inNumSamples);
-
-inline void FSPolivoks_Ctor(FSPolivoks* unit) { Polivoks_Ctor(unit); }
 
 } // namespace fs

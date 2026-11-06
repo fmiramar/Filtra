@@ -1,5 +1,5 @@
 /*
-    FilterSuite for SuperCollider
+    Filtra for SuperCollider
     ZMorph: Original Digital Multiresonant Filter Response Morphing
     Reference Concept: Rossum / E-mu Z-plane morphing (original DSP and presets, no proprietary ROM)
     Parallel processing of Shape A and Shape B with equal-gain response crossfade morph in [0, 1]
@@ -17,5 +17,3 @@ ZMorph : UGen {
         ^this.checkValidInputs;
     }
 }
-
-FSZMorph : ZMorph {}

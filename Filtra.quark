@@ -1,0 +1,11 @@
+(
+  \name: "Filtra",
+  \summary: "A SuperCollider UGen Suite for Filter and Resonance (Wasp, Steiner, Polivoks, ZMorph, Dispersion, MS20SK, MS20TPT, MS20Diode, MS20OTA, MS20Circuit).",
+  \author: "Antigravity & SuperCollider Community",
+  \version: "0.1.0",
+  \schelp: "Guides/Filtra",
+  \license: "GPL-3.0-or-later",
+  \copyright: "2026",
+  \dependencies: [],
+  \isExtension: true
+)

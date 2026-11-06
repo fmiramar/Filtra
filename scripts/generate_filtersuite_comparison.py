@@ -22,7 +22,7 @@ os.makedirs(ARTIFACT_DIR, exist_ok=True)
 # -----------------------------------------------------------------------------
 
 def sim_wasp(x, fc=1000.0, res=0.2, drive=1.0, mode=0, fs=FS):
-    # FSWasp: CA3080 OTA + CD4069 CMOS Inverters
+    # Wasp: CA3080 OTA + CD4069 CMOS Inverters
     N = len(x)
     y = np.zeros(N)
     g = np.tan(np.pi * np.clip(fc, 10.0, fs * 0.49) / fs)
@@ -75,7 +75,7 @@ def sim_wasp(x, fc=1000.0, res=0.2, drive=1.0, mode=0, fs=FS):
     return y
 
 def sim_steiner(x, fc=1000.0, res=0.3, mode=0, drive=1.0, fs=FS):
-    # FSSteiner: Steiner-Parker Sallen-Key Diode VCF
+    # Steiner: Steiner-Parker Sallen-Key Diode VCF
     N = len(x)
     y = np.zeros(N)
     g = np.tan(np.pi * np.clip(fc, 10.0, fs * 0.49) / fs)
@@ -125,7 +125,7 @@ def sim_steiner(x, fc=1000.0, res=0.3, mode=0, drive=1.0, fs=FS):
     return y
 
 def sim_polivoks(x, fc=1000.0, res=0.3, mode=0, drive=1.0, fs=FS):
-    # FSPolivoks: Formanta Polivoks programmable op-amp VCF
+    # Polivoks: Formanta Polivoks programmable op-amp VCF
     N = len(x)
     y = np.zeros(N)
     g = np.tan(np.pi * np.clip(fc, 10.0, fs * 0.49) / fs)
@@ -176,7 +176,7 @@ def sim_polivoks(x, fc=1000.0, res=0.3, mode=0, drive=1.0, fs=FS):
     return y
 
 def sim_zmorph(x, morph=0.0, shapeA=0, shapeB=1, fs=FS):
-    # FSZMorph: Multiresonant parallel TPT banks
+    # ZMorph: Multiresonant parallel TPT banks
     shapes = [
         # 0: Vowel A
         ([(730, 6.0, 1.0), (1090, 7.0, 0.65), (2440, 9.0, 0.35), (3500, 8.0, 0.2)], 0.15),
@@ -217,7 +217,7 @@ def sim_zmorph(x, morph=0.0, shapeA=0, shapeB=1, fs=FS):
     return (1.0 - m) * yA + m * yB
 
 def sim_dispersion(x, center=1500.0, spread=1.0, q=2.0, fs=FS):
-    # FSDispersion: 4-stage 2nd-order TPT all-pass cascade
+    # Dispersion: 4-stage 2nd-order TPT all-pass cascade
     N = len(x)
     offsets = np.array([-0.75, -0.25, 0.25, 0.75]) * spread
     freqs = np.clip(center * (2.0 ** offsets), 10.0, fs * 0.49)
@@ -396,7 +396,7 @@ print("Measurement routines ready!")
 def make_page1():
     print("Generating Page 1: Linear & Multimode Frequency & Phase Responses...")
     fig, axes = plt.subplots(2, 2, figsize=(14, 10))
-    fig.suptitle("FilterSuite: Frequency & Multimode Phase Characterization (Small-Signal Linear)", fontsize=16, fontweight='bold', y=0.98)
+    fig.suptitle("Filtra: Frequency & Multimode Phase Characterization (Small-Signal Linear)", fontsize=16, fontweight='bold', y=0.98)
     
     freqs = np.logspace(np.log10(20), np.log10(18000), 120)
     
@@ -408,9 +408,9 @@ def make_page1():
     _, mag_poli, _ = measure_frequency_response(sim_polivoks, freqs, fc=1000.0, res=0.5, mode=0, drive=0.0)
     _, mag_ms20, _ = measure_frequency_response(sim_ms20_diode, freqs, fc=1000.0, res=0.5, drive=0.0)
     
-    ax.semilogx(freqs, mag_wasp, label="FSWasp (LP, OTA+CMOS SVF)", color="#1f77b4", lw=2)
-    ax.semilogx(freqs, mag_stein, label="FSSteiner (LP, Diode SK)", color="#ff7f0e", lw=2)
-    ax.semilogx(freqs, mag_poli, label="FSPolivoks (LP, Op-Amp SVF)", color="#2ca02c", lw=2)
+    ax.semilogx(freqs, mag_wasp, label="Wasp (LP, OTA+CMOS SVF)", color="#1f77b4", lw=2)
+    ax.semilogx(freqs, mag_stein, label="Steiner (LP, Diode SK)", color="#ff7f0e", lw=2)
+    ax.semilogx(freqs, mag_poli, label="Polivoks (LP, Op-Amp SVF)", color="#2ca02c", lw=2)
     ax.semilogx(freqs, mag_ms20, label="MS20Diode (LP, Korg-35 Loaded)", color="#d62728", lw=1.8, ls="--")
     
     ax.axvline(1000, color="gray", ls=":", alpha=0.7, label="Cutoff fc = 1 kHz")
@@ -429,9 +429,9 @@ def make_page1():
     _, _, phi_poli = measure_frequency_response(sim_polivoks, freqs, fc=1000.0, res=0.5, mode=0, drive=0.0)
     _, _, phi_ms20 = measure_frequency_response(sim_ms20_diode, freqs, fc=1000.0, res=0.5, drive=0.0)
     
-    ax.semilogx(freqs, np.degrees(phi_wasp), label="FSWasp (LP)", color="#1f77b4", lw=2)
-    ax.semilogx(freqs, np.degrees(phi_stein), label="FSSteiner (LP)", color="#ff7f0e", lw=2)
-    ax.semilogx(freqs, np.degrees(phi_poli), label="FSPolivoks (LP)", color="#2ca02c", lw=2)
+    ax.semilogx(freqs, np.degrees(phi_wasp), label="Wasp (LP)", color="#1f77b4", lw=2)
+    ax.semilogx(freqs, np.degrees(phi_stein), label="Steiner (LP)", color="#ff7f0e", lw=2)
+    ax.semilogx(freqs, np.degrees(phi_poli), label="Polivoks (LP)", color="#2ca02c", lw=2)
     ax.semilogx(freqs, np.degrees(phi_ms20), label="MS20Diode (LP)", color="#d62728", lw=1.8, ls="--")
     
     ax.axvline(1000, color="gray", ls=":", alpha=0.7)
@@ -451,11 +451,11 @@ def make_page1():
     _, mag_wasp_hp, _ = measure_frequency_response(sim_wasp, freqs, fc=1000.0, res=0.6, mode=2, drive=0.0)
     _, mag_poli_bp, _ = measure_frequency_response(sim_polivoks, freqs, fc=1000.0, res=0.6, mode=1, drive=0.0)
     
-    ax.semilogx(freqs, mag_stein_lp, label="FSSteiner LP (-12 dB/oct)", color="#ff7f0e", lw=2)
-    ax.semilogx(freqs, mag_stein_bp, label="FSSteiner BP (Symmetric Peak)", color="#ffbb78", lw=1.8, ls="--")
-    ax.semilogx(freqs, mag_stein_hp, label="FSSteiner HP (+6 dB zero shelf)", color="#9467bd", lw=2)
-    ax.semilogx(freqs, mag_wasp_hp, label="FSWasp HP (2-Pole SVF)", color="#17becf", lw=1.8, ls="-.")
-    ax.semilogx(freqs, mag_poli_bp, label="FSPolivoks BP", color="#2ca02c", lw=1.8, ls=":")
+    ax.semilogx(freqs, mag_stein_lp, label="Steiner LP (-12 dB/oct)", color="#ff7f0e", lw=2)
+    ax.semilogx(freqs, mag_stein_bp, label="Steiner BP (Symmetric Peak)", color="#ffbb78", lw=1.8, ls="--")
+    ax.semilogx(freqs, mag_stein_hp, label="Steiner HP (+6 dB zero shelf)", color="#9467bd", lw=2)
+    ax.semilogx(freqs, mag_wasp_hp, label="Wasp HP (2-Pole SVF)", color="#17becf", lw=1.8, ls="-.")
+    ax.semilogx(freqs, mag_poli_bp, label="Polivoks BP", color="#2ca02c", lw=1.8, ls=":")
     
     ax.set_xlabel("Frequency (Hz)")
     ax.set_ylabel("Magnitude (dB)")
@@ -480,9 +480,9 @@ def make_page1():
         pk_poli.append(m_p[0])
         pk_ms20.append(m_m[0])
         
-    ax.plot(res_vals, pk_wasp, label="FSWasp (Analytical Pot Damping)", color="#1f77b4", lw=2, marker="o", ms=4)
-    ax.plot(res_vals, pk_stein, label="FSSteiner (Sallen-Key Diode K -> 3.0)", color="#ff7f0e", lw=2, marker="s", ms=4)
-    ax.plot(res_vals, pk_poli, label="FSPolivoks (Analytical r -> 0.02)", color="#2ca02c", lw=2, marker="^", ms=4)
+    ax.plot(res_vals, pk_wasp, label="Wasp (Analytical Pot Damping)", color="#1f77b4", lw=2, marker="o", ms=4)
+    ax.plot(res_vals, pk_stein, label="Steiner (Sallen-Key Diode K -> 3.0)", color="#ff7f0e", lw=2, marker="s", ms=4)
+    ax.plot(res_vals, pk_poli, label="Polivoks (Analytical r -> 0.02)", color="#2ca02c", lw=2, marker="^", ms=4)
     ax.plot(res_vals, pk_ms20, label="MS20Diode (Loaded 3 - K)", color="#d62728", lw=1.8, ls="--", marker="x", ms=4)
     
     ax.set_xlabel("Resonance Control Setting (res in [0, 1])")
@@ -504,7 +504,7 @@ def make_page1():
 def make_page2():
     print("Generating Page 2: Nonlinear Saturation & Harmonic Distortion...")
     fig, axes = plt.subplots(2, 2, figsize=(14, 10))
-    fig.suptitle("FilterSuite: Nonlinear Distortion, Harmonic Spectra & Waveform Shaping", fontsize=16, fontweight='bold', y=0.98)
+    fig.suptitle("Filtra: Nonlinear Distortion, Harmonic Spectra & Waveform Shaping", fontsize=16, fontweight='bold', y=0.98)
     
     # Stimulus: 200 Hz Sine wave under high drive
     f_fund = 200.0
@@ -523,9 +523,9 @@ def make_page2():
     cyc_samples = int(2.0 * FS / f_fund)
     t_plot = (t[-cyc_samples:] - t[-cyc_samples]) * 1000.0 # ms
     
-    ax.plot(t_plot, y_wasp[-cyc_samples:], label="FSWasp (CMOS Inverter Soft Sat)", color="#1f77b4", lw=2)
-    ax.plot(t_plot, y_stein[-cyc_samples:], label="FSSteiner (Diode Limiter Clamping)", color="#ff7f0e", lw=2)
-    ax.plot(t_plot, y_poli[-cyc_samples:], label="FSPolivoks (Op-Amp Slew & Rail)", color="#2ca02c", lw=2)
+    ax.plot(t_plot, y_wasp[-cyc_samples:], label="Wasp (CMOS Inverter Soft Sat)", color="#1f77b4", lw=2)
+    ax.plot(t_plot, y_stein[-cyc_samples:], label="Steiner (Diode Limiter Clamping)", color="#ff7f0e", lw=2)
+    ax.plot(t_plot, y_poli[-cyc_samples:], label="Polivoks (Op-Amp Slew & Rail)", color="#2ca02c", lw=2)
     ax.plot(t_plot, y_ms20[-cyc_samples:], label="MS20Circuit (Asymmetric Reverse BJT)", color="#d62728", lw=1.8, ls="--")
     
     ax.set_xlabel("Time (milliseconds)")
@@ -556,8 +556,8 @@ def make_page2():
     _, sp_ms20 = get_spectrum(sim_ms20_circuit)
     
     mask = (ff <= 3200)
-    ax.plot(ff[mask], sp_wasp[mask], label="FSWasp (Odd Harmonics: 3rd, 5th, 7th)", color="#1f77b4", lw=1.8)
-    ax.plot(ff[mask], sp_poli[mask], label="FSPolivoks (Odd Harmonics + Soft Rail)", color="#2ca02c", lw=1.5, ls=":")
+    ax.plot(ff[mask], sp_wasp[mask], label="Wasp (Odd Harmonics: 3rd, 5th, 7th)", color="#1f77b4", lw=1.8)
+    ax.plot(ff[mask], sp_poli[mask], label="Polivoks (Odd Harmonics + Soft Rail)", color="#2ca02c", lw=1.5, ls=":")
     ax.plot(ff[mask], sp_ms20[mask], label="MS20Circuit (Prominent 2nd Harmonic Even Growl)", color="#d62728", lw=1.8, ls="--")
     
     ax.set_xlabel("Frequency (Hz)")
@@ -592,9 +592,9 @@ def make_page2():
         cf_poli.append(calc_cf(o_p))
         cf_ms20.append(calc_cf(o_m))
         
-    ax.plot(drives, cf_wasp, label="FSWasp (Crest compresses 1.41 -> 1.15)", color="#1f77b4", lw=2)
-    ax.plot(drives, cf_stein, label="FSSteiner (Diode Limiting)", color="#ff7f0e", lw=2)
-    ax.plot(drives, cf_poli, label="FSPolivoks (Op-Amp Slew Compression)", color="#2ca02c", lw=2)
+    ax.plot(drives, cf_wasp, label="Wasp (Crest compresses 1.41 -> 1.15)", color="#1f77b4", lw=2)
+    ax.plot(drives, cf_stein, label="Steiner (Diode Limiting)", color="#ff7f0e", lw=2)
+    ax.plot(drives, cf_poli, label="Polivoks (Op-Amp Slew Compression)", color="#2ca02c", lw=2)
     ax.plot(drives, cf_ms20, label="MS20Circuit (Asymmetric Compression)", color="#d62728", lw=1.8, ls="--")
     ax.axhline(np.sqrt(2), color="gray", ls=":", label="Ideal Sine Crest (1.414)")
     ax.axhline(1.0, color="black", ls=":", label="Ideal Square Crest (1.000)")
@@ -625,9 +625,9 @@ def make_page2():
         out_poli.append(20.0 * np.log10(np.max(np.abs(op[tail:])) + 1e-9))
         
     ax.plot(in_amps_db, in_amps_db, color="gray", ls=":", label="Linear Reference (1:1 Gain)")
-    ax.plot(in_amps_db, out_wasp, label="FSWasp Output", color="#1f77b4", lw=2)
-    ax.plot(in_amps_db, out_stein, label="FSSteiner Output", color="#ff7f0e", lw=2)
-    ax.plot(in_amps_db, out_poli, label="FSPolivoks Output", color="#2ca02c", lw=2)
+    ax.plot(in_amps_db, out_wasp, label="Wasp Output", color="#1f77b4", lw=2)
+    ax.plot(in_amps_db, out_stein, label="Steiner Output", color="#ff7f0e", lw=2)
+    ax.plot(in_amps_db, out_poli, label="Polivoks Output", color="#2ca02c", lw=2)
     
     ax.set_xlabel("Input Level (dBFS)")
     ax.set_ylabel("Output Peak Level (dBFS)")
@@ -647,7 +647,7 @@ def make_page2():
 def make_page3():
     print("Generating Page 3: Autonomous Limit Cycles & Audio FM...")
     fig, axes = plt.subplots(2, 2, figsize=(14, 10))
-    fig.suptitle("FilterSuite: Autonomous Self-Oscillation, Phase Plane & Audio FM", fontsize=16, fontweight='bold', y=0.98)
+    fig.suptitle("Filtra: Autonomous Self-Oscillation, Phase Plane & Audio FM", fontsize=16, fontweight='bold', y=0.98)
     
     # 1. Autonomous Limit Cycles in Silence (Initial pulse trigger, then zero input)
     dur = 0.04
@@ -663,8 +663,8 @@ def make_page3():
     ax.set_title("3A. Autonomous Self-Oscillation Limit Cycles (fc = 880 Hz, Zero Input)", fontweight='bold')
     t_ms = np.arange(800) / FS * 1000.0
     
-    ax.plot(t_ms, y_stein_osc[-800:], label="FSSteiner Limit Cycle (Peak ~ 0.77, Pure Diode Sine)", color="#ff7f0e", lw=2)
-    ax.plot(t_ms, y_poli_osc[-800:], label="FSPolivoks Limit Cycle (Peak ~ 0.17, Op-Amp Saturated)", color="#2ca02c", lw=2)
+    ax.plot(t_ms, y_stein_osc[-800:], label="Steiner Limit Cycle (Peak ~ 0.77, Pure Diode Sine)", color="#ff7f0e", lw=2)
+    ax.plot(t_ms, y_poli_osc[-800:], label="Polivoks Limit Cycle (Peak ~ 0.17, Op-Amp Saturated)", color="#2ca02c", lw=2)
     ax.plot(t_ms, y_ms20_osc[-800:], label="MS20Diode Limit Cycle (Korg-35 Forward Diode)", color="#d62728", lw=1.8, ls="--")
     
     ax.set_xlabel("Time (milliseconds)")
@@ -686,8 +686,8 @@ def make_page3():
     v_p, dv_p = get_phase_portrait(y_poli_osc)
     v_m, dv_m = get_phase_portrait(y_ms20_osc)
     
-    ax.plot(v_s, dv_s, label="FSSteiner Orbit (Smooth Elliptical Limit Cycle)", color="#ff7f0e", lw=2)
-    ax.plot(v_p, dv_p, label="FSPolivoks Orbit (Saturated Op-Amp Attractor)", color="#2ca02c", lw=2)
+    ax.plot(v_s, dv_s, label="Steiner Orbit (Smooth Elliptical Limit Cycle)", color="#ff7f0e", lw=2)
+    ax.plot(v_p, dv_p, label="Polivoks Orbit (Saturated Op-Amp Attractor)", color="#2ca02c", lw=2)
     ax.plot(v_m, dv_m, label="MS20Diode Orbit (Forward Diode Attractor)", color="#d62728", lw=1.8, ls="--")
     
     ax.set_xlabel("State Voltage v(t)")
@@ -726,7 +726,7 @@ def make_page3():
     spec_fm_db = 20.0 * np.log10(np.maximum(1e-7, spec_fm / np.max(spec_fm)))
     freqs_fm = np.fft.rfftfreq(len(y_fm), 1.0 / FS)
     
-    ax.plot(freqs_fm, spec_fm_db, color="#1f77b4", lw=1.5, label="FSWasp Audio FM Spectrum")
+    ax.plot(freqs_fm, spec_fm_db, color="#1f77b4", lw=1.5, label="Wasp Audio FM Spectrum")
     ax.set_xlabel("Frequency (Hz)")
     ax.set_ylabel("Magnitude (dB)")
     ax.set_ylim(-65, 5)
@@ -743,7 +743,7 @@ def make_page3():
     fc_sw = 200.0 * (16.0 ** (t_sw / 0.02)) # Exponential sweep
     fc_sw = np.clip(fc_sw, 200.0, 3200.0)
     
-    # Simulate sweep on FSPolivoks
+    # Simulate sweep on Polivoks
     y_sw = np.zeros(len(carrier_sw))
     s1, s2 = 0.0, 0.0
     for i in range(len(carrier_sw)):
@@ -757,7 +757,7 @@ def make_page3():
         s2 = 2.0 * v_lp - s2
         y_sw[i] = v_lp
         
-    ax.plot(t_sw * 1000.0, y_sw, color="#2ca02c", lw=1.8, label="FSPolivoks Fast Cutoff Sweep (Zero Blowup)")
+    ax.plot(t_sw * 1000.0, y_sw, color="#2ca02c", lw=1.8, label="Polivoks Fast Cutoff Sweep (Zero Blowup)")
     ax.plot(t_sw * 1000.0, carrier_sw, color="gray", lw=1.0, ls=":", alpha=0.6, label="Input Sine (300 Hz)")
     ax.set_xlabel("Time (milliseconds)")
     ax.set_ylabel("Output Amplitude")
@@ -777,13 +777,13 @@ def make_page3():
 def make_page4():
     print("Generating Page 4: Advanced Morphological & Temporal Dispersion...")
     fig, axes = plt.subplots(2, 2, figsize=(14, 10))
-    fig.suptitle("FilterSuite: Advanced Digital Response Morphing (FSZMorph) & All-Pass Dispersion (FSDispersion)", fontsize=15, fontweight='bold', y=0.98)
+    fig.suptitle("Filtra: Advanced Digital Response Morphing (ZMorph) & All-Pass Dispersion (Dispersion)", fontsize=15, fontweight='bold', y=0.98)
     
     freqs = np.logspace(np.log10(50), np.log10(15000), 150)
     
-    # 1. FSZMorph Continuous Response Evolution (Vowel A -> Vowel I)
+    # 1. ZMorph Continuous Response Evolution (Vowel A -> Vowel I)
     ax = axes[0, 0]
-    ax.set_title("4A. FSZMorph: Continuous Formant Morphing (Vowel A -> Vowel I)", fontweight='bold')
+    ax.set_title("4A. ZMorph: Continuous Formant Morphing (Vowel A -> Vowel I)", fontweight='bold')
     
     morph_steps = [0.0, 0.25, 0.50, 0.75, 1.0]
     colors = plt.cm.plasma(np.linspace(0.1, 0.9, len(morph_steps)))
@@ -802,9 +802,9 @@ def make_page4():
     ax.legend(fontsize=8.5, loc="lower left")
     ax.grid(True, which="both", alpha=0.4)
     
-    # 2. FSZMorph Preset Profiles (All 6 Presets)
+    # 2. ZMorph Preset Profiles (All 6 Presets)
     ax = axes[0, 1]
-    ax.set_title("4B. FSZMorph: Spectral Profiles Across All 6 Built-in Presets", fontweight='bold')
+    ax.set_title("4B. ZMorph: Spectral Profiles Across All 6 Built-in Presets", fontweight='bold')
     
     preset_names = ["0: Vowel A (Ah)", "1: Vowel I (Ee)", "2: Vowel U (Oo)", "3: Deep Comb", "4: Metallic Bell", "5: Acoustic Body"]
     preset_colors = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b"]
@@ -820,18 +820,18 @@ def make_page4():
     ax.legend(fontsize=8.0, loc="lower left", ncol=2)
     ax.grid(True, which="both", alpha=0.4)
     
-    # 3. FSDispersion Flat Magnitude Response
+    # 3. Dispersion Flat Magnitude Response
     ax = axes[1, 0]
-    ax.set_title("4C. FSDispersion: Strict Flat Magnitude Preservation (|H| = 0.0 dB)", fontweight='bold')
+    ax.set_title("4C. Dispersion: Strict Flat Magnitude Preservation (|H| = 0.0 dB)", fontweight='bold')
     
     freqs_ap = np.logspace(np.log10(20), np.log10(20000), 200)
     _, mag_ap1, _ = measure_frequency_response(sim_dispersion, freqs_ap, center=1500.0, spread=1.0, q=2.0)
     _, mag_ap2, _ = measure_frequency_response(sim_dispersion, freqs_ap, center=3000.0, spread=2.0, q=5.0)
     _, mag_ap3, _ = measure_frequency_response(sim_dispersion, freqs_ap, center=800.0, spread=0.0, q=10.0)
     
-    ax.semilogx(freqs_ap, mag_ap1, label="FSDispersion (center=1.5k, spread=1.0, q=2.0)", color="#1f77b4", lw=2)
-    ax.semilogx(freqs_ap, mag_ap2, label="FSDispersion (center=3.0k, spread=2.0, q=5.0)", color="#2ca02c", lw=1.8, ls="--")
-    ax.semilogx(freqs_ap, mag_ap3, label="FSDispersion (center=800, spread=0.0, q=10.0)", color="#ff7f0e", lw=1.8, ls=":")
+    ax.semilogx(freqs_ap, mag_ap1, label="Dispersion (center=1.5k, spread=1.0, q=2.0)", color="#1f77b4", lw=2)
+    ax.semilogx(freqs_ap, mag_ap2, label="Dispersion (center=3.0k, spread=2.0, q=5.0)", color="#2ca02c", lw=1.8, ls="--")
+    ax.semilogx(freqs_ap, mag_ap3, label="Dispersion (center=800, spread=0.0, q=10.0)", color="#ff7f0e", lw=1.8, ls=":")
     
     ax.set_xlabel("Frequency (Hz)")
     ax.set_ylabel("Magnitude (dB)")
@@ -841,9 +841,9 @@ def make_page4():
     ax.legend(fontsize=8.5, loc="lower left")
     ax.grid(True, which="both", alpha=0.4)
     
-    # 4. FSDispersion Temporal Impulse Smearing (Group Delay Chirp)
+    # 4. Dispersion Temporal Impulse Smearing (Group Delay Chirp)
     ax = axes[1, 1]
-    ax.set_title("4D. FSDispersion: Impulse Temporal Smearing & Parseval Energy Conservation", fontweight='bold')
+    ax.set_title("4D. Dispersion: Impulse Temporal Smearing & Parseval Energy Conservation", fontweight='bold')
     
     N_imp = 256
     imp = np.zeros(N_imp)

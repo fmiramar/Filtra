@@ -60,12 +60,8 @@ struct ZMorph : public Unit {
     ZFilterBank m_bankB;
 };
 
-using FSZMorph = ZMorph;
-
 void ZMorph_Ctor(ZMorph* unit);
 void ZMorph_next_k(ZMorph* unit, int inNumSamples);
 void ZMorph_next_a(ZMorph* unit, int inNumSamples);
-
-inline void FSZMorph_Ctor(FSZMorph* unit) { ZMorph_Ctor(unit); }
 
 } // namespace fs

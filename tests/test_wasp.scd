@@ -1,5 +1,5 @@
 // =====================================================================
-// test_fswasp.scd: Verification Test Suite for Wasp (Stage W1 & W2)
+// test_wasp.scd: Verification Test Suite for Wasp (Stage W1 & W2)
 // Verifies linear small-signal and nonlinear OTA/CMOS circuit behavior
 // Reference: Köper, Holters, Esqueda, Parker (DAFx 2022)
 // =====================================================================
@@ -324,7 +324,7 @@ s.waitForBoot({
     "--------------------------------------------------\n".postln;
 
     if (passCount == testCount) {
-        "ALL FSWASP STAGE W1 & W2 TESTS PASSED.".postln;
+        "ALL WASP STAGE W1 & W2 TESTS PASSED.".postln;
         0.exit;
     } {
         "SOME TESTS FAILED.".postln;

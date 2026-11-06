@@ -1,5 +1,5 @@
 /*
-    FilterSuite for SuperCollider
+    Filtra for SuperCollider
     Polivoks: Virtual Analog Model of the Formanta Polivoks VCF
     Reference: Vladimir Kuzmin (1982), Formanta Polivoks synthesizer filter core;
     Linearized two-stage programmable-op-amp (K140UD12 / uA776) state-variable integrator cascade with differential transconductance saturation.
@@ -18,5 +18,3 @@ Polivoks : UGen {
         ^this.checkValidInputs;
     }
 }
-
-FSPolivoks : Polivoks {}

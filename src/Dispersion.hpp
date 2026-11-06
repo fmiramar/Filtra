@@ -43,12 +43,8 @@ struct Dispersion : public Unit {
     APSection m_sections[4];
 };
 
-using FSDispersion = Dispersion;
-
 void Dispersion_Ctor(Dispersion* unit);
 void Dispersion_next_k(Dispersion* unit, int inNumSamples);
 void Dispersion_next_a(Dispersion* unit, int inNumSamples);
-
-inline void FSDispersion_Ctor(FSDispersion* unit) { Dispersion_Ctor(unit); }
 
 } // namespace fs

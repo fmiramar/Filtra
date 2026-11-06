@@ -4,6 +4,8 @@
 
 namespace fs {
 
+static constexpr double kPi = 3.14159265358979323846;
+
 static const ZShape kShapes[6] = {
     // 0: Vowel A (Open Father)
     { "VowelA", { { 730.0, 6.0, 1.00 }, { 1090.0, 7.0, 0.65 }, { 2440.0, 9.0, 0.35 }, { 3500.0, 8.0, 0.20 } }, 0.15 },
@@ -30,7 +32,7 @@ void ZFilterBank::init(int shapeIdx, double sampleRate) {
         m_s1[k] = 0.0;
         m_s2[k] = 0.0;
         double fc = std::max(10.0, std::min(sampleRate * 0.49, shape.sections[k].freq));
-        m_g[k] = std::tan(M_PI * fc / sampleRate);
+        m_g[k] = std::tan(kPi * fc / sampleRate);
         m_R[k] = 1.0 / std::max(0.1, shape.sections[k].q);
         m_denom[k] = 1.0 / (1.0 + m_R[k] * m_g[k] + m_g[k] * m_g[k]);
         m_gain[k] = shape.sections[k].gain;

@@ -1,5 +1,5 @@
 /*
-    FilterSuite - ZMorph Audition & Demonstration
+    Filtra - ZMorph Audition & Demonstration
     Original Digital Multiresonant Filter Response Morphing
 */
 
@@ -8,7 +8,7 @@ s.boot;
 (
 s.waitForBoot({
     "=================================================".postln;
-    "  FilterSuite: ZMorph Audition Demo             ".postln;
+    "  Filtra: ZMorph Audition Demo                  ".postln;
     "=================================================".postln;
 
     // 1. Audition Vocal Morph: Vowel A -> Vowel I

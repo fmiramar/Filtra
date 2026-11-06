@@ -1,5 +1,5 @@
 /*
-    FilterSuite for SuperCollider
+    Filtra for SuperCollider
     Wasp: Virtual Analog Model of the EDP Wasp VCF
     Reference: L. Köper, M. Holters, F. Esqueda, J. D. Parker (2022),
     "A Virtual Analog Model of the EDP Wasp VCF", DAFx 2022, Sections 2-4.
@@ -17,5 +17,3 @@ Wasp : UGen {
         ^this.checkValidInputs;
     }
 }
-
-FSWasp : Wasp {}

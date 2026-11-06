@@ -18,8 +18,6 @@ struct Steiner : public Unit {
     double m_s2; // Capacitor C2 state (between Node 2 and ground/input)
 };
 
-using FSSteiner = Steiner;
-
 void Steiner_Ctor(Steiner* unit);
 void Steiner_next_lp_k(Steiner* unit, int inNumSamples);
 void Steiner_next_bp_k(Steiner* unit, int inNumSamples);
@@ -27,7 +25,5 @@ void Steiner_next_hp_k(Steiner* unit, int inNumSamples);
 void Steiner_next_lp_a(Steiner* unit, int inNumSamples);
 void Steiner_next_bp_a(Steiner* unit, int inNumSamples);
 void Steiner_next_hp_a(Steiner* unit, int inNumSamples);
-
-inline void FSSteiner_Ctor(FSSteiner* unit) { Steiner_Ctor(unit); }
 
 } // namespace fs

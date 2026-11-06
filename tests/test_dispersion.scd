@@ -1,5 +1,5 @@
 // =====================================================================
-// test_fsdispersion.scd: Verification Test Suite for Dispersion
+// test_dispersion.scd: Verification Test Suite for Dispersion
 // Verifies 4-stage cascaded 2nd-order TPT all-pass dispersion filter:
 // - Exact flat magnitude preservation across audio frequencies
 // - Temporal impulse dispersion and Parseval energy conservation
@@ -266,7 +266,7 @@ s.waitForBoot({
     "==================================================\n".postln;
 
     if (passCount == testCount) {
-        "ALL FSDISPERSION TESTS PASSED SUCCESSFULLY!".postln;
+        "ALL DISPERSION TESTS PASSED SUCCESSFULLY!".postln;
     } {
         "SOME TESTS FAILED!".postln;
     };

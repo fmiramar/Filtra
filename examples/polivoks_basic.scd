@@ -1,5 +1,5 @@
 /*
-    FilterSuite - Polivoks Audition & Demonstration
+    Filtra - Polivoks Audition & Demonstration
     Virtual Analog Model of the Formanta Polivoks VCF (Vladimir Kuzmin, 1982)
 */
 
@@ -8,7 +8,7 @@ s.boot;
 (
 s.waitForBoot({
     "=================================================".postln;
-    "  FilterSuite: Polivoks VCF Audition Demo       ".postln;
+    "  Filtra: Polivoks VCF Audition Demo            ".postln;
     "=================================================".postln;
 
     // 1. Audition Low-Pass (LP) mode: Rich Sawtooth Sweep

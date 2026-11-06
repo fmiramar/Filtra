@@ -25,11 +25,4 @@ PluginLoad(MS20Filters) {
     (*ft->fDefineUnit)("Polivoks", sizeof(fs::Polivoks), (UnitCtorFunc)&fs::Polivoks_Ctor, 0, 0);
     (*ft->fDefineUnit)("ZMorph", sizeof(fs::ZMorph), (UnitCtorFunc)&fs::ZMorph_Ctor, 0, 0);
     (*ft->fDefineUnit)("Dispersion", sizeof(fs::Dispersion), (UnitCtorFunc)&fs::Dispersion_Ctor, 0, 0);
-
-    // Backward-compatible FS aliases
-    (*ft->fDefineUnit)("FSWasp", sizeof(fs::Wasp), (UnitCtorFunc)&fs::Wasp_Ctor, 0, 0);
-    (*ft->fDefineUnit)("FSSteiner", sizeof(fs::Steiner), (UnitCtorFunc)&fs::Steiner_Ctor, 0, 0);
-    (*ft->fDefineUnit)("FSPolivoks", sizeof(fs::Polivoks), (UnitCtorFunc)&fs::Polivoks_Ctor, 0, 0);
-    (*ft->fDefineUnit)("FSZMorph", sizeof(fs::ZMorph), (UnitCtorFunc)&fs::ZMorph_Ctor, 0, 0);
-    (*ft->fDefineUnit)("FSDispersion", sizeof(fs::Dispersion), (UnitCtorFunc)&fs::Dispersion_Ctor, 0, 0);
 }

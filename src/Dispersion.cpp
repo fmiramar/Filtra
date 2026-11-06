@@ -4,6 +4,8 @@
 
 namespace fs {
 
+static constexpr double kPi = 3.14159265358979323846;
+
 static inline double clamp_d(double val, double minVal, double maxVal) {
     return std::max(minVal, std::min(maxVal, val));
 }
@@ -45,7 +47,7 @@ void Dispersion_next_k(Dispersion* unit, int inNumSamples) {
     for (int k = 0; k < 4; ++k) {
         double fk = center * std::pow(2.0, kOffsets[k] * spread);
         fk = clamp_d(fk, 10.0, sampleRate * 0.49);
-        g[k] = std::tan(M_PI * fk / sampleRate);
+        g[k] = std::tan(kPi * fk / sampleRate);
         denom[k] = 1.0 / (1.0 + R * g[k] + g[k] * g[k]);
     }
 
@@ -77,7 +79,7 @@ void Dispersion_next_a(Dispersion* unit, int inNumSamples) {
         for (int k = 0; k < 4; ++k) {
             double fk = center * std::pow(2.0, kOffsets[k] * spread);
             fk = clamp_d(fk, 10.0, sampleRate * 0.49);
-            g[k] = std::tan(M_PI * fk / sampleRate);
+            g[k] = std::tan(kPi * fk / sampleRate);
             denom[k] = 1.0 / (1.0 + R * g[k] + g[k] * g[k]);
         }
 

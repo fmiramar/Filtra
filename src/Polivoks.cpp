@@ -4,6 +4,8 @@
 
 namespace fs {
 
+static constexpr double kPi = 3.14159265358979323846;
+
 static inline double clamp_d(double val, double minVal, double maxVal) {
     return std::max(minVal, std::min(maxVal, val));
 }
@@ -11,7 +13,7 @@ static inline double clamp_d(double val, double minVal, double maxVal) {
 // Compute bilinear prewarped integrator coefficient g
 static inline double calc_g(double freq, double sampleRate) {
     double fc = clamp_d(freq, 10.0, sampleRate * 0.49);
-    return std::tan(M_PI * fc / sampleRate);
+    return std::tan(kPi * fc / sampleRate);
 }
 
 // Damping coefficient r from resonance parameter

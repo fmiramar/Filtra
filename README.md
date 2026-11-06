@@ -1,5 +1,7 @@
 # Filtra — A SuperCollider UGen Suite for Filter and Resonance
 
+![Filtra Banner](Filtra%20Banner.png)
+
 A physically informed, historically authentic suite of real-time SuperCollider server UGens modeling classic vintage synthesizer filters and original digital virtual analog topologies.
 
 Distributed as native compiled binaries for SuperCollider via **GitHub Releases** (no Quark package manager needed).
@@ -12,11 +14,11 @@ Distributed as native compiled binaries for SuperCollider via **GitHub Releases*
 
 | UGen | Circuit / Architecture | Linearity | Features & Modes | Sonic Character |
 |---|---|---|---|---|
-| **`Wasp`** *(alias `FSWasp`)* | EDP Wasp (CA3080 OTA + CD4069 CMOS Inverters) | Nonlinear (implicit NR solver) | LP, BP, HP (12 dB/oct); analytical damping pot network | Brash, dirty, aggressive CMOS soft-saturation and OTA limiting (Köper et al., DAFx 2022). |
-| **`Steiner`** *(alias `FSSteiner`)* | Steiner–Parker Multimode Diode VCF | Nonlinear (diode feedback limiter) | LP (-12 dB/oct), BP (symmetric), HP (+6 dB/oct zero); multi-input injection | Raw diode variable resistance, singing self-oscillation limit cycle (Steiner, 1974; YuSynth). |
-| **`Polivoks`** *(alias `FSPolivoks`)* | Formanta Polivoks VCF (K140UD12 / µA776) | Nonlinear (op-amp transconductance + rail sat) | LP (12 dB/oct), BP (6 dB/oct); exact hardware modes | "Capacitor-less" programmable op-amp slew/transconductance saturation and scream (Kuzmin, 1982). |
-| **`ZMorph`** *(alias `FSZMorph`)* | Original Digital Multiresonant Filter Morphing | Linear parallel TPT banks | 4-section parallel TPT SVF banks; 6 built-in vocal & metallic presets | Equal-gain continuous response morphing with guaranteed stability (inspired by Rossum Z-plane). |
-| **`Dispersion`** *(alias `FSDispersion`)* | Dispersive All-Pass Group-Delay Filter | Linear TPT all-pass cascade | 4 cascaded 2nd-order all-pass sections; geometric frequency spread | Exactly flat magnitude ($|H| \equiv 1.0$), Parseval energy conservation, acoustic stiffness and laser chirps (Abel & Smith, DAFx 2006). |
+| **`Wasp`** | EDP Wasp (CA3080 OTA + CD4069 CMOS Inverters) | Nonlinear (implicit NR solver) | LP, BP, HP (12 dB/oct); analytical damping pot network | Brash, dirty, aggressive CMOS soft-saturation and OTA limiting (Köper et al., DAFx 2022). |
+| **`Steiner`** | Steiner–Parker Multimode Diode VCF | Nonlinear (diode feedback limiter) | LP (-12 dB/oct), BP (symmetric), HP (+6 dB/oct zero); multi-input injection | Raw diode variable resistance, singing self-oscillation limit cycle (Steiner, 1974; YuSynth). |
+| **`Polivoks`** | Formanta Polivoks VCF (K140UD12 / µA776) | Nonlinear (op-amp transconductance + rail sat) | LP (12 dB/oct), BP (6 dB/oct); exact hardware modes | "Capacitor-less" programmable op-amp slew/transconductance saturation and scream (Kuzmin, 1982). |
+| **`ZMorph`** | Original Digital Multiresonant Filter Morphing | Linear parallel TPT banks | 4-section parallel TPT SVF banks; 6 built-in vocal & metallic presets | Equal-gain continuous response morphing with guaranteed stability (inspired by Rossum Z-plane). |
+| **`Dispersion`** | Dispersive All-Pass Group-Delay Filter | Linear TPT all-pass cascade | 4 cascaded 2nd-order all-pass sections; geometric frequency spread | Exactly flat magnitude ($|H| \equiv 1.0$), Parseval energy conservation, acoustic stiffness and laser chirps (Abel & Smith, DAFx 2006). |
 
 ### 2. Korg MS-20 Suite (`MS20*`)
 
@@ -35,17 +37,18 @@ Distributed as native compiled binaries for SuperCollider via **GitHub Releases*
 ## Installation via Precompiled GitHub Release
 
 1. Download the precompiled archive for your platform from the **GitHub Releases** page:
-   - macOS (Apple Silicon arm64): `FilterSuite-v0.1.0-macos-arm64.zip`
-   - Linux (x86_64): `FilterSuite-v0.1.0-linux-x86_64.zip`
+   - macOS (Apple Silicon arm64): `Filtra-0.1.0-macos-arm64.zip`
+   - Linux (x86_64): `Filtra-v0.1.0-linux-x86_64.zip`
+   - Windows (x64): `Filtra-v0.1.0-windows-x64.zip`
 2. Open SuperCollider and locate your user extensions folder:
    ```supercollider
    Platform.userExtensionDir.postln;
    ```
    *(macOS typical: `~/Library/Application Support/SuperCollider/Extensions`)*
-3. Unzip and copy the enclosed `Extensions/FilterSuite` directory into your Extensions folder.
+3. Unzip and copy the enclosed `Extensions/Filtra` directory into your Extensions folder.
 4. In SuperCollider, recompile the class library:
    - Menu: **Language -> Recompile Class Library** (or `Cmd + Shift + L` / `Ctrl + Shift + L`).
-5. Boot the server (`Cmd + B` / `Ctrl + B`) and explore the scripts in `examples/`.
+5. Boot the server (`Cmd + B` / `Ctrl + B`) and explore the scripts in `examples/` or the in-app guide (`Guides/Filtra`).
 
 ---
 
@@ -119,11 +122,11 @@ cmake --install .
 All 10 UGens are accompanied by automated headless test suites verifying mathematical accuracy, asymptotic slopes, Newton-Raphson solver convergence, audio-rate FM, and regression stability:
 
 ```bash
-sclang tests/test_fswasp.scd        # 15/15 tests pass (EDP Wasp)
-sclang tests/test_fssteiner.scd     # 15/15 tests pass (Steiner-Parker)
-sclang tests/test_fspolivoks.scd    # 12/12 tests pass (Formanta Polivoks)
-sclang tests/test_fszmorph.scd      # 9/9 tests pass (FSZMorph)
-sclang tests/test_fsdispersion.scd  # 12/12 tests pass (FSDispersion)
+sclang tests/test_wasp.scd        # 15/15 tests pass (EDP Wasp)
+sclang tests/test_steiner.scd     # 15/15 tests pass (Steiner-Parker)
+sclang tests/test_polivoks.scd    # 12/12 tests pass (Formanta Polivoks)
+sclang tests/test_zmorph.scd      # 9/9 tests pass (ZMorph)
+sclang tests/test_dispersion.scd  # 12/12 tests pass (Dispersion)
 sclang tests/test_oversampling.scd  # 12/12 tests pass (MS-20 2x oversampling)
 ```
 

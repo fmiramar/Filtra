@@ -1,5 +1,5 @@
 // =====================================================================
-// test_fszmorph.scd: Verification Test Suite for ZMorph
+// test_zmorph.scd: Verification Test Suite for ZMorph
 // Verifies original digital multiresonant filter response morphing:
 // - Exact endpoint correspondence (morph = 0 equals A; morph = 1 equals B)
 // - Shape distinctness across all preset shapes
@@ -235,7 +235,7 @@ s.waitForBoot({
     "==================================================\n".postln;
 
     if (passCount == testCount) {
-        "ALL FSZMORPH TESTS PASSED SUCCESSFULLY!".postln;
+        "ALL ZMORPH TESTS PASSED SUCCESSFULLY!".postln;
     } {
         "SOME TESTS FAILED!".postln;
     };

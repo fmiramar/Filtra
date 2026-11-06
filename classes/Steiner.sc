@@ -1,5 +1,5 @@
 /*
-    FilterSuite for SuperCollider
+    Filtra for SuperCollider
     Steiner: Virtual Analog Model of the Steiner-Parker Multimode Diode VCF
     Reference: Nyle Steiner (Electronic Design, 1974), "Voltage-tunable active filter features
     low, high and bandpass modes", and Yves Usson (YuSynth 2004) diode-limited Sallen-Key topology.
@@ -17,5 +17,3 @@ Steiner : UGen {
         ^this.checkValidInputs;
     }
 }
-
-FSSteiner : Steiner {}

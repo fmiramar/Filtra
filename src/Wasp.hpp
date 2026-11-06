@@ -18,8 +18,6 @@ struct Wasp : public Unit {
     double m_s2; // Second integrator state (Low-Pass node vIC5)
 };
 
-using FSWasp = Wasp;
-
 void Wasp_Ctor(Wasp* unit);
 void Wasp_next_lp_k(Wasp* unit, int inNumSamples);
 void Wasp_next_bp_k(Wasp* unit, int inNumSamples);
@@ -27,7 +25,5 @@ void Wasp_next_hp_k(Wasp* unit, int inNumSamples);
 void Wasp_next_lp_a(Wasp* unit, int inNumSamples);
 void Wasp_next_bp_a(Wasp* unit, int inNumSamples);
 void Wasp_next_hp_a(Wasp* unit, int inNumSamples);
-
-inline void FSWasp_Ctor(FSWasp* unit) { Wasp_Ctor(unit); }
 
 } // namespace fs

@@ -1,5 +1,5 @@
 /*
-    FilterSuite for SuperCollider
+    Filtra for SuperCollider
     Dispersion: Dispersive All-Pass Group-Delay Filter
     Reference: Abel and Smith (DAFx 2006), "Robust Design of Very High-Order Allpass Dispersion Filters"
     Four cascaded 2nd-order TPT all-pass sections with geometric frequency distribution
@@ -17,5 +17,3 @@ Dispersion : UGen {
         ^this.checkValidInputs;
     }
 }
-
-FSDispersion : Dispersion {}

@@ -1,5 +1,5 @@
 /*
-    FilterSuite - Dispersion Audition & Demonstration
+    Filtra - Dispersion Audition & Demonstration
     Dispersive All-Pass Group-Delay Filter (Abel & Smith, DAFx 2006)
 */
 
@@ -8,7 +8,7 @@ s.boot;
 (
 s.waitForBoot({
     "=================================================".postln;
-    "  FilterSuite: Dispersion Audition Demo        ".postln;
+    "  Filtra: Dispersion Audition Demo              ".postln;
     "=================================================".postln;
 
     // 1. Audition Impulse Chirp / Dispersion

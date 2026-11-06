@@ -1,5 +1,5 @@
 // =====================================================================
-// test_fssteiner.scd: Unit Verification Test Suite for Steiner
+// test_steiner.scd: Unit Verification Test Suite for Steiner
 // Verifies Steiner-Parker diode multimode VCF across LP/BP/HP,
 // small-signal convergence, audio FM, and nonlinear diode limit cycle.
 // Reference: Nyle Steiner (1974), Yves Usson (YuSynth 2004)
@@ -338,7 +338,7 @@ s.waitForBoot({
     "--------------------------------------------------\n".postln;
 
     if (passCount == testCount) {
-        "ALL FSSTEINER TESTS PASSED.".postln;
+        "ALL STEINER TESTS PASSED.".postln;
         0.exit;
     } {
         "SOME TESTS FAILED.".postln;

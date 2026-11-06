@@ -105,7 +105,7 @@
   * Supported optionally via `oversample: 1` across all three nonlinear models (`MS20Diode`, `MS20Circuit`, `MS20OTA`).
 
 
-## 11. Milestone 1: EDP Wasp State-Variable VCF (`FSWasp` Stage W1 & W2)
+## 11. Milestone 1: EDP Wasp State-Variable VCF (`Wasp` Stage W1 & W2)
 * **Primary Reference:**
   * L. Köper, M. Holters, F. Esqueda, and J. D. Parker (2022), *A Virtual Analog Model of the EDP Wasp VCF*, Proceedings of the 25th International Conference on Digital Audio Effects (DAFx20in22), Vienna, Austria, September 2022.
 * **Circuit Topology & Modeled Revision:**
@@ -137,7 +137,7 @@
   * Small-signal convergence: converges to Stage W1 linear model to within $< 10^{-7}$ for quiet signals.
 
 
-## 12. Milestone 2: Steiner-Parker Multimode Diode VCF (`FSSteiner`)
+## 12. Milestone 2: Steiner-Parker Multimode Diode VCF (`Steiner`)
 * **Primary References:**
   * Nyle A. Steiner (1974), "Voltage-tunable active filter features low, high and bandpass modes", *Electronic Design*, Issue 25, Dec 6, 1974.
   * Yves Usson (2004), *Steiner VCF (2SC1583 + OPA revision)*, YuSynth Modular Synthesizer Project, http://yusynth.net/Modular/EN/STEINERVCF/index.html.
@@ -164,7 +164,7 @@
   * Self-oscillation: at $K \ge 3.0$ ($\text{res} \ge 0.83$), the diode limiter stabilizes the positive feedback loop into an autonomous, non-exploding sinusoidal limit cycle (measured peak $\approx 0.77$).
 
 
-## 13. Milestone 3: Formanta Polivoks VCF (`FSPolivoks` Stages P1 & P2)
+## 13. Milestone 3: Formanta Polivoks VCF (`Polivoks` Stages P1 & P2)
 * **Primary References:**
   * Vladimir Kuzmin (1982), *Formanta Polivoks Synthesizer Schematic & Service Manual*, Ural production association "Formanta", USSR.
   * Marc Bareille (Papareil Synth Labs, 2003), *Polivoks VCF Modular Adaptation*.
@@ -206,12 +206,12 @@
   * Small-signal convergence: verified to converge to the linear Stage P1 model to within $< 3 \times 10^{-7}$ for quiet signals.
 
 
-## 14. Milestone 4: Original Digital Multiresonant Filter Morphing (`FSZMorph` M1)
+## 14. Milestone 4: Original Digital Multiresonant Filter Morphing (`ZMorph` M1)
 * **Reference Concept:**
   * Dave Rossum / E-mu Systems, *Z-Plane Filter Architecture* (e.g. Morpheus, UltraProteus, E-mu patent US5488665A).
   * Original clean-room implementation: contains zero proprietary E-mu ROM, presets, code, or calibration tables.
 * **Architecture & Mathematical Formulation:**
-  * Rather than interpolating high-order recursive IIR filter coefficients (which causes transient divergence, instability, and explosive pole migration), `FSZMorph` implements **response-domain parallel morphing**.
+  * Rather than interpolating high-order recursive IIR filter coefficients (which causes transient divergence, instability, and explosive pole migration), `ZMorph` implements **response-domain parallel morphing**.
   * Each Shape is a 4-section parallel bank of 2nd-order Topology-Preserving Transform (TPT) bandpass/peaking resonators:
     $$g_k = \tan\left(\frac{\pi f_k}{f_s}\right), \quad R_k = \frac{1}{Q_k}, \quad D_k = 1 + R_k g_k + g_k^2$$
     $$v_{hp, k} = \frac{v_{in} - (R_k + g_k) s_{1, k} - s_{2, k}}{D_k}$$
@@ -231,7 +231,7 @@
   * Shape 5: `AcousticBody` — Low wooden body resonance at 110 Hz, 220 Hz, 450 Hz, 900 Hz.
 
 
-## 15. Milestone 5: Dispersive All-Pass Group-Delay Filter (`FSDispersion`)
+## 15. Milestone 5: Dispersive All-Pass Group-Delay Filter (`Dispersion`)
 * **Primary Reference:**
   * Jonathan S. Abel and Julius O. Smith (2006), *Robust Design of Very High-Order Allpass Dispersion Filters*, Proceedings of the 9th International Conference on Digital Audio Effects (DAFx-06), Montreal, Canada.
 * **Filter Architecture & Mathematical Formulation:**

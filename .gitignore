@@ -36,3 +36,10 @@ recordings/
 release/
 pkg/
 
+# Internal implementation plans and working notes (kept locally for continuous development)
+IMPLEMENTATION_STATUS.md
+FilterSuite_SC_Agentic_Plan.md
+MS20_Filter_Agentic_Implementation_Plan.md
+*Agentic_Plan*.md
+
+

@@ -13,6 +13,9 @@ jobs:
   build:
     name: Build on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
     strategy:
       fail-fast: false
       matrix:
@@ -20,10 +23,18 @@ jobs:
           - os: ubuntu-22.04
             platform: linux-x86_64
             ext: .so
+          - os: windows-2022
+            platform: windows-x64
+            ext: .scx
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
 
       - name: Set up dependencies (Linux)
         if: runner.os == 'Linux'
@@ -37,7 +48,7 @@ jobs:
 
       - name: Configure CMake
         run: |
-          cmake -B build -DCMAKE_BUILD_TYPE=Release -DSC_PATH=${{ github.workspace }}/sc-source
+          cmake -B build -DCMAKE_BUILD_TYPE=Release -DSC_PATH=sc-source
 
       - name: Build plugin
         run: |
@@ -46,25 +57,19 @@ jobs:
       - name: Package extension archive
         run: |
           VERSION=${GITHUB_REF_NAME:-v0.1.0}
-          PKG_NAME="Filtra-${VERSION}-${{ matrix.platform }}"
-          cmake --install build --prefix "pkg/${PKG_NAME}/Extensions/Filtra"
-          rm -f "pkg/${PKG_NAME}/Extensions/Filtra/MS20Filters.quark"
+          export PKG_NAME="Filtra-${VERSION}-${{ matrix.platform }}"
+          mkdir -p "pkg/${PKG_NAME}"
+          cmake --install build --config Release --prefix "pkg/${PKG_NAME}/Extensions/Filtra"
           cp README.md LICENSE SOURCES.md "pkg/${PKG_NAME}/" 2>/dev/null || true
           
-          printf "%s\n" \
-            "Filtra - A SuperCollider UGen Suite for Filter and Resonance" \
-            "============================================================" \
-            "" \
-            "Installation:" \
-            "1. Open SuperCollider and run:" \
-            "       Platform.userExtensionDir.postln;" \
-            "2. Copy the enclosed 'Extensions/Filtra' folder into that directory." \
-            "3. Recompile class library in SuperCollider (Cmd+Shift+L on macOS, Ctrl+Shift+L on Linux)." \
-            "4. Explore examples/ or open the guide in SuperCollider: Guides/Filtra" \
-            > "pkg/${PKG_NAME}/README-INSTALL.txt"
-
-          cd pkg
-          zip -r "${PKG_NAME}.zip" "${PKG_NAME}"
+          python -c "
+          import os, shutil
+          pkg = os.environ['PKG_NAME']
+          readme_path = os.path.join('pkg', pkg, 'README-INSTALL.txt')
+          with open(readme_path, 'w', encoding='utf-8') as f:
+              f.write('''Filtra - A SuperCollider UGen Suite for Filter and Resonance\n============================================================\n\nInstallation:\n1. Open SuperCollider and run:\n       Platform.userExtensionDir.postln;\n2. Copy the enclosed 'Extensions/Filtra' folder into that directory.\n3. Recompile class library in SuperCollider (Cmd+Shift+L on macOS, Ctrl+Shift+L on Linux/Windows).\n4. Explore examples/ or open the guide in SuperCollider: Guides/Filtra\n''')
+          shutil.make_archive(os.path.join('pkg', pkg), 'zip', 'pkg', pkg)
+          "
           echo "ARCHIVE_PATH=pkg/${PKG_NAME}.zip" >> $GITHUB_ENV
           echo "ARCHIVE_NAME=${PKG_NAME}.zip" >> $GITHUB_ENV
 
