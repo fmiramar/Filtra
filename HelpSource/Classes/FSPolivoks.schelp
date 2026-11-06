@@ -1,0 +1,77 @@
+TITLE:: FSPolivoks
+summary:: Virtual Analog Model of the Formanta Polivoks VCF
+categories:: UGens>Filters
+related:: Classes/FSWasp, Classes/FSSteiner, Classes/MS20Diode
+
+DESCRIPTION::
+FSPolivoks is a virtual analog model of the legendary voltage-controlled filter designed by Vladimir Kuzmin in 1982 for the Soviet Formanta Polivoks synthesizer.
+
+The Polivoks VCF is an idiosyncratic state-variable integrator cascade built using two Soviet K140UD12 (К140УД12 / µA776 equivalent) programmable operational amplifiers. In this classic Soviet circuit, no external capacitors are used in the core integrators; instead, dynamic control of the op-amp programming current (I_set) modulates the internal slew rate and transconductance to sweep the cutoff frequency.
+
+Stage P1 implements the linearized two-stage integrator cascade with exact bilinear prewarped tuning and analytical damping. It provides switchable Low-Pass (LP, 12 dB/octave) and Band-Pass (BP, 6 dB/octave) modes, faithfully reproducing the two native physical responses of the original hardware.
+
+CLASSMETHODS::
+
+METHOD:: ar
+
+ARGUMENT:: in
+Audio-rate input signal.
+
+ARGUMENT:: freq
+Filter cutoff frequency in Hertz (10 Hz to 0.49 * sampleRate). Supports audio-rate (.ar) and control-rate (.kr) modulation.
+
+ARGUMENT:: res
+Resonance parameter in [0.0, 1.0], mapping to the feedback damping factor r in [2.0, 0.02].
+At res = 0.0, the filter is critically damped (Q = 0.5).
+At res = 1.0, the filter exhibits intense resonant peaking (Q = 50.0).
+
+ARGUMENT:: mode
+Filter mode selection (integer, init-only):
+TABLE::
+## 0 || Low-Pass (12 dB/octave roll-off)
+## 1 || Band-Pass (symmetric 6 dB/octave skirts)
+::
+(Note: The Formanta Polivoks hardware does not provide a High-Pass mode; only LP and BP are supported).
+
+ARGUMENT:: drive
+Input drive scaling factor (default 1.0).
+
+returns:: An audio-rate filtered signal.
+
+EXAMPLES::
+
+CODE::
+// Boot server
+s.boot;
+
+// 1. Low-Pass sweep with saw oscillator
+(
+x = {
+    var src = Saw.ar([110, 110.5]) * 0.2;
+    var cutoff = SinOsc.kr(0.2).exprange(100, 8000);
+    FSPolivoks.ar(src, freq: cutoff, res: 0.6, mode: 0, drive: 1.0) * 0.3;
+}.play;
+)
+x.free;
+
+// 2. Band-Pass noise sweep with screaming resonance
+(
+x = {
+    var src = PinkNoise.ar(0.3 ! 2);
+    var cutoff = SinOsc.kr(0.15).exprange(200, 4000);
+    FSPolivoks.ar(src, freq: cutoff, res: 0.85, mode: 1, drive: 1.0) * 0.4;
+}.play;
+)
+x.free;
+
+// 3. Audio-rate FM modulation
+(
+x = {
+    var mod = SinOsc.ar(150) * 1200;
+    var cutoff = (2000 + mod).clip(20, 18000);
+    var src = Pulse.ar(55, 0.3) * 0.25 ! 2;
+    FSPolivoks.ar(src, freq: cutoff, res: 0.7, mode: 0, drive: 1.0) * 0.3;
+}.play;
+)
+x.free;
+::

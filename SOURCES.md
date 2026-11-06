@@ -162,3 +162,33 @@
   * Diode limiting across op-amp U2 feedback: $f_{nl}(v) = \frac{\tanh(\alpha v)}{\alpha}$ where $\alpha = \text{drive}$.
   * Solved in max 4 iterations via bounded Newton-Raphson iteration.
   * Self-oscillation: at $K \ge 3.0$ ($\text{res} \ge 0.83$), the diode limiter stabilizes the positive feedback loop into an autonomous, non-exploding sinusoidal limit cycle (measured peak $\approx 0.77$).
+
+
+## 13. Milestone 3: Formanta Polivoks VCF (`FSPolivoks` Stage P1)
+* **Primary References:**
+  * Vladimir Kuzmin (1982), *Formanta Polivoks Synthesizer Schematic & Service Manual*, Ural production association "Formanta", USSR.
+  * Marc Bareille (Papareil Synth Labs, 2003), *Polivoks VCF Modular Adaptation*.
+  * Dave Brown / ModularSynthesis, *Polivoks VCF Analysis & Substitutions*.
+* **Circuit Topology & Architectural Idiosyncrasy:**
+  * The Polivoks VCF is a 12 dB/octave state-variable filter designed without external integration capacitors in the core filter blocks.
+  * Instead, it utilizes two Soviet K140UD12 (К140УД12 / µA776 clone) programmable operational amplifiers where the master cutoff control voltage drives a programming current ($I_{set}$) via an NPN transistor ($KT315\Gamma$ / 2N3904).
+  * Sweeping $I_{set}$ modulates the op-amp's internal slew rate and transconductance, dynamically shifting the active integration time constants.
+  * **Supported Modes:** Exactly matches the original hardware front-panel SPDT switch:
+    * **Low-Pass (LP, mode = 0):** Tapped from the output of the second integrator stage (12 dB/octave roll-off, 2 poles, no transmission zeros).
+    * **Band-Pass (BP, mode = 1):** Tapped from the output of the first integrator stage (symmetric 6 dB/octave roll-off skirts with center resonance peak at $f_c$).
+    * High-Pass mode is intentionally omitted as it is not present in the historical hardware design.
+* **Stage P1: Linearized Two-Stage Discretization:**
+  * Bilinear prewarped cutoff coefficient:
+    $$g = \tan\left(\frac{\pi f_c}{f_s}\right)$$
+  * Analytical damping factor $r$ mapping from resonance parameter $\text{res} \in [0, 1]$:
+    $$r = 2.0 \cdot (1.0 - 0.99 \cdot \text{res})$$
+    Varying smoothly from $r = 2.0$ (critically damped, $Q = 0.5$) to $r = 0.02$ (high resonance, $Q = 50.0$).
+  * Summing junction and integrator equations (TPT / Trapezoidal):
+    $$v_{sum} = \frac{v_{in} \cdot \text{drive} - (r + g) s_1 - s_2}{1 + r g + g^2}$$
+    $$v_{BP} = g v_{sum} + s_1$$
+    $$v_{LP} = g v_{BP} + s_2$$
+  * State update equations:
+    $$s_1[n+1] = 2 v_{BP} - s_1[n]$$
+    $$s_2[n+1] = 2 v_{LP} - s_2[n]$$
+  * Unconditional linear stability: because $r > 0$ strictly for all $\text{res} \in [0, 1]$, the denominator $D = 1 + r g + g^2 > 1$ is strictly positive and bounded away from zero, and filter poles lie strictly within the open unit disk $|z| < 1$.
+

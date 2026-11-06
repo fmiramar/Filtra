@@ -5,6 +5,7 @@
 #include "MS20Circuit.hpp"
 #include "FSWasp.hpp"
 #include "FSSteiner.hpp"
+#include "FSPolivoks.hpp"
 
 static InterfaceTable* ft;
 
@@ -17,4 +18,5 @@ PluginLoad(MS20Filters) {
     (*ft->fDefineUnit)("MS20Circuit", sizeof(ms20::MS20Circuit), (UnitCtorFunc)&ms20::MS20Circuit_Ctor, 0, 0);
     (*ft->fDefineUnit)("FSWasp", sizeof(fs::FSWasp), (UnitCtorFunc)&fs::FSWasp_Ctor, 0, 0);
     (*ft->fDefineUnit)("FSSteiner", sizeof(fs::FSSteiner), (UnitCtorFunc)&fs::FSSteiner_Ctor, 0, 0);
+    (*ft->fDefineUnit)("FSPolivoks", sizeof(fs::FSPolivoks), (UnitCtorFunc)&fs::FSPolivoks_Ctor, 0, 0);
 }
