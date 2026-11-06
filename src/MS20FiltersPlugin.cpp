@@ -7,6 +7,7 @@
 #include "FSSteiner.hpp"
 #include "FSPolivoks.hpp"
 #include "FSZMorph.hpp"
+#include "FSDispersion.hpp"
 
 static InterfaceTable* ft;
 
@@ -21,4 +22,5 @@ PluginLoad(MS20Filters) {
     (*ft->fDefineUnit)("FSSteiner", sizeof(fs::FSSteiner), (UnitCtorFunc)&fs::FSSteiner_Ctor, 0, 0);
     (*ft->fDefineUnit)("FSPolivoks", sizeof(fs::FSPolivoks), (UnitCtorFunc)&fs::FSPolivoks_Ctor, 0, 0);
     (*ft->fDefineUnit)("FSZMorph", sizeof(fs::FSZMorph), (UnitCtorFunc)&fs::FSZMorph_Ctor, 0, 0);
+    (*ft->fDefineUnit)("FSDispersion", sizeof(fs::FSDispersion), (UnitCtorFunc)&fs::FSDispersion_Ctor, 0, 0);
 }

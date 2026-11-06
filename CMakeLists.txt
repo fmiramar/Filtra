@@ -41,6 +41,7 @@ set(MS20_PLUGIN_SOURCES
     src/FSSteiner.cpp
     src/FSPolivoks.cpp
     src/FSZMorph.cpp
+    src/FSDispersion.cpp
 )
 
 add_library(MS20Filters MODULE ${MS20_PLUGIN_SOURCES})

@@ -1,0 +1,74 @@
+TITLE:: FSDispersion
+summary:: Dispersive All-Pass Group-Delay Filter
+categories:: UGens>Filters
+related:: Classes/FSWasp, Classes/FSSteiner, Classes/FSZMorph
+
+DESCRIPTION::
+FSDispersion is a 4-stage cascaded second-order all-pass filter designed to produce controllable temporal dispersion and frequency-dependent group delay. Based on the dispersion modeling principles established by Jonathan S. Abel and Julius O. Smith (DAFx 2006), the filter spreads different frequency components in time while strictly preserving the total signal magnitude and energy.
+
+Each stage is implemented as a 2nd-order Topology-Preserving Transform (TPT) all-pass filter:
+formula::
+H_{ap}(s) = \frac{s^2 - \frac{\omega_k}{Q} s + \omega_k^2}{s^2 + \frac{\omega_k}{Q} s + \omega_k^2}
+::
+Because $|H_{ap}(e^{j\omega})| \equiv 1.0$ identically for all frequencies, the 4-stage cascade maintains a completely flat magnitude response. The four stage frequencies are geometrically distributed around LINK::#*center:: according to LINK::#*spread::, creating an acoustic frequency-dependent time delay (chirp/twang) that emulates physical stiffness in strings, membranes, and metal plates.
+
+CLASSMETHODS::
+
+METHOD:: ar
+
+ARGUMENT:: in
+Audio-rate input signal.
+
+ARGUMENT:: center
+Center frequency in Hertz around which the all-pass sections are distributed (range 20 Hz to 0.45 * sampleRate, default 1500.0). Supports audio rate (.ar) and control rate (.kr) modulation.
+
+ARGUMENT:: spread
+Frequency distribution spread in octaves (range 0.0 to 4.0, default 1.0).
+When spread = 0.0, all 4 sections share the exact same center frequency, producing a localized group delay peak.
+When spread > 0.0, sections fan out geometrically across the spectrum.
+
+ARGUMENT:: q
+Quality factor Q for each section (range 0.1 to 25.0, default 2.0).
+Higher Q increases the group delay and temporal ringing of resonant components.
+
+returns:: An audio-rate filtered signal with flat magnitude and dispersed phase.
+
+EXAMPLES::
+
+CODE::
+// Boot server
+s.boot;
+
+// 1. Dispersed Impulse: turns clicks into chirps / acoustic laser pings
+(
+x = {
+    var trig = Impulse.ar(3);
+    var dispersed = FSDispersion.ar(trig, center: 1800, spread: 1.5, q: 4.0);
+    dispersed * 0.4 ! 2;
+}.play;
+)
+x.free;
+
+// 2. Dispersive Drum Smear: gives acoustic spring/plate character to noise bursts
+(
+x = {
+    var burst = Decay.ar(Impulse.ar(1.5), 0.02) * PinkNoise.ar(0.5);
+    var spread = MouseX.kr(0.0, 3.0);
+    var q = MouseY.kr(0.5, 10.0);
+    var sig = FSDispersion.ar(burst, center: 2000, spread: spread, q: q);
+    sig * 0.4 ! 2;
+}.play;
+)
+x.free;
+
+// 3. Audio-rate center frequency modulation
+(
+x = {
+    var src = Saw.ar(55) * 0.25 ! 2;
+    var mod = SinOsc.ar(120) * 1500;
+    var sig = FSDispersion.ar(src, center: 2500 + mod, spread: 1.2, q: 3.0);
+    sig * 0.4;
+}.play;
+)
+x.free;
+::

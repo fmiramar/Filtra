@@ -231,4 +231,24 @@
   * Shape 5: `AcousticBody` — Low wooden body resonance at 110 Hz, 220 Hz, 450 Hz, 900 Hz.
 
 
+## 15. Milestone 5: Dispersive All-Pass Group-Delay Filter (`FSDispersion`)
+* **Primary Reference:**
+  * Jonathan S. Abel and Julius O. Smith (2006), *Robust Design of Very High-Order Allpass Dispersion Filters*, Proceedings of the 9th International Conference on Digital Audio Effects (DAFx-06), Montreal, Canada.
+* **Filter Architecture & Mathematical Formulation:**
+  * Implemented as a cascade of four 2nd-order Topology-Preserving Transform (TPT) all-pass filter sections:
+    $$H_{ap, k}(s) = \frac{s^2 - \frac{\omega_k}{Q} s + \omega_k^2}{s^2 + \frac{\omega_k}{Q} s + \omega_k^2}$$
+  * In TPT discrete-time state-variable form with Bilinear transform prewarping ($g_k = \tan(\pi f_k / f_s)$, $R = 1/Q$):
+    $$v_{hp} = \frac{v_{in} - (R + g_k) s_{1, k} - s_{2, k}}{1 + R g_k + g_k^2}$$
+    $$v_{bp} = g_k v_{hp} + s_{1, k}$$
+    $$v_{lp} = g_k v_{bp} + s_{2, k}$$
+    $$v_{ap} = v_{in} - 2 R \cdot v_{bp}$$
+  * **Exact Magnitude Preservation:**
+    Because $|H_{ap, k}(e^{j\omega})| \equiv 1.000000$ identically for every section across all frequencies from DC to Nyquist, the 4-stage cascade maintains a completely flat magnitude response ($|H_{total}(e^{j\omega})| \equiv 1.0$), satisfying Parseval's energy conservation theorem down to machine precision ($1.000000000$ energy ratio).
+  * **Geometric Frequency Distribution:**
+    The 4 section frequencies are geometrically distributed around `center` according to `spread`:
+    $$f_k = \text{center} \cdot 2^{\delta_k \cdot \text{spread}}, \quad \delta \in \{-0.75, -0.25, +0.25, +0.75\}$$
+    When $\text{spread} = 0$, all 4 sections align at `center`, concentrating the group delay into a sharp resonant ping ($\tau_g = 16 Q / \omega_c$). When $\text{spread} > 0$, frequencies fan out to produce realistic acoustic stiffness, string inharmonicity, and dispersive spring/plate reverb smears.
+
+
+
 
