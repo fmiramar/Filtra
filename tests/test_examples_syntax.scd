@@ -2,8 +2,9 @@
 var f1 = thisProcess.interpreter.compileFile("examples/MS20_Complete_Audition.scd");
 var f2 = thisProcess.interpreter.compileFile("examples/MS20_Audition_GUI.scd");
 var f3 = thisProcess.interpreter.compileFile("examples/MS20Circuit_demo.scd");
+var f4 = thisProcess.interpreter.compileFile("examples/wasp_basic.scd");
 
-if (f1.notNil and: { f2.notNil } and: { f3.notNil }) {
+if (f1.notNil and: { f2.notNil } and: { f3.notNil } and: { f4.notNil }) {
     ("PASS: All example scripts compile with zero syntax errors!").postln;
     0.exit;
 } {

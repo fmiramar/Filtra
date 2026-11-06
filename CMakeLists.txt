@@ -37,6 +37,7 @@ set(MS20_PLUGIN_SOURCES
     src/MS20Diode.cpp
     src/MS20OTA.cpp
     src/MS20Circuit.cpp
+    src/FSWasp.cpp
 )
 
 add_library(MS20Filters MODULE ${MS20_PLUGIN_SOURCES})
