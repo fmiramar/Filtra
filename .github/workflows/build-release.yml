@@ -51,18 +51,17 @@ jobs:
           rm -f "pkg/${PKG_NAME}/Extensions/Filtra/MS20Filters.quark"
           cp README.md LICENSE SOURCES.md "pkg/${PKG_NAME}/" 2>/dev/null || true
           
-          cat << 'EOF' > "pkg/${PKG_NAME}/README-INSTALL.txt"
-Filtra - A SuperCollider UGen Suite for Filter and Resonance
-============================================================
-
-Installation:
-1. Open SuperCollider and run:
-       Platform.userExtensionDir.postln;
-2. Copy the enclosed 'Extensions/Filtra' folder into that directory.
-3. Recompile class library in SuperCollider (Cmd + Shift + L on macOS, Ctrl + Shift + L on Linux).
-4. Run audition examples from the 'examples/' folder or open the guide:
-       Guides/Filtra
-EOF
+          printf "%s\n" \
+            "Filtra - A SuperCollider UGen Suite for Filter and Resonance" \
+            "============================================================" \
+            "" \
+            "Installation:" \
+            "1. Open SuperCollider and run:" \
+            "       Platform.userExtensionDir.postln;" \
+            "2. Copy the enclosed 'Extensions/Filtra' folder into that directory." \
+            "3. Recompile class library in SuperCollider (Cmd+Shift+L on macOS, Ctrl+Shift+L on Linux)." \
+            "4. Explore examples/ or open the guide in SuperCollider: Guides/Filtra" \
+            > "pkg/${PKG_NAME}/README-INSTALL.txt"
 
           cd pkg
           zip -r "${PKG_NAME}.zip" "${PKG_NAME}"
