@@ -1,4 +1,4 @@
-# FilterSuite for SuperCollider
+# Filtra — A SuperCollider UGen Suite for Filter and Resonance
 
 A physically informed, historically authentic suite of real-time SuperCollider server UGens modeling classic vintage synthesizer filters and original digital virtual analog topologies.
 
