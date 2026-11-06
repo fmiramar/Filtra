@@ -1,6 +1,6 @@
 // =====================================================================
-// wasp_basic.scd: FSWasp Stage W1 Basic Audition & Demonstration
-// Stage W1: Linear small-signal EDP Wasp state-variable filter model
+// wasp_basic.scd: FSWasp Basic Audition & Demonstration (Stage W1 & W2)
+// Virtual Analog Model of the EDP Wasp State-Variable Filter (DAFx 2022)
 // Reference: Köper, Holters, Esqueda, Parker (DAFx 2022)
 // =====================================================================
 
@@ -54,5 +54,16 @@ s.waitForBoot({
     3.wait;
     x.free;
 
-    "FSWasp basic audition complete.".postln;
+    "--- 5. FSWasp Stage W2 Nonlinear Drive Sweep (OTA & CMOS Saturation) ---".postln;
+    x = {
+        var src = Saw.ar([110, 110.2]) * 0.3;
+        var drive = Line.kr(1.0, 5.0, 4);
+        var sig = FSWasp.ar(src, freq: 1200, res: 0.75, drive: drive, mode: 0);
+        sig * 0.25
+    }.play;
+
+    4.wait;
+    x.free;
+
+    "FSWasp audition complete.".postln;
 });

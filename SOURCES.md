@@ -103,3 +103,35 @@
     * Passband ripple: $< 0.0005\text{ dB}$ from 20 Hz to 20 kHz.
     * Computational complexity: only 8 multiplications per sample total (4 for upsampling, 4 for decimation), with minimal phase delay and zero block-buffering latency.
   * Supported optionally via `oversample: 1` across all three nonlinear models (`MS20Diode`, `MS20Circuit`, `MS20OTA`).
+
+
+## 11. Milestone 1: EDP Wasp State-Variable VCF (`FSWasp` Stage W1 & W2)
+* **Primary Reference:**
+  * L. Köper, M. Holters, F. Esqueda, and J. D. Parker (2022), *A Virtual Analog Model of the EDP Wasp VCF*, Proceedings of the 25th International Conference on Digital Audio Effects (DAFx20in22), Vienna, Austria, September 2022.
+* **Circuit Topology & Modeled Revision:**
+  * Modeled after the Doepfer-derived circuit revision analyzed by Köper et al., featuring CA3080 Operational Transconductance Amplifiers (OTAs) and CD4069 unbuffered CMOS inverters.
+  * Node Mapping:
+    * Summing node: Inverter IC1 (CD4069) acts as summing amplifier providing the High-Pass (HP) output.
+    * Integrator 1: OTA IC2 + Inverter IC3 (with feedback capacitor $C_3 = 330\text{ pF}$) integrates $v_{HP}$, providing the Band-Pass (BP) output ($v_{IC3}$).
+    * Integrator 2: OTA IC4 + Inverter IC5 (with feedback capacitor $C_4 = 330\text{ pF}$) integrates $v_{BP}$, providing the Low-Pass (LP) output ($v_{IC5}$).
+  * Resonance Potentiometer Network ($R_{res} = 50\text{ k}\Omega, R_{13} = 1\text{ M}\Omega, R_{14} = 1\text{ k}\Omega, R_{15} = 100\text{ k}\Omega, R_4 = 27\text{ k}\Omega, C_7 = 0.22\text{ }\mu\text{F}$):
+    * Analytical damping:
+      $$k_{res} = \frac{1}{Q} = \Re(H_1(j\omega_c)) + R_2 C_2 \omega_c$$
+      where $R_2 C_2 = 27\text{ k}\Omega \times 100\text{ pF} = 2.7\text{ }\mu\text{s}$. Damping varies continuously from $\sim 0.96$ ($Q \approx 1.04$) down to $\sim 0.012$ ($Q \approx 84$).
+* **Stage W1: Linear Small-Signal State-Variable Discretization:**
+  * Topology-Preserving Transform (TPT / Trapezoidal) state equations:
+    $$v_{HP} = -(v_{in} + (k_{res} + g) s_1 + s_2) / (1 + k_{res} g + g^2)$$
+    $$v_{BP} = g v_{HP} + s_1$$
+    $$v_{LP} = g v_{BP} + s_2$$
+  * State update: $s_1[n+1] = 2 v_{BP} - s_1[n]$, $s_2[n+1] = 2 v_{LP} - s_2[n]$.
+* **Stage W2: Circuit-Informed Nonlinear OTA & CMOS Model:**
+  * OTA CA3080 differential input saturation:
+    $$f_{ota}(x) = \frac{\tanh(\alpha x)}{\alpha}$$
+  * CD4069 unbuffered CMOS inverter transfer function:
+    $$f_{cmos}(x) = \frac{x}{\sqrt{1 + (\beta x)^2}}$$
+    where $\alpha = \text{drive}$ and $\beta = 0.5 \cdot \text{drive}$.
+  * Implicit 1-D scalar loop at summing node IC1:
+    $$F(v_{HP}) = v_{HP} + f_{cmos}\left(v_{in} + k_{res} f_d(v_{BP}(v_{HP})) + v_{LP}(v_{HP})\right) = 0$$
+    Monotonically increasing ($F'(v) \ge 1$), strictly guaranteed unique real root, solved in max 4 iterations via Newton-Raphson to machine precision ($< 10^{-6}$).
+  * High-drive harmonic compression: higher drive compresses fundamental crest factor and produces authentic odd-order analog warmth.
+  * Small-signal convergence: converges to Stage W1 linear model to within $< 10^{-7}$ for quiet signals.

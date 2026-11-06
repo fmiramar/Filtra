@@ -4,9 +4,9 @@
 
 namespace fs {
 
-// FSWasp: Virtual Analog Model of the EDP Wasp VCF (Stage W1: Linear Small-Signal)
+// FSWasp: Virtual Analog Model of the EDP Wasp VCF (Stage W1/W2: Linear and Nonlinear Circuit Model)
 // Reference: L. Köper, M. Holters, F. Esqueda, J. D. Parker (2022),
-// "A Virtual Analog Model of the EDP Wasp VCF", DAFx 2022, Sections 2-3.
+// "A Virtual Analog Model of the EDP Wasp VCF", DAFx 2022, Sections 2-4.
 struct FSWasp : public Unit {
     float m_freq;
     float m_res;
